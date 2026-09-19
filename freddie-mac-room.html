@@ -1,0 +1,1235 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#0D1524">
+<title>Freddie Mac Tabletop — Room view</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root{
+  --bg:#0D1524; --bg-2:#131E31; --veil:rgba(13,21,36,.94);
+  --panel:rgba(17,27,45,.84); --panel-solid:#111B2D;
+  --line:rgba(147,168,201,.18); --line-strong:rgba(147,168,201,.38);
+  --text:#E8EDF6; --muted:#93A4BE; --dim:#66779A;
+  --gold:#F1C15C; --gold-ink:#1A1405;
+  --inflow:#47C1A0; --outflow:#E8836A; --req:#7FA8EA;
+  --slab:#3A4E6C; --slab-edge:#9DB4D6;
+  --shadow:0 14px 44px rgba(0,0,0,.45);
+  --hemi-sky:#3b4f70; --hemi-ground:#0D1524;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#EDF0F5; --bg-2:#FFFFFF; --veil:rgba(237,240,245,.94);
+    --panel:rgba(255,255,255,.86); --panel-solid:#FFFFFF;
+    --line:rgba(20,33,61,.12); --line-strong:rgba(20,33,61,.3);
+    --text:#14213D; --muted:#5A6A85; --dim:#8A98B0;
+    --gold:#C48F12; --gold-ink:#FFFFFF;
+    --inflow:#149B7B; --outflow:#CF5A3E; --req:#3D6BD0;
+    --slab:#AAB9CF; --slab-edge:#3C4E6B;
+    --shadow:0 14px 44px rgba(20,33,61,.18);
+    --hemi-sky:#ffffff; --hemi-ground:#c9d2e0;
+  }
+}
+:root[data-theme="light"]{
+  --bg:#EDF0F5; --bg-2:#FFFFFF; --veil:rgba(237,240,245,.94);
+  --panel:rgba(255,255,255,.86); --panel-solid:#FFFFFF;
+  --line:rgba(20,33,61,.12); --line-strong:rgba(20,33,61,.3);
+  --text:#14213D; --muted:#5A6A85; --dim:#8A98B0;
+  --gold:#C48F12; --gold-ink:#FFFFFF;
+  --inflow:#149B7B; --outflow:#CF5A3E; --req:#3D6BD0;
+  --slab:#AAB9CF; --slab-edge:#3C4E6B;
+  --shadow:0 14px 44px rgba(20,33,61,.18);
+  --hemi-sky:#ffffff; --hemi-ground:#c9d2e0;
+}
+html,body{height:100%}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 "IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+button{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+
+#cam{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;display:none;background:#000}
+#cam.mirror{transform:scaleX(-1)}
+[hidden]{display:none!important}
+
+.start{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:var(--veil);overflow:auto}
+.start-card{max-width:440px;width:100%;background:var(--panel-solid);border:1px solid var(--line);border-radius:20px;padding:22px 22px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
+.start-card .eyebrow{font:600 10.5px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+.start-card h2{margin:0;font:700 26px/1.1 Archivo,system-ui,sans-serif;letter-spacing:-.01em}
+.start-card p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.5}
+.start-card ul{margin:0;padding-left:18px;display:flex;flex-direction:column;gap:7px;font-size:13.5px;line-height:1.4}
+.start-card li b{color:var(--gold)}
+.start-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
+.start-actions .btn{padding:12px 16px;font-size:14px}
+#hcur{position:fixed;left:0;top:0;z-index:8;pointer-events:none;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px}
+#hcur .ring{width:34px;height:34px;border-radius:50%;border:2.5px solid var(--gold);background:radial-gradient(circle,rgba(241,193,92,.4) 0 28%,transparent 30%);box-shadow:0 0 0 2px rgba(0,0,0,.28);position:relative;transition:transform .12s}
+#hcur .ring::after{content:"";position:absolute;inset:-7px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--p,0)*1turn),transparent 0);-webkit-mask:radial-gradient(circle,transparent 0 60%,#000 61%);mask:radial-gradient(circle,transparent 0 60%,#000 61%)}
+#hcur.pinch .ring{background:var(--gold);transform:scale(.78)}
+#hcur.open .ring{border-style:dashed;transform:scale(1.15)}
+#hcur .tag{font:600 11px/1 "IBM Plex Sans",system-ui,sans-serif;padding:5px 9px;border-radius:999px;background:var(--panel-solid);border:1px solid var(--line-strong);color:var(--text);white-space:nowrap}
+#hcur .tag:empty{display:none}
+.status{position:fixed;left:16px;top:calc(92px + env(safe-area-inset-top,0px));z-index:5;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
+.status span{font:600 10.5px/1 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.04em;padding:6px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--muted);backdrop-filter:blur(10px)}
+.status span[data-v="ok"]{color:var(--inflow);border-color:var(--inflow)}
+.status span[data-v="no"]{color:var(--outflow);border-color:var(--outflow)}
+@media (max-width:820px){.status{top:calc(120px + env(safe-area-inset-top,0px));left:12px}}
+
+#stage{position:fixed;inset:0;z-index:1;touch-action:none}
+#stage canvas{display:block;width:100%;height:100%}
+#nogl{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:24px;color:var(--muted);z-index:1}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;pointer-events:none}
+.topbar > *{pointer-events:auto}
+.brand{display:flex;flex-direction:column;gap:3px;min-width:0}
+.brand .eyebrow{font:600 10.5px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.brand h1{margin:0;font:700 18px/1.1 Archivo,system-ui,sans-serif;letter-spacing:-.01em;color:var(--text);text-wrap:balance}
+.readout{margin-left:auto;display:flex;align-items:baseline;gap:12px;padding:8px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.readout .q{font:700 22px/1 Archivo,system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
+.readout .ni{font:500 12.5px/1.25 "IBM Plex Sans",system-ui,sans-serif;color:var(--muted)}
+.readout .ni b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.readout .ni .sc{color:var(--gold);font-weight:600}
+.actions{display:flex;gap:8px;flex:0 0 auto}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:12px;border:1px solid var(--line-strong);background:var(--panel);color:var(--text);cursor:pointer;font:600 13px/1 "IBM Plex Sans",system-ui,sans-serif;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);white-space:nowrap}
+.btn:hover{border-color:var(--gold)}
+.btn[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+.btn.primary{background:var(--gold);color:var(--gold-ink);border-color:transparent}
+.btn.primary:hover{filter:brightness(1.06)}
+.btn svg{width:15px;height:15px;flex:0 0 auto}
+
+.console{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:14px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--veil) 70%,transparent)}
+.console-inner{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
+.console-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
+.timeline{display:flex;align-items:center;gap:6px;overflow-x:auto;padding:2px 0;scrollbar-width:none;flex:1 1 auto;min-width:0}
+.timeline::-webkit-scrollbar{display:none}
+.chip{flex:0 0 auto;padding:8px 11px;border-radius:999px;border:1px solid var(--line-strong);background:var(--panel);color:var(--muted);font:600 12px/1 "IBM Plex Mono",ui-monospace,monospace;cursor:pointer;letter-spacing:.02em}
+.chip:hover{border-color:var(--gold);color:var(--text)}
+.chip[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink);border-color:transparent}
+.chip.play{display:inline-flex;align-items:center;justify-content:center;width:34px;height:31px;padding:0}
+.chip.play svg{width:12px;height:12px}
+.rowtools{display:flex;align-items:center;gap:8px;flex:0 0 auto}
+.link{background:none;border:0;padding:6px 8px;color:var(--muted);cursor:pointer;font:600 12px/1 "IBM Plex Sans",system-ui,sans-serif;border-radius:8px}
+.link:hover{color:var(--text)}
+.badge{display:none;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:var(--gold);color:var(--gold-ink);font:600 11px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.badge.on{display:inline-flex}
+
+.levers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
+.console.collapsed .levers{display:none}
+.lever{padding:10px 12px 9px;border-radius:14px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;flex-direction:column;gap:6px;min-width:0}
+.lever.active{border-color:var(--gold)}
+.lever .lh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
+.lever .ln{font:600 10.5px/1.2 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lever .lv{font:700 15px/1 Archivo,system-ui,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
+.lever.active .lv{color:var(--gold)}
+.lever .lf{font:400 11px/1.3 "IBM Plex Mono",ui-monospace,monospace;color:var(--dim);min-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lever input[type=range]{width:100%;margin:2px 0 0;accent-color:var(--gold);cursor:pointer}
+
+.drawer{position:fixed;z-index:7;top:calc(78px + env(safe-area-inset-top,0px));right:16px;bottom:calc(var(--console-h,210px) + 6px);width:400px;max-width:calc(100vw - 32px);display:flex;flex-direction:column;background:var(--panel-solid);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);transform:translateX(calc(100% + 24px));transition:transform .28s cubic-bezier(.2,.7,.2,1);overflow:hidden}
+.drawer.open{transform:none}
+.drawer-h{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.drawer-h h2{margin:0;font:700 16px/1.2 Archivo,system-ui,sans-serif;flex:1 1 auto;min-width:0}
+.drawer-h .sub{font:500 11px/1.2 "IBM Plex Sans",system-ui,sans-serif;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
+.iconbtn{width:32px;height:32px;border-radius:10px;border:1px solid var(--line);background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);flex:0 0 auto}
+.iconbtn:hover{color:var(--text);border-color:var(--line-strong)}
+.iconbtn svg{width:14px;height:14px}
+.drawer-b{overflow:auto;padding:14px 16px 22px;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:16px}
+.drawer-b > *{flex:0 0 auto}
+.note{font:400 12px/1.5 "IBM Plex Sans",system-ui,sans-serif;color:var(--muted);margin:0}
+.note a{color:var(--req)}
+h3.sec{margin:0;font:600 11px/1.2 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tablewrap{overflow-x:auto}
+table.recon{width:100%;border-collapse:collapse;font:12.5px/1.35 "IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.recon th{font:600 10.5px/1.2 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;padding:6px 4px;border-bottom:1px solid var(--line-strong);white-space:nowrap}
+.recon th:first-child{text-align:left}
+.recon td{padding:6px 4px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;color:var(--text)}
+.recon td:first-child{text-align:left;color:var(--muted);font-family:"IBM Plex Sans",system-ui,sans-serif;white-space:normal;padding-right:8px}
+.recon tr.total td{font-weight:600;color:var(--text)}
+.recon tr.total td:first-child{color:var(--text)}
+.recon td.chg{color:var(--gold);font-weight:500}
+.recon td.zero{color:var(--dim)}
+.recon td.est::after{content:" ≈";color:var(--dim)}
+.kv{display:grid;grid-template-columns:1fr auto;gap:7px 14px;font:12.5px/1.35 "IBM Plex Sans",system-ui,sans-serif;margin:0}
+.kv dt{color:var(--muted);margin:0}
+.kv dd{margin:0;text-align:right;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;color:var(--text)}
+.kv dd.gold{color:var(--gold)}
+.big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
+.big .v{font:700 30px/1 Archivo,system-ui,sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.big .d{font:500 12.5px/1.3 "IBM Plex Sans",system-ui,sans-serif;color:var(--muted)}
+.big .d b{color:var(--gold);font-weight:600}
+.swatch{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px;vertical-align:1px}
+.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font:500 12.5px/1.3 "IBM Plex Sans",system-ui,sans-serif}
+.toggle input{accent-color:var(--gold);width:18px;height:18px;margin:0}
+.srcs{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font:400 12px/1.45 "IBM Plex Sans",system-ui,sans-serif}
+.srcs a{color:var(--req);text-decoration:none;border-bottom:1px solid transparent}
+.srcs a:hover{border-bottom-color:var(--req)}
+.foot{font:400 11px/1.5 "IBM Plex Sans",system-ui,sans-serif;color:var(--dim);margin:0}
+
+.toast{position:fixed;left:50%;top:calc(92px + env(safe-area-inset-top,0px));transform:translate(-50%,-8px);z-index:9;max-width:min(92vw,480px);padding:10px 14px;border-radius:12px;background:var(--panel-solid);border:1px solid var(--line-strong);box-shadow:var(--shadow);font:500 13px/1.4 "IBM Plex Sans",system-ui,sans-serif;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.arhint{position:fixed;left:50%;bottom:calc(240px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:8;display:none;padding:10px 16px;border-radius:999px;background:var(--panel);border:1px solid var(--line-strong);backdrop-filter:blur(12px);font:600 13px/1.2 "IBM Plex Sans",system-ui,sans-serif;white-space:nowrap}
+.arhint.show{display:block}
+
+@media (max-width:820px){
+  .topbar{flex-wrap:wrap;gap:8px 10px;padding-left:12px;padding-right:12px}
+  .brand h1{font-size:15px}
+  .brand .eyebrow{font-size:10px}
+  .readout{order:3;flex:1 1 100%;margin-left:0;justify-content:space-between;padding:7px 12px}
+  .readout .q{font-size:18px}
+  .actions{margin-left:auto}
+  .btn{padding:8px 11px}
+  .btn .lbl{display:none}
+  .console{padding-left:12px;padding-right:12px}
+  .levers{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .drawer{top:auto;left:0;right:0;bottom:0;width:auto;max-width:none;height:72vh;border-radius:18px 18px 0 0;transform:translateY(105%);padding-bottom:env(safe-area-inset-bottom,0px)}
+  .drawer.open{transform:none}
+  .arhint{bottom:calc(260px + env(safe-area-inset-bottom,0px))}
+}
+@media (prefers-reduced-motion: reduce){
+  .drawer,.toast{transition:none}
+}
+</style>
+</head>
+<body>
+<video id="cam" playsinline muted autoplay aria-hidden="true"></video>
+<div id="stage" aria-label="3D view of Freddie Mac quarterly results on a table" role="img"></div>
+<div id="nogl">
+  <div>
+    <p style="margin:0 0 6px;font:700 18px/1.2 Archivo,system-ui,sans-serif;color:var(--text)">The 3D engine didn't load</p>
+    <p class="note">Check your connection and reload. The reconciliation panel still works from the top-right button.</p>
+  </div>
+</div>
+
+<header class="topbar">
+  <div class="brand">
+    <span class="eyebrow">Quarterly results · public filings</span>
+    <h1>Freddie Mac Tabletop</h1>
+  </div>
+  <div class="readout" aria-live="polite">
+    <span class="q" id="roQ">2Q 2026</span>
+    <span class="ni" id="roNI">Net income <b>$3.84B</b></span>
+  </div>
+  <div class="actions">
+    <button class="btn" id="btnRecon" aria-pressed="false" aria-label="Open reconciliation">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3h12M2 8h12M2 13h8"/></svg><span class="lbl">Reconcile</span>
+    </button>
+    <button class="btn primary" id="btnAR" aria-label="Start room view">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 5V2h3M11 2h3v3M14 11v3h-3M5 14H2v-3"/><path d="M8 4.5 11.5 6.5v3.5L8 12 4.5 10V6.5z"/></svg><span class="lbl">Room view</span>
+    </button>
+  </div>
+</header>
+
+<div class="status" id="status" hidden><span id="st-cam"></span><span id="st-motion"></span><span id="st-hands"></span></div>
+<div id="hcur" hidden><div class="ring"></div><span class="tag"></span></div>
+<div class="start" id="start">
+  <div class="start-card">
+    <span class="eyebrow">Freddie Mac Tabletop</span>
+    <h2>Room view</h2>
+    <p>Your camera becomes the backdrop and the scene holds its place as you turn the phone. Then use a hand in front of the lens:</p>
+    <ul>
+      <li><b>Pinch</b> thumb and index, then move — turns and tilts the scene</li>
+      <li><b>Open hand, swipe</b> left or right — previous / next quarter</li>
+      <li><b>Point</b> at a block and hold — opens its detail</li>
+      <li><b>Two hands pinching</b>, spread or squeeze — resize</li>
+    </ul>
+    <div class="start-actions">
+      <button class="btn primary" id="btnStart">Start · camera + motion</button>
+      <button class="btn" id="btnSkip">Table view instead</button>
+    </div>
+    <p class="foot">Safari on iPhone or Chrome on Android, opened from an https address. The camera feed and hand tracking run on the phone; nothing is uploaded.</p>
+  </div>
+</div>
+<div class="toast" id="toast" role="status"></div>
+
+<section class="console" id="console" aria-label="Controls">
+  <div class="console-inner">
+    <div class="console-row">
+      <div class="timeline" id="timeline" role="group" aria-label="Quarter"></div>
+      <div class="rowtools">
+        <span class="badge" id="badge">Scenario</span>
+        <button class="link" id="btnReset">Reset to reported</button>
+        <button class="link" id="btnLevers" aria-expanded="true">Hide levers</button>
+      </div>
+    </div>
+    <div class="levers" id="levers">
+      <div class="lever" id="lv-gfee">
+        <div class="lh"><label class="ln" for="in-gfee">SF guarantee fee</label><span class="lv" id="v-gfee">50 bps</span></div>
+        <input type="range" id="in-gfee" min="-10" max="10" step="1" value="0" aria-describedby="f-gfee">
+        <div class="lf" id="f-gfee">portfolio-wide · reported</div>
+      </div>
+      <div class="lever" id="lv-sf">
+        <div class="lh"><label class="ln" for="in-sf">SF reserve coverage</label><span class="lv" id="v-sf">19 bps</span></div>
+        <input type="range" id="in-sf" min="10" max="40" step="1" value="19" aria-describedby="f-sf">
+        <div class="lf" id="f-sf">allowance / loans · reported</div>
+      </div>
+      <div class="lever" id="lv-mf">
+        <div class="lh"><label class="ln" for="in-mf">MF reserve coverage</label><span class="lv" id="v-mf">36 bps</span></div>
+        <input type="range" id="in-mf" min="20" max="80" step="1" value="36" aria-describedby="f-mf">
+        <div class="lf" id="f-mf">allowance / loans · reported</div>
+      </div>
+      <div class="lever" id="lv-opex">
+        <div class="lh"><label class="ln" for="in-opex">Non-interest expense</label><span class="lv" id="v-opex">$2.10B</span></div>
+        <input type="range" id="in-opex" min="-15" max="15" step="1" value="0" aria-describedby="f-opex">
+        <div class="lf" id="f-opex">reported</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-h">
+    <button class="iconbtn" id="btnBack" aria-label="Back to reconciliation" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
+    <div style="flex:1 1 auto;min-width:0"><h2 id="dTitle">Reconciliation</h2><div class="sub" id="dSub">$ millions · 2Q 2026</div></div>
+    <button class="iconbtn" id="btnClose" aria-label="Close"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3 3 13"/></svg></button>
+  </div>
+  <div class="drawer-b" id="dBody"></div>
+</aside>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+/*@model-start*/
+// ---------- DATA: Freddie Mac quarterly results, $ millions unless noted ----------
+// Sources are Freddie Mac earnings releases (Form 8-K Exhibit 99.1), financial supplements and the
+// 2Q 2026 earnings presentation as filed with the SEC. Portfolio UPB in $ billions; rates in %/bps.
+const SRC = {
+  r1q25:{label:'1Q 2025 earnings release (May 1, 2025)',url:'https://www.sec.gov/Archives/edgar/data/1026214/000102621425000061/a20251qerexhibit991.htm'},
+  r3q24:{label:'3Q 2024 earnings release (Oct 30, 2024)',url:'https://www.sec.gov/Archives/edgar/data/1026214/000102621424000098/a20243qerexhibit991.htm'},
+  r4q25:{label:'4Q / full-year 2025 earnings release (Feb 12, 2026)',url:'https://www.sec.gov/Archives/edgar/data/1026214/000102621426000022/a20254qerexhibit991.htm'},
+  r2q26:{label:'2Q 2026 earnings release (Jul 30, 2026)',url:'https://www.sec.gov/Archives/edgar/data/1026214/000102621426000047/a2q2026erexhibit991.htm'},
+  s4q24:{label:'4Q 2024 financial results supplement',url:'https://www.sec.gov/Archives/edgar/data/1026214/000102621425000041/a4q2024financialsuppleme.htm'},
+  s4q25:{label:'4Q 2025 financial results supplement',url:'https://www.sec.gov/Archives/edgar/data/1026214/000102621426000022/a4q2025financialsuppleme.htm'},
+  s1q26:{label:'1Q 2026 financial supplement',url:'https://www.sec.gov/Archives/edgar/data/1026214/000102621426000028/a1q2026financialsuppleme.htm'},
+  p2q26:{label:'2Q 2026 earnings presentation (capital slides)',url:'https://www.sec.gov/Archives/edgar/data/1026214/000102621426000047/a2q2026earningspresentat.htm'},
+};
+const CAP = { sps:72.648, jrPref:14.109, adj:5.0, reqTotal2Q26:161, buffers2Q26:60, cet1min2Q26:57 }; // $ billions
+
+const QUARTERS = [
+ {id:'1Q24',label:'1Q 2024',end:'Mar 31, 2024',nii:4759,nonii:998,prov:-181,nie:-2122,tax:-688,ni:2766,oci:-25,nwEnd:50463,liq:120370,
+  noniiD:{g:496,inv:405,oth:97},nieD:{sal:421,ce:597,leg:787,oth:317},
+  sf:{nii:4488,nonii:-14,prov:-120,nie:-1925,tax:-484,ni:1945,ci:1940},mf:{nii:271,nonii:1012,prov:-61,nie:-197,tax:-204,ni:821,ci:801},
+  sfUPB:3043,mfUPB:443,sfSDQ:0.52,mfDQ:0.34,sfACL:20,mfACL:64,sfGfee:49,mfGfee:47,sfNew:62,sfPurch:53,sfRefi:9,mfNew:9,homes:194,units:85,
+  niy:null,hpi:null,pmms:6.79,reqCET1:99,reqEst:true,srcs:['r1q25','s4q24']},
+ {id:'2Q24',label:'2Q 2024',end:'Jun 30, 2024',nii:4928,nonii:1060,prov:-394,nie:-2134,tax:-695,ni:2765,oci:-5,nwEnd:53223,liq:123111,
+  noniiD:{g:383,inv:549,oth:128},nieD:{sal:420,ce:595,leg:768,oth:351},
+  sf:{nii:4635,nonii:459,prov:-315,nie:-1921,tax:-574,ni:2284,ci:2279},mf:{nii:293,nonii:601,prov:-79,nie:-213,tax:-121,ni:481,ci:481},
+  sfUPB:3058,mfUPB:447,sfSDQ:0.50,mfDQ:0.38,sfACL:21,mfACL:61,sfGfee:49,mfGfee:48,sfNew:85,sfPurch:74,sfRefi:11,mfNew:11,homes:257,units:92,
+  niy:null,hpi:null,pmms:6.86,reqCET1:101.5,reqEst:true,srcs:['r3q24','s4q24']},
+ {id:'3Q24',label:'3Q 2024',end:'Sep 30, 2024',nii:4999,nonii:839,prov:191,nie:-2183,tax:-741,ni:3105,oci:62,nwEnd:56390,liq:125871,
+  noniiD:{g:487,inv:243,oth:109},nieD:{sal:424,ce:620,leg:780,oth:359},
+  sf:{nii:4692,nonii:364,prov:99,nie:-1966,tax:-616,ni:2573,ci:2583},mf:{nii:307,nonii:475,prov:92,nie:-217,tax:-125,ni:532,ci:584},
+  sfUPB:3082,mfUPB:452,sfSDQ:0.54,mfDQ:0.39,sfACL:21,mfACL:49,sfGfee:49,mfGfee:49,sfNew:98,sfPurch:84,sfRefi:14,mfNew:15,homes:284,units:131,
+  niy:null,hpi:null,pmms:6.08,reqCET1:104,reqEst:true,srcs:['r3q24','s4q24']},
+ {id:'4Q24',label:'4Q 2024',end:'Dec 31, 2024',nii:5051,nonii:1278,prov:-92,nie:-2219,tax:-796,ni:3222,oci:-37,nwEnd:59575,liq:129038,
+  noniiD:{g:245,inv:879,oth:154},nieD:{sal:412,ce:544,leg:830,oth:433},
+  sf:{nii:4698,nonii:497,prov:-38,nie:-1971,tax:-631,ni:2555,ci:2554},mf:{nii:353,nonii:781,prov:-54,nie:-248,tax:-165,ni:667,ci:631},
+  sfUPB:3104,mfUPB:467,sfSDQ:0.59,mfDQ:0.40,sfACL:21,mfACL:46,sfGfee:49,mfGfee:51,sfNew:100,sfPurch:74,sfRefi:26,mfNew:30,homes:294,units:245,
+  niy:null,hpi:null,pmms:6.85,reqCET1:107,reqEst:false,srcs:['r4q25','r1q25','s4q24']},
+ {id:'1Q25',label:'1Q 2025',end:'Mar 31, 2025',nii:5102,nonii:750,prov:-280,nie:-2088,tax:-690,ni:2794,oci:34,nwEnd:62403,liq:132223,
+  noniiD:{g:440,inv:192,oth:118},nieD:{sal:423,ce:540,leg:817,oth:308},
+  sf:{nii:4753,nonii:165,prov:-228,nie:-1871,tax:-558,ni:2261,ci:2269},mf:{nii:349,nonii:585,prov:-52,nie:-217,tax:-132,ni:533,ci:559},
+  sfUPB:3115,mfUPB:467,sfSDQ:0.59,mfDQ:0.46,sfACL:21,mfACL:49,sfGfee:49,mfGfee:52,sfNew:78,sfPurch:62,sfRefi:16,mfNew:10,homes:224,units:89,
+  niy:0.60,hpi:[4.2,2.8],pmms:6.65,reqCET1:108,reqEst:true,srcs:['r1q25','s1q26']},
+ {id:'2Q25',label:'2Q 2025',end:'Jun 30, 2025',nii:5299,nonii:617,prov:-783,nie:-2158,tax:-588,ni:2387,oci:21,nwEnd:64811,liq:135051,
+  noniiD:{g:398,inv:119,oth:100},nieD:{sal:453,ce:511,leg:825,oth:369},
+  sf:{nii:4898,nonii:237,prov:-622,nie:-1905,tax:-516,ni:2092,ci:2101},mf:{nii:401,nonii:380,prov:-161,nie:-253,tax:-72,ni:295,ci:307},
+  sfUPB:3127,mfUPB:466,sfSDQ:0.55,mfDQ:0.47,sfACL:23,mfACL:52,sfGfee:49,mfGfee:53,sfNew:94,sfPurch:76,sfRefi:18,mfNew:12,homes:264,units:99,
+  niy:0.62,hpi:[1.3,0.4],pmms:6.77,reqCET1:109,reqEst:false,srcs:['r2q26','s1q26','p2q26']},
+ {id:'3Q25',label:'3Q 2025',end:'Sep 30, 2025',nii:5455,nonii:284,prov:-175,nie:-2116,tax:-675,ni:2773,oci:16,nwEnd:67600,liq:137459,
+  noniiD:{g:377,inv:-237,oth:144},nieD:{sal:423,ce:489,leg:839,oth:365},
+  sf:{nii:5047,nonii:-143,prov:-118,nie:-1868,tax:-571,ni:2347,ci:2353},mf:{nii:408,nonii:427,prov:-57,nie:-248,tax:-104,ni:426,ci:436},
+  sfUPB:3141,mfUPB:480,sfSDQ:0.57,mfDQ:0.51,sfACL:24,mfACL:43,sfGfee:50,mfGfee:54,sfNew:99,sfPurch:81,sfRefi:18,mfNew:25,homes:288,units:195,
+  niy:0.64,hpi:[0.7,0.9],pmms:6.30,reqCET1:111.5,reqEst:true,srcs:['r4q25','s1q26']},
+ {id:'4Q25',label:'4Q 2025',end:'Dec 31, 2025',nii:5547,nonii:217,prov:-52,nie:-2258,tax:-677,ni:2777,oci:7,nwEnd:70384,liq:140248,
+  noniiD:{g:377,inv:-283,oth:123},nieD:{sal:412,ce:542,leg:842,oth:462},
+  sf:{nii:5080,nonii:-178,prov:210,nie:-2005,tax:-609,ni:2498,ci:2497},mf:{nii:467,nonii:395,prov:-262,nie:-253,tax:-68,ni:279,ci:287},
+  sfUPB:3156,mfUPB:496,sfSDQ:0.59,mfDQ:0.44,sfACL:23,mfACL:46,sfGfee:50,mfGfee:56,sfNew:118,sfPurch:77,sfRefi:41,mfNew:29,homes:331,units:234,
+  niy:0.64,hpi:[0.5,1.4],pmms:6.15,reqCET1:114,reqEst:false,srcs:['r4q25','s4q25','p2q26']},
+ {id:'1Q26',label:'1Q 2026',end:'Mar 31, 2026',nii:5619,nonii:514,prov:320,nie:-2022,tax:-873,ni:3558,oci:-20,nwEnd:73922,liq:143032,
+  noniiD:{g:320,inv:42,oth:152},nieD:{sal:376,ce:441,leg:832,oth:373},
+  sf:{nii:5120,nonii:55,prov:311,nie:-1780,tax:-730,ni:2976,ci:2963},mf:{nii:499,nonii:459,prov:9,nie:-242,tax:-143,ni:582,ci:575},
+  sfUPB:3158,mfUPB:498,sfSDQ:0.60,mfDQ:0.43,sfACL:22,mfACL:42,sfGfee:50,mfGfee:58,sfNew:103,sfPurch:60,sfRefi:43,mfNew:13,homes:281,units:99,
+  niy:0.65,hpi:[2.3,2.4],pmms:null,reqCET1:115.5,reqEst:true,srcs:['r2q26','s1q26']},
+ {id:'2Q26',label:'2Q 2026',end:'Jun 30, 2026',nii:6010,nonii:-19,prov:880,nie:-2097,tax:-936,ni:3838,oci:9,nwEnd:77769,liq:146570,
+  noniiD:{g:288,inv:-426,oth:119},nieD:{sal:395,ce:507,leg:840,oth:355},
+  sf:{nii:5449,nonii:-349,prov:846,nie:-1870,tax:-799,ni:3277,ci:3280},mf:{nii:561,nonii:330,prov:34,nie:-227,tax:-137,ni:561,ci:567},
+  sfUPB:3172,mfUPB:505,sfSDQ:0.60,mfDQ:0.51,sfACL:19,mfACL:36,sfGfee:50,mfGfee:59,sfNew:110,sfPurch:74,sfRefi:36,mfNew:18,homes:306,units:133,
+  niy:0.69,hpi:null,pmms:null,reqCET1:117,reqEst:false,reqTotal:161,srcs:['r2q26','p2q26']},
+];
+
+function derive(q){
+  const netrev = q.nii + q.nonii;
+  const pretax = netrev + q.prov + q.nie;
+  const ni = pretax + q.tax;
+  const ci = ni + q.oci;
+  const nwStart = q.nwEnd - ci;
+  const rate = pretax !== 0 ? -q.tax / pretax : 0.21;
+  return Object.assign({}, q, { netrev, pretax, niCalc: ni, ci, nwStart, rate });
+}
+// Scenario levers: gfee = bps change to the Single-Family portfolio guarantee fee (annual, applied to the
+// quarter as 1/4); sfCov / mfCov = target allowance coverage in bps of each portfolio (moving coverage
+// books a reserve build or release in the quarter); opex = % change to non-interest expense.
+function scenario(q, L){
+  const d = {};
+  d.nii    = (L.gfee / 10000) * q.sfUPB * 1000 / 4;
+  d.provSF = -((L.sfCov - q.sfACL) / 10000) * q.sfUPB * 1000;
+  d.provMF = -((L.mfCov - q.mfACL) / 10000) * q.mfUPB * 1000;
+  d.prov   = d.provSF + d.provMF;
+  d.nie    = q.nie * (L.opex / 100);
+  const nii = q.nii + d.nii, nonii = q.nonii, prov = q.prov + d.prov, nie = q.nie + d.nie;
+  const netrev = nii + nonii;
+  const pretax = netrev + prov + nie;
+  const tax = -pretax * q.rate;
+  const ni = pretax + tax;
+  const ci = ni + q.oci;
+  const nwEnd = q.nwStart + ci;
+  const gap = q.reqCET1 * 1000 - nwEnd;                 // $M of net worth still to build to the CET1 requirement
+  const qtrs = gap <= 0 ? 0 : (ci > 0 ? gap / ci : Infinity);
+  const changed = Math.abs(d.nii) + Math.abs(d.prov) + Math.abs(d.nie) > 0.5;
+  return { nii, nonii, prov, nie, netrev, pretax, tax, ni, ci, nwEnd, gap, qtrs, d, changed,
+           provSF: q.sf.prov + d.provSF, provMF: q.mf.prov + d.provMF };
+}
+const Q = QUARTERS.map(derive);
+/*@model-end*/
+
+// ---------- formatting ----------
+const fmt = {
+  b:(m,d=2)=>{const v=m/1000;const s=Math.abs(v).toFixed(d);return v<0?`($${s}B)`:`$${s}B`;},
+  bB:(b,d=1)=>{const s=Math.abs(b).toFixed(d);return b<0?`($${s}B)`:`$${s}B`;},
+  m:(m)=>{const r=Math.round(m);const s=Math.abs(r).toLocaleString('en-US');return r<0?`(${s})`:s;},
+  md:(m)=>{const r=Math.round(m);if(r===0)return '—';const s=Math.abs(r).toLocaleString('en-US');return r>0?`+${s}`:`(${s})`;},
+  t:(b)=>b>=1000?`$${(b/1000).toFixed(2)}T`:`$${Math.round(b)}B`,
+  pct:(x,d=2)=>`${x.toFixed(d)}%`,
+  esc:(s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),
+};
+
+// ---------- app state ----------
+const state = {
+  qi: Q.length - 1,
+  levers: { gfee:0, sfCov:Q[Q.length-1].sfACL, mfCov:Q[Q.length-1].mfACL, opex:0 },
+  touched: { sf:false, mf:false },
+  countSPS: false,
+  drawer: null,      // null | 'recon' | id
+  playing: false,
+  selected: null,
+};
+const $ = (id)=>document.getElementById(id);
+const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function current(){ const q = Q[state.qi]; return { q, s: scenario(q, state.levers) }; }
+
+// ---------- console UI ----------
+function buildTimeline(){
+  const tl = $('timeline'); tl.innerHTML = '';
+  const play = document.createElement('button');
+  play.className = 'chip play'; play.id = 'btnPlay'; play.setAttribute('aria-label','Play through quarters');
+  play.innerHTML = '<svg viewBox="0 0 12 12" fill="currentColor"><path d="M2.5 1.5v9l8-4.5z"/></svg>';
+  play.addEventListener('click', togglePlay);
+  tl.appendChild(play);
+  Q.forEach((q,i)=>{
+    const b = document.createElement('button');
+    b.className = 'chip'; b.textContent = q.id; b.dataset.i = i;
+    b.setAttribute('aria-pressed', i===state.qi ? 'true':'false');
+    b.addEventListener('click', ()=>{ stopPlay(); setQuarter(i); });
+    tl.appendChild(b);
+  });
+}
+function setQuarter(i){
+  state.qi = Math.max(0, Math.min(Q.length-1, i));
+  const q = Q[state.qi];
+  if(!state.touched.sf) state.levers.sfCov = q.sfACL;
+  if(!state.touched.mf) state.levers.mfCov = q.mfACL;
+  $('in-sf').value = state.levers.sfCov; $('in-mf').value = state.levers.mfCov;
+  document.querySelectorAll('#timeline .chip[data-i]').forEach(c=>c.setAttribute('aria-pressed', +c.dataset.i===state.qi ? 'true':'false'));
+  const active = document.querySelector('#timeline .chip[aria-pressed="true"]');
+  if(active && active.scrollIntoView) active.scrollIntoView({block:'nearest', inline:'center', behavior: reduceMotion?'auto':'smooth'});
+  refresh();
+}
+let playTimer = null;
+function togglePlay(){ state.playing ? stopPlay() : startPlay(); }
+function startPlay(){
+  state.playing = true; $('btnPlay').innerHTML = '<svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 1.5h3v9H2zM7 1.5h3v9H7z"/></svg>'; $('btnPlay').setAttribute('aria-label','Pause');
+  if(state.qi === Q.length-1) setQuarter(0);
+  playTimer = setInterval(()=>{ if(state.qi >= Q.length-1){ stopPlay(); return; } setQuarter(state.qi+1); }, 1700);
+}
+function stopPlay(){
+  state.playing = false; clearInterval(playTimer); playTimer = null;
+  const p = $('btnPlay'); if(p){ p.innerHTML = '<svg viewBox="0 0 12 12" fill="currentColor"><path d="M2.5 1.5v9l8-4.5z"/></svg>'; p.setAttribute('aria-label','Play through quarters'); }
+}
+function bindLevers(){
+  $('in-gfee').addEventListener('input', e=>{ state.levers.gfee = +e.target.value; refresh(); });
+  $('in-sf').addEventListener('input', e=>{ state.levers.sfCov = +e.target.value; state.touched.sf = true; refresh(); });
+  $('in-mf').addEventListener('input', e=>{ state.levers.mfCov = +e.target.value; state.touched.mf = true; refresh(); });
+  $('in-opex').addEventListener('input', e=>{ state.levers.opex = +e.target.value; refresh(); });
+  $('btnReset').addEventListener('click', resetLevers);
+  $('btnLevers').addEventListener('click', ()=>{
+    const c = $('console'); c.classList.toggle('collapsed');
+    const open = !c.classList.contains('collapsed');
+    $('btnLevers').textContent = open ? 'Hide levers' : 'Show levers';
+    $('btnLevers').setAttribute('aria-expanded', open ? 'true':'false');
+    requestAnimationFrame(layoutViewport);
+  });
+}
+function resetLevers(){
+  const q = Q[state.qi];
+  state.levers = { gfee:0, sfCov:q.sfACL, mfCov:q.mfACL, opex:0 };
+  state.touched = { sf:false, mf:false };
+  $('in-gfee').value = 0; $('in-sf').value = q.sfACL; $('in-mf').value = q.mfACL; $('in-opex').value = 0;
+  refresh();
+}
+function updateLeverUI(q, s){
+  const L = state.levers;
+  // g-fee
+  $('v-gfee').textContent = `${q.sfGfee + L.gfee} bps`;
+  $('f-gfee').textContent = L.gfee===0 ? 'portfolio-wide · reported' : `${L.gfee>0?'+':''}${L.gfee} bps → ${fmt.md(s.d.nii)} NII / qtr`;
+  $('lv-gfee').classList.toggle('active', L.gfee!==0);
+  // SF coverage
+  $('v-sf').textContent = `${L.sfCov} bps`;
+  $('f-sf').textContent = L.sfCov===q.sfACL ? 'allowance / loans · reported' : `${fmt.md(-s.d.provSF)} reserve ${s.d.provSF<0?'build':'release'}`;
+  $('lv-sf').classList.toggle('active', L.sfCov!==q.sfACL);
+  // MF coverage
+  $('v-mf').textContent = `${L.mfCov} bps`;
+  $('f-mf').textContent = L.mfCov===q.mfACL ? 'allowance / loans · reported' : `${fmt.md(-s.d.provMF)} reserve ${s.d.provMF<0?'build':'release'}`;
+  $('lv-mf').classList.toggle('active', L.mfCov!==q.mfACL);
+  // opex
+  $('v-opex').textContent = fmt.b(-s.nie);
+  $('f-opex').textContent = L.opex===0 ? 'reported' : `${L.opex>0?'+':''}${L.opex}% → ${fmt.md(s.d.nie)} / qtr`;
+  $('lv-opex').classList.toggle('active', L.opex!==0);
+  $('badge').classList.toggle('on', s.changed);
+}
+function updateReadout(q, s){
+  $('roQ').textContent = q.label;
+  if(s.changed){
+    const dn = s.ni - q.ni;
+    $('roNI').innerHTML = `Net income <b>${fmt.b(s.ni)}</b> <span class="sc">${fmt.md(dn)}M</span> vs reported ${fmt.b(q.ni)}`;
+  } else {
+    $('roNI').innerHTML = `Net income <b>${fmt.b(q.ni)}</b> · net worth <b>${fmt.bB(q.nwEnd/1000)}</b>`;
+  }
+}
+
+// ---------- drawer (reconciliation + drill-downs) ----------
+function openDrawer(mode){
+  state.drawer = mode;
+  $('drawer').classList.add('open'); $('drawer').setAttribute('aria-hidden','false');
+  $('btnRecon').setAttribute('aria-pressed','true');
+  renderDrawer();
+  requestAnimationFrame(layoutViewport);
+}
+function closeDrawer(){
+  state.drawer = null;
+  $('drawer').classList.remove('open'); $('drawer').setAttribute('aria-hidden','true');
+  $('btnRecon').setAttribute('aria-pressed','false');
+  setSelected(null);
+  requestAnimationFrame(layoutViewport);
+}
+function renderDrawer(){
+  if(!state.drawer) return;
+  const { q, s } = current();
+  const body = $('dBody');
+  const back = $('btnBack');
+  if(state.drawer === 'recon'){
+    back.hidden = true;
+    $('dTitle').textContent = 'Reconciliation';
+    $('dSub').textContent = `$ millions · ${q.label} · quarter ended ${q.end}`;
+    body.innerHTML = reconHTML(q, s);
+  } else {
+    back.hidden = false;
+    const c = cardHTML(state.drawer, q, s);
+    $('dTitle').textContent = c.title; $('dSub').textContent = c.sub;
+    body.innerHTML = c.html;
+    const t = $('tglSPS'); if(t) t.addEventListener('change', e=>{ state.countSPS = e.target.checked; renderDrawer(); });
+  }
+}
+function row(label, rep, sc, opts={}){
+  const chg = Math.abs(sc-rep) > 0.5;
+  const cls = [opts.total?'total':''].join(' ');
+  const est = opts.est ? ' est' : '';
+  return `<tr class="${cls}"><td>${label}</td><td class="${est}">${fmt.m(rep)}</td><td class="${chg?'chg':''}${est}">${fmt.m(sc)}</td><td class="${chg?'chg':'zero'}">${fmt.md(sc-rep)}</td></tr>`;
+}
+function reconHTML(q, s){
+  const rows = [
+    row('Net interest income', q.nii, s.nii),
+    row('Non-interest income (loss)', q.nonii, s.nonii),
+    row('Net revenues', q.netrev, s.netrev, {total:true}),
+    row('(Provision) benefit for credit losses', q.prov, s.prov),
+    row('Non-interest expense', q.nie, s.nie),
+    row('Income before income tax', q.pretax, s.pretax, {total:true}),
+    row(`Income tax expense (${(q.rate*100).toFixed(1)}% effective)`, q.tax, s.tax),
+    row('Net income', q.ni, s.ni, {total:true}),
+    row('Other comprehensive income (loss)', q.oci, q.oci),
+    row('Comprehensive income', q.ci, s.ci, {total:true}),
+    row('Net worth, beginning of quarter', q.nwStart, q.nwStart),
+    row('Net worth, end of quarter', q.nwEnd, s.nwEnd, {total:true}),
+    row('Required CET1 capital (ERCF)', q.reqCET1*1000, q.reqCET1*1000, {est:q.reqEst}),
+    row('Net worth still to build to CET1 requirement', q.reqCET1*1000 - q.nwEnd, s.gap, {total:true}),
+  ].join('');
+  const qtrsRep = (q.reqCET1*1000 - q.nwEnd) / q.ci;
+  const pace = s.changed
+    ? `At the scenario's ${fmt.b(s.ci)} of quarterly comprehensive income, closing the gap takes <b>${isFinite(s.qtrs)? s.qtrs.toFixed(1)+' quarters' : 'never'}</b> (reported pace: ${qtrsRep.toFixed(1)}), holding the requirement flat.`
+    : `At the reported ${fmt.b(q.ci)} of quarterly comprehensive income, closing the gap takes <b>${qtrsRep.toFixed(1)} quarters</b>, holding the requirement flat.`;
+  const segs = `
+    <h3 class="sec">Segments (reported net income)</h3>
+    <dl class="kv">
+      <dt><span class="swatch" style="background:var(--slab-edge)"></span>Single-Family</dt><dd>${fmt.m(q.sf.ni)}</dd>
+      <dt><span class="swatch" style="background:var(--slab)"></span>Multifamily</dt><dd>${fmt.m(q.mf.ni)}</dd>
+      <dt>Consolidated</dt><dd>${fmt.m(q.sf.ni + q.mf.ni)}</dd>
+    </dl>`;
+  const notes = `
+    <h3 class="sec">How the scenario is computed</h3>
+    <p class="note">Every lever is arithmetic on disclosed figures — no model behind the curtain. Guarantee fee: bps × Single-Family portfolio UPB (${fmt.t(q.sfUPB)}) ÷ 4. Reserve coverage: (target − reported bps) × portfolio UPB, booked as a reserve build or release in the quarter. Expense: a flat % on reported non-interest expense. Tax follows the quarter's effective rate; OCI is held at reported. ${q.reqEst ? 'The CET1 requirement for this quarter (≈) is interpolated between the disclosed year-end and mid-year points.' : 'The CET1 requirement is as disclosed in the 2Q 2026 earnings presentation.'}</p>
+    <p class="note">The tower and the waterfall use different vertical scales (net worth is ~13× quarterly revenue). Net worth here is GAAP equity; regulatory capital deducts the $72.6B senior preferred stock — tap the tower for that view.</p>
+    <p class="note">Room view holds the scene in place with the phone's motion sensors (rotation only — walking around it shifts it) and reads your hand with on-device tracking. Hand tracking needs a reasonably lit room and the hand within about arm's length of the lens.</p>`;
+  const srcs = `<h3 class="sec">Sources</h3><ul class="srcs">${q.srcs.map(k=>`<li><a href="${SRC[k].url}" target="_blank" rel="noopener">${SRC[k].label}</a></li>`).join('')}<li><a href="${SRC.p2q26.url}" target="_blank" rel="noopener">${SRC.p2q26.label}</a> — required CET1 capital series</li></ul>
+    <p class="foot">Independent visualization built from Freddie Mac's public SEC filings. Not affiliated with or endorsed by Freddie Mac or FHFA. Scenario figures are illustrative arithmetic, not forecasts.</p>`;
+  return `<div class="tablewrap"><table class="recon"><thead><tr><th>Line</th><th>Reported</th><th>Scenario</th><th>Δ</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="note">${pace}</p>${segs}${notes}${srcs}`;
+}
+function cardHTML(id, q, s){
+  const kv = (pairs)=>`<dl class="kv">${pairs.map(([k,v,cls])=>`<dt>${k}</dt><dd class="${cls||''}">${v}</dd>`).join('')}</dl>`;
+  const src = (keys)=>`<h3 class="sec">Source</h3><ul class="srcs">${keys.map(k=>`<li><a href="${SRC[k].url}" target="_blank" rel="noopener">${SRC[k].label}</a></li>`).join('')}</ul>`;
+  const big = (v, d)=>`<div class="big"><span class="v">${v}</span><span class="d">${d}</span></div>`;
+  switch(id){
+    case 'nii': return { title:'Net interest income', sub:`${q.label} · $ millions`, html:
+      big(fmt.b(s.nii), s.changed && Math.abs(s.d.nii)>0.5 ? `reported ${fmt.b(q.nii)} · <b>${fmt.md(s.d.nii)}M</b> from the guarantee-fee lever` : `${q.niy? 'net interest yield '+fmt.pct(q.niy):'reported'}`) +
+      kv([['Single-Family', fmt.m(q.sf.nii)],['Multifamily', fmt.m(q.mf.nii)],['Consolidated', fmt.m(q.nii)],['SF portfolio guarantee fee (avg est.)', `${q.sfGfee} bps`],['MF guarantee fee charged (period end)', `${q.mfGfee} bps`]]) +
+      `<p class="note">Guarantee income on the credit-guarantee book is earned inside net interest income once loans are securitized. A ${state.levers.gfee||10} bps portfolio-wide change on ${fmt.t(q.sfUPB)} of Single-Family UPB is worth ${fmt.md(((state.levers.gfee||10)/10000)*q.sfUPB*1000/4)}M per quarter — real repricing phases in with new acquisitions, so this is a run-rate view.</p>` + src(q.srcs) };
+    case 'nonii': return { title:'Non-interest income (loss)', sub:`${q.label} · $ millions`, html:
+      big(fmt.b(q.nonii), 'reported · not levered') +
+      kv([['Guarantee income', fmt.m(q.noniiD.g)],['Investment gains (losses), net', fmt.m(q.noniiD.inv)],['Other income', fmt.m(q.noniiD.oth)],['Total', fmt.m(q.nonii)]]) +
+      `<p class="note">The volatile line: mark-to-market on investments and hedges swings this between ${fmt.b(-426)} (2Q 2026) and ${fmt.b(879)} (4Q 2024) inside eight quarters. Multifamily's shift to fully guaranteed securitizations moves revenue from here into net interest income.</p>` + src(q.srcs) };
+    case 'prov': return { title: s.prov>=0 ? 'Benefit for credit losses' : 'Provision for credit losses', sub:`${q.label} · $ millions`, html:
+      big(fmt.b(s.prov), s.changed && Math.abs(s.d.prov)>0.5 ? `reported ${fmt.b(q.prov)} · <b>${fmt.md(s.d.prov)}M</b> from the coverage levers` : 'reported') +
+      kv([['Single-Family', fmt.m(s.provSF), Math.abs(s.d.provSF)>0.5?'gold':''],['Multifamily', fmt.m(s.provMF), Math.abs(s.d.provMF)>0.5?'gold':''],['SF allowance / loans', `${state.levers.sfCov} bps${state.levers.sfCov!==q.sfACL?` (reported ${q.sfACL})`:''}`],['MF allowance / loans', `${state.levers.mfCov} bps${state.levers.mfCov!==q.mfACL?` (reported ${q.mfACL})`:''}`],['SF serious delinquency', fmt.pct(q.sfSDQ)],['MF delinquency (60+ days)', fmt.pct(q.mfDQ)]]) +
+      (q.hpi ? `<p class="note">House-price path behind the reserve: management's forecast at quarter end assumed ${q.hpi[0]}% growth over the next 12 months and ${q.hpi[1]}% over the following 12 (earnings call).</p>` : '') +
+      `<p class="note">Each basis point of Single-Family coverage is ${fmt.md(q.sfUPB*1000/10000)}M of reserve on ${fmt.t(q.sfUPB)} of UPB; each Multifamily basis point is ${fmt.md(q.mfUPB*1000/10000)}M.</p>` + src(q.srcs) };
+    case 'nie': return { title:'Non-interest expense', sub:`${q.label} · $ millions`, html:
+      big(fmt.b(-s.nie), s.changed && Math.abs(s.d.nie)>0.5 ? `reported ${fmt.b(-q.nie)} · <b>${state.levers.opex>0?'+':''}${state.levers.opex}%</b> lever` : 'reported') +
+      kv([['Salaries and employee benefits', fmt.m(q.nieD.sal)],['Credit enhancement expense', fmt.m(q.nieD.ce)],['Legislative & regulatory assessments', fmt.m(q.nieD.leg)],['Professional services, technology, occupancy & other', fmt.m(q.nieD.oth)],['Total', fmt.m(-q.nie)]]) +
+      `<p class="note">Roughly 40% of the expense base is the legislated 10 bps TCCA fee remitted to Treasury and FHFA assessments, which management cannot flex. Credit enhancement expense is the cost of CRT protection on the guarantee book.</p>` + src(q.srcs) };
+    case 'tax': return { title:'Income tax expense', sub:`${q.label} · $ millions`, html:
+      big(fmt.b(-s.tax), `${(q.rate*100).toFixed(1)}% effective rate${s.changed?' · held constant in the scenario':''}`) +
+      kv([['Income before income tax', fmt.m(s.pretax)],['Income tax expense', fmt.m(s.tax)],['Net income', fmt.m(s.ni)]]) + src(q.srcs) };
+    case 'ni': return { title:'Net income', sub:`${q.label} · $ millions`, html:
+      big(fmt.b(s.ni), s.changed ? `reported ${fmt.b(q.ni)} · <b>${fmt.md(s.ni-q.ni)}M</b>` : `comprehensive income ${fmt.b(q.ci)}`) +
+      kv([['Single-Family (reported)', fmt.m(q.sf.ni)],['Multifamily (reported)', fmt.m(q.mf.ni)],['Other comprehensive income', fmt.m(q.oci)],['Comprehensive income', fmt.m(s.ci), s.changed?'gold':''],['Households helped (SF homes + MF units)', `${q.homes + q.units}K`]]) +
+      `<p class="note">Under the Purchase Agreement no dividend is paid to Treasury while capital is being built, so every dollar of comprehensive income is retained — and the senior preferred liquidation preference steps up by the same amount the following quarter (${fmt.bB(q.liq/1000)} at ${q.end}).</p>` + src(q.srcs) };
+    case 'tower': {
+      const nw = s.nwEnd/1000;
+      const adjTotal = nw - CAP.sps - CAP.adj + (state.countSPS ? CAP.sps : 0);
+      const cet1 = adjTotal - CAP.jrPref;
+      return { title:'Net worth & regulatory capital', sub:`${q.end} · $ billions`, html:
+        big(fmt.bB(nw), s.changed ? `reported ${fmt.bB(q.nwEnd/1000)} · <b>${fmt.md(s.nwEnd-q.nwEnd)}M</b>` : `required CET1 capital ${fmt.bB(q.reqCET1,0)}${q.reqEst?' (≈ interpolated)':''}`) +
+        kv([['Net worth (GAAP equity)', fmt.bB(nw)],['Required CET1 capital (ERCF)', fmt.bB(q.reqCET1, q.reqEst?1:0)],['Net worth still to build', fmt.bB(s.gap/1000), 'gold'],
+            ...(q.reqTotal ? [['Total capital requirement incl. buffers', fmt.bB(q.reqTotal,0)],['— of which buffers', fmt.bB(CAP.buffers2Q26,0)]] : []),
+            ['Senior preferred liquidation preference', fmt.bB(q.liq/1000)]]) +
+        `<h3 class="sec">Regulatory view (approx.)</h3>
+        <label class="toggle"><span>Count the $72.6B senior preferred stock as capital</span><input type="checkbox" id="tglSPS" ${state.countSPS?'checked':''}></label>` +
+        kv([['Net worth', fmt.bB(nw)],['Less: senior preferred stock', state.countSPS ? 'counted' : fmt.bB(-CAP.sps)],['Less: adjustments & deductions (~)', fmt.bB(-CAP.adj)],['Adjusted total capital', fmt.bB(adjTotal), 'gold'],['Less: junior preferred → CET1 capital', fmt.bB(cet1)],['CET1 vs. requirement', fmt.bB(cet1 - q.reqCET1)]]) +
+        `<p class="note">Under the ERCF the Treasury senior preferred does not qualify as regulatory capital, which is why Freddie Mac reported adjusted total capital of about zero at June 30, 2026 despite $78B of net worth (1Q 2026: CET1 capital of ($18B), Tier 1 ($4B), risk-weighted assets $1,259B). The toggle shows the arithmetic if it were counted — a policy question, not a forecast.</p>` +
+        src(['p2q26','s1q26', q.srcs[0]]) };
+    }
+    case 'sf': return { title:'Single-Family', sub:`${q.label} · guarantee book`, html:
+      big(fmt.t(q.sfUPB), `mortgage portfolio UPB · serious delinquency <b>${fmt.pct(q.sfSDQ)}</b>`) +
+      kv([['New business activity', `$${q.sfNew}B`],['— home purchase', `$${q.sfPurch}B`],['— refinance', `$${q.sfRefi}B`],['Homes funded', `${q.homes}K`],['Allowance / loans', `${q.sfACL} bps`],['Avg. estimated guarantee fee (portfolio)', `${q.sfGfee} bps`],['Segment net revenues', fmt.m(q.sf.nii+q.sf.nonii)],['Segment net income', fmt.m(q.sf.ni)], ...(q.pmms?[['30-yr mortgage rate at quarter end (PMMS)', fmt.pct(q.pmms)]]:[])]) +
+      `<p class="note">The slab's footprint is proportional to UPB; its rim glows warmer as serious delinquency rises. Roughly 13.9 million loans, 62% covered by credit enhancement.</p>` + src(q.srcs) };
+    case 'mf': return { title:'Multifamily', sub:`${q.label} · guarantee book`, html:
+      big(fmt.t(q.mfUPB), `mortgage portfolio UPB · delinquency <b>${fmt.pct(q.mfDQ)}</b>`) +
+      kv([['New business activity', `$${q.mfNew}B`],['Rental units financed', `${q.units}K`],['Allowance / loans', `${q.mfACL} bps`],['Avg. guarantee fee charged (period end)', `${q.mfGfee} bps`],['Segment net revenues', fmt.m(q.mf.nii+q.mf.nonii)],['Segment net income', fmt.m(q.mf.ni)]]) +
+      `<p class="note">In 2025 Multifamily shifted to issuing fully guaranteed securitizations, so revenue is migrating from non-interest income (loan sales) into net interest income, and reserve builds now follow new purchase commitments. Delinquency is concentrated in floating-rate and small-balance loans; 91%+ of the book carries credit enhancement.</p>` + src(q.srcs) };
+  }
+  return { title:'', sub:'', html:'' };
+}
+
+// ---------- toast ----------
+let toastTimer = null;
+function toast(msg, ms=3200){
+  const t = $('toast'); t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), ms);
+}
+
+// ---------- THREE scene ----------
+let three = null;
+function cssColor(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
+function themeColors(){
+  const names = ['--bg','--bg-2','--panel-solid','--line-strong','--text','--muted','--gold','--inflow','--outflow','--req','--slab','--slab-edge','--hemi-sky','--hemi-ground'];
+  const o = {}; names.forEach(n=>o[n.slice(2)] = cssColor(n)); return o;
+}
+function toLinear(css){ const c = new THREE.Color(); c.setStyle(css); return c.convertSRGBToLinear(); }
+function toSRGB(css){ const c = new THREE.Color(); c.setStyle(css); return c; }
+
+// scene constants (meters)
+const G = { colW:0.072, colGap:0.03, x0:-0.33, zWF:-0.16, depth:0.06, sWF:0.028/1000, // meters per $M
+            tx:0.34, tz:0.06, tr:0.045, sT:0.0022, shellR:0.056,
+            sfC:[-0.19,0.12], mfC:[0.02,0.10], slabH:0.012, kArea:0.036/3172 };
+const COLS = ['nii','nonii','prov','nie','tax','ni'];
+
+function initThree(){
+  if(typeof THREE === 'undefined'){ $('nogl').style.display='grid'; return; }
+  const stage = $('stage');
+  const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
+  renderer.setSize(stage.clientWidth, stage.clientHeight);
+  renderer.outputEncoding = THREE.sRGBEncoding;
+  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  stage.appendChild(renderer.domElement);
+
+  const scene = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(42, stage.clientWidth/stage.clientHeight, 0.01, 30);
+  const world = new THREE.Group(); scene.add(world);
+
+  // lights
+  const hemi = new THREE.HemisphereLight(0xffffff, 0x223344, 0.85); scene.add(hemi);
+  const sun = new THREE.DirectionalLight(0xffffff, 0.95); sun.position.set(0.55, 1.3, 0.75); sun.castShadow = true;
+  sun.shadow.mapSize.set(1024,1024); sun.shadow.camera.near = 0.2; sun.shadow.camera.far = 4;
+  sun.shadow.camera.left = -0.7; sun.shadow.camera.right = 0.7; sun.shadow.camera.top = 0.7; sun.shadow.camera.bottom = -0.7; sun.shadow.bias = -0.0008;
+  world.add(sun); world.add(sun.target);
+  const fill = new THREE.DirectionalLight(0xffffff, 0.25); fill.position.set(-0.8, 0.6, -0.5); world.add(fill);
+
+  // ground (table)
+  const gridCanvas = document.createElement('canvas'); gridCanvas.width = gridCanvas.height = 1024;
+  const gridTex = new THREE.CanvasTexture(gridCanvas); gridTex.encoding = THREE.sRGBEncoding; gridTex.anisotropy = 4;
+  const groundMat = new THREE.MeshStandardMaterial({ map: gridTex, roughness:0.95, metalness:0 });
+  const shadowMat = new THREE.ShadowMaterial({ opacity:0.32 });
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(0.62, 72), groundMat); ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; world.add(ground);
+
+  // materials
+  const M = {
+    inflow: new THREE.MeshStandardMaterial({ roughness:0.5, metalness:0.05 }),
+    outflow: new THREE.MeshStandardMaterial({ roughness:0.5, metalness:0.05 }),
+    gold: new THREE.MeshStandardMaterial({ roughness:0.35, metalness:0.25 }),
+    shell: new THREE.MeshStandardMaterial({ roughness:0.2, metalness:0, transparent:true, opacity:0.18, depthWrite:false, side:THREE.DoubleSide }),
+    shellEdge: new THREE.LineBasicMaterial({ transparent:true, opacity:0.75 }),
+    ring: new THREE.MeshStandardMaterial({ roughness:0.4, metalness:0.2 }),
+    slab: new THREE.MeshStandardMaterial({ roughness:0.7, metalness:0 }),
+    slabEdge: new THREE.LineBasicMaterial({ transparent:true, opacity:0.9 }),
+  };
+
+  // waterfall blocks
+  const unitBox = new THREE.BoxGeometry(1,1,1);
+  const blocks = COLS.map((id,i)=>{
+    const m = new THREE.Mesh(unitBox, i<5 ? M.inflow.clone() : M.gold.clone());
+    m.castShadow = true; m.receiveShadow = true; m.userData.id = id; m.userData.pick = true;
+    m.position.set(G.x0 + i*(G.colW+G.colGap), 0, G.zWF);
+    m.scale.set(G.colW, 0.001, G.depth);
+    world.add(m); return m;
+  });
+  // connectors (thin lines between block levels)
+  const connGeo = new THREE.BufferGeometry(); connGeo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(5*2*3), 3));
+  const conn = new THREE.LineSegments(connGeo, new THREE.LineBasicMaterial({ transparent:true, opacity:0.45 })); world.add(conn);
+
+  // capital tower
+  const towerGeo = new THREE.CylinderGeometry(G.tr, G.tr, 1, 48);
+  const tower = new THREE.Mesh(towerGeo, M.gold); tower.castShadow = true; tower.receiveShadow = true; tower.userData.id='tower'; tower.userData.pick=true;
+  tower.position.set(G.tx, 0, G.tz); world.add(tower);
+  const shell = new THREE.Mesh(new THREE.CylinderGeometry(G.shellR, G.shellR, 1, 48, 1, true), M.shell); shell.position.set(G.tx, 0, G.tz); shell.userData.id='tower'; shell.userData.pick=true; world.add(shell);
+  const shellCap = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({length:64},(_,i)=>{const a=i/64*Math.PI*2;return new THREE.Vector3(Math.cos(a)*G.shellR,0,Math.sin(a)*G.shellR);})), M.shellEdge); shellCap.position.set(G.tx,0,G.tz); world.add(shellCap);
+  const ring = new THREE.Mesh(new THREE.TorusGeometry(G.shellR+0.004, 0.0014, 8, 72), M.ring); ring.rotation.x = Math.PI/2; ring.position.set(G.tx, 0, G.tz); ring.visible=false; world.add(ring);
+
+  // portfolio slabs
+  const sf = new THREE.Mesh(unitBox, M.slab.clone()); sf.castShadow=true; sf.receiveShadow=true; sf.userData.id='sf'; sf.userData.pick=true; sf.position.set(G.sfC[0], G.slabH/2, G.sfC[1]); world.add(sf);
+  const mf = new THREE.Mesh(unitBox, M.slab.clone()); mf.castShadow=true; mf.receiveShadow=true; mf.userData.id='mf'; mf.userData.pick=true; mf.position.set(G.mfC[0], G.slabH/2, G.mfC[1]); world.add(mf);
+  const sfEdge = new THREE.LineSegments(new THREE.EdgesGeometry(unitBox), M.slabEdge); world.add(sfEdge);
+  const mfEdge = new THREE.LineSegments(new THREE.EdgesGeometry(unitBox), M.slabEdge); world.add(mfEdge);
+
+  // labels
+  const labels = {};
+  function makeLabel(){
+    const c = document.createElement('canvas'); c.width = 640; c.height = 280;
+    const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; tex.minFilter = THREE.LinearFilter; tex.anisotropy = 4;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map:tex, transparent:true, depthWrite:false }));
+    sp.scale.set(0.16, 0.07, 1); sp.renderOrder = 10; sp.userData.canvas = c; sp.userData.tex = tex; sp.userData.txt = '';
+    world.add(sp); return sp;
+  }
+  [...COLS,'nw','req','sf','mf'].forEach(k=>labels[k]=makeLabel());
+  COLS.forEach(k=>labels[k].scale.set(0.092, 0.04025, 1));      // name plates along the table edge
+  labels.nw.scale.set(0.13, 0.056875, 1); labels.req.scale.set(0.13, 0.056875, 1);
+  labels.sf.scale.set(0.14, 0.06125, 1); labels.mf.scale.set(0.13, 0.056875, 1);
+  Object.values(labels).forEach(l=>{ l.userData.base = l.scale.clone(); });
+
+  // reticle for AR placement
+  const reticle = new THREE.Mesh(new THREE.RingGeometry(0.05, 0.062, 48).rotateX(-Math.PI/2), new THREE.MeshBasicMaterial({ transparent:true, opacity:0.9 }));
+  reticle.matrixAutoUpdate = false; reticle.visible = false; scene.add(reticle);
+
+  // particles
+  const N = reduceMotion ? 0 : 340;
+  const pGeo = new THREE.BufferGeometry();
+  const pPos = new Float32Array(Math.max(N,1)*3), pCol = new Float32Array(Math.max(N,1)*3), pAlp = new Float32Array(Math.max(N,1));
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3).setUsage(THREE.DynamicDrawUsage));
+  pGeo.setAttribute('aColor', new THREE.BufferAttribute(pCol,3).setUsage(THREE.DynamicDrawUsage));
+  pGeo.setAttribute('aAlpha', new THREE.BufferAttribute(pAlp,1).setUsage(THREE.DynamicDrawUsage));
+  const pMat = new THREE.ShaderMaterial({
+    uniforms:{ uSize:{ value: 13 * renderer.getPixelRatio() } }, transparent:true, depthWrite:false,
+    vertexShader:`attribute vec3 aColor; attribute float aAlpha; varying vec3 vC; varying float vA; uniform float uSize;
+      void main(){ vC=aColor; vA=aAlpha; vec4 mv = modelViewMatrix * vec4(position,1.0); gl_PointSize = uSize * (1.0 / max(-mv.z, 0.05)); gl_Position = projectionMatrix * mv; }`,
+    fragmentShader:`varying vec3 vC; varying float vA; void main(){ vec2 d = gl_PointCoord - 0.5; float r = length(d); float a = smoothstep(0.5, 0.22, r) * vA; if(a < 0.02) discard; gl_FragColor = vec4(vC, a); }`
+  });
+  const points = new THREE.Points(pGeo, pMat); points.frustumCulled = false; points.visible = N>0; world.add(points);
+  const P = Array.from({length:N}, ()=>({ s: Math.random()*1.2, v: 0.16 + Math.random()*0.12, src:0, dst:0, x0:0, fresh:true }));
+
+  three = { renderer, scene, camera, world, ground, groundMat, shadowMat, gridCanvas, gridTex, M, blocks, conn, tower, shell, shellCap, ring, sf, mf, sfEdge, mfEdge, labels, reticle, points, P, pPos, pCol, pAlp, N,
+            hemi, sun, fill,
+            orbit:{ theta:0.36, phi:0.68, radius:1.05, target:new THREE.Vector3(0.01,0.09,-0.02) },
+            cur:null, tgt:null, colors:null, lastT:0, idle:0, ar:{ active:false, placed:false, hitSource:null, mode:null }, cam:{ on:false, stream:null } };
+  applyTheme();
+  setTargets(true);
+  bindOrbit();
+  renderer.setAnimationLoop(frame);
+  window.addEventListener('resize', ()=>{ layoutViewport(); });
+  layoutViewport();
+}
+
+function drawGrid(colors){
+  const c = three.gridCanvas, ctx = c.getContext('2d'), W = c.width;
+  ctx.fillStyle = colors['bg-2']; ctx.fillRect(0,0,W,W);
+  ctx.strokeStyle = colors['line-strong']; ctx.lineWidth = 1.5;
+  for(let i=0;i<=W;i+=64){ ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,W); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(W,i); ctx.stroke(); }
+  const g = ctx.createRadialGradient(W/2,W/2,W*0.18,W/2,W/2,W*0.5); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1, colors.bg);
+  ctx.fillStyle = g; ctx.fillRect(0,0,W,W);
+  three.gridTex.needsUpdate = true;
+}
+function applyTheme(){
+  if(!three) return;
+  const c = themeColors(); three.colors = c;
+  const { M } = three;
+  M.inflow.color = toLinear(c.inflow); M.outflow.color = toLinear(c.outflow);
+  M.gold.color = toLinear(c.gold); M.gold.emissive = toLinear(c.gold).multiplyScalar(0.12);
+  M.shell.color = toLinear(c.req); M.shellEdge.color = toLinear(c.req); M.ring.color = toLinear(c.req); M.ring.emissive = toLinear(c.req).multiplyScalar(0.25);
+  M.slab.color = toLinear(c.slab); M.slabEdge.color = toLinear(c['slab-edge']);
+  three.sf.material.color = toLinear(c.slab); three.mf.material.color = toLinear(c.slab);
+  three.blocks.forEach((b,i)=>{ if(i===5){ b.material.color = toLinear(c.gold); b.material.emissive = toLinear(c.gold).multiplyScalar(0.12); } });
+  three.conn.material.color = toLinear(c.muted);
+  three.reticle.material.color = toLinear(c.gold);
+  three.hemi.color = toLinear(c['hemi-sky']); three.hemi.groundColor = toLinear(c['hemi-ground']);
+  drawGrid(c);
+  const bg = toLinear(c.bg);
+  if(!room.on){ three.scene.background = bg; three.scene.fog = new THREE.Fog(bg, 1.6, 3.6); }
+  Object.values(three.labels).forEach(l=>{ l.userData.txt=''; });
+  setTargets(false); // redraw labels with new colors
+}
+
+// compute target geometry from current scenario
+function setTargets(snap){
+  if(!three) return;
+  const { q, s } = current();
+  const sc = G.sWF;
+  const L = [0, s.nii, s.nii+s.nonii, s.nii+s.nonii+s.prov, s.nii+s.nonii+s.prov+s.nie, s.ni].map(v=>v*sc);
+  const deltas = [s.nii, s.nonii, s.prov, s.nie, s.tax];
+  const sfA = G.kArea*q.sfUPB, mfA = G.kArea*q.mfUPB;
+  const t = {
+    L, deltas,
+    towerH: Math.max(s.nwEnd/1000*G.sT, 0.002), reqH: q.reqCET1*G.sT, ringH: 0,
+    sfW: Math.sqrt(sfA*1.5), sfD: Math.sqrt(sfA/1.5), mfS: Math.sqrt(mfA),
+    sfHeat: clamp((q.sfSDQ-0.40)/(0.75-0.40),0,1), mfHeat: clamp((q.mfDQ-0.25)/(0.80-0.25),0,1),
+  };
+  three.tgt = t;
+  if(snap || !three.cur) three.cur = JSON.parse(JSON.stringify(t));
+  // label text
+  const c = three.colors;
+  const names = { nii:'Net interest income', nonii:s.nonii<0?'Non-interest loss':'Non-interest income', prov: s.prov<0?'Credit provision':'Credit benefit', nie:'Non-interest expense', tax:'Income tax', ni:'Net income' };
+  COLS.forEach((k,i)=>{
+    const v = i<5 ? deltas[i] : s.ni;
+    const changed = s.changed && (k==='nii'?Math.abs(s.d.nii)>0.5 : k==='prov'?Math.abs(s.d.prov)>0.5 : k==='nie'?Math.abs(s.d.nie)>0.5 : (k==='tax'||k==='ni'));
+    setLabel(three.labels[k], names[k], fmt.b(v), changed ? 'scenario' : null, k==='ni' ? c.gold : c.text);
+  });
+  setLabel(three.labels.nw, 'Net worth', fmt.bB(s.nwEnd/1000), s.changed ? `reported ${fmt.bB(q.nwEnd/1000)}` : `${q.end}`, c.gold);
+  setLabel(three.labels.req, 'Required CET1 capital', `${fmt.bB(q.reqCET1, q.reqEst?1:0)}${q.reqEst?' ≈':''}`, s.gap>0 ? `${fmt.bB(s.gap/1000)} to build` : 'requirement met', c.req);
+  setLabel(three.labels.sf, 'Single-Family', fmt.t(q.sfUPB), `SDQ ${fmt.pct(q.sfSDQ)} · new $${q.sfNew}B`, c.text);
+  setLabel(three.labels.mf, 'Multifamily', fmt.t(q.mfUPB), `DQ ${fmt.pct(q.mfDQ)} · new $${q.mfNew}B`, c.text);
+  // block colors by sign
+  three.blocks.forEach((b,i)=>{
+    if(i<5){ const neg = deltas[i] < 0; b.material.color = toLinear(neg ? c.outflow : c.inflow); b.material.emissive = toLinear(neg ? c.outflow : c.inflow).multiplyScalar(0.06); }
+    else { const neg = s.ni < 0; b.material.color = toLinear(neg ? c.outflow : c.gold); }
+  });
+}
+function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
+function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function setLabel(sp, title, value, sub, valueColor){
+  const key = [title,value,sub,valueColor,three.colors.text].join('|');
+  if(sp.userData.txt === key) return; sp.userData.txt = key;
+  const c = sp.userData.canvas, ctx = c.getContext('2d'), W = c.width, H = c.height, col = three.colors;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle = col['panel-solid']; ctx.globalAlpha = 0.86; roundRect(ctx, 6, 6, W-12, H-12, 40); ctx.fill(); ctx.globalAlpha = 1;
+  ctx.strokeStyle = col['line-strong']; ctx.lineWidth = 3; ctx.stroke();
+  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillStyle = col.muted; ctx.font = '600 44px "IBM Plex Sans", system-ui, sans-serif';
+  ctx.fillText(title.toUpperCase().split('').join(String.fromCharCode(8202)), W/2, sub ? 62 : 84);
+  ctx.fillStyle = valueColor; ctx.font = '700 96px Archivo, system-ui, sans-serif';
+  ctx.fillText(value, W/2, sub ? 146 : 176);
+  if(sub){ ctx.fillStyle = col.muted; ctx.font = '500 38px "IBM Plex Sans", system-ui, sans-serif'; ctx.fillText(sub, W/2, 226); }
+  sp.userData.tex.needsUpdate = true;
+}
+
+function refresh(){
+  const { q, s } = current();
+  updateLeverUI(q, s); updateReadout(q, s); renderDrawer();
+  setTargets(false);
+}
+
+// ---------- per-frame ----------
+function frame(time, xrFrame){
+  if(!three) return;
+  const dt = Math.min(0.05, three.lastT ? (time - three.lastT)/1000 : 0.016); three.lastT = time;
+  const { cur, tgt } = three;
+  // ease geometry toward targets
+  const k = reduceMotion ? 1 : 1 - Math.exp(-dt*7);
+  for(let i=0;i<6;i++) cur.L[i] += (tgt.L[i]-cur.L[i])*k;
+  ['towerH','reqH','ringH','sfW','sfD','mfS','sfHeat','mfHeat'].forEach(p=>{ cur[p] += (tgt[p]-cur[p])*k; });
+  // blocks
+  for(let i=0;i<5;i++){
+    const a = cur.L[i], b = cur.L[i+1]; const bot = Math.min(a,b), h = Math.max(Math.abs(b-a), 0.0015);
+    const m = three.blocks[i]; m.scale.y = h; m.position.y = bot + h/2;
+    three.labels[COLS[i]].position.set(m.position.x, 0.014, G.zWF + G.depth/2 + (i%2 ? 0.095 : 0.045));
+  }
+  { const ni = cur.L[5]; const bot = Math.min(0,ni), h = Math.max(Math.abs(ni),0.0015); const m = three.blocks[5]; m.scale.y = h; m.position.y = bot + h/2;
+    three.labels.ni.position.set(m.position.x, 0.014, G.zWF + G.depth/2 + 0.095); }
+  // connectors between blocks
+  { const arr = three.conn.geometry.attributes.position.array; let j=0;
+    for(let i=0;i<5;i++){ const xA = three.blocks[i].position.x + G.colW/2, xB = three.blocks[i+1].position.x - G.colW/2; const y = cur.L[i+1];
+      arr[j++]=xA; arr[j++]=y; arr[j++]=G.zWF; arr[j++]=xB; arr[j++]=y; arr[j++]=G.zWF; }
+    three.conn.geometry.attributes.position.needsUpdate = true; }
+  // tower & shell
+  three.tower.scale.y = cur.towerH; three.tower.position.y = cur.towerH/2;
+  three.shell.scale.y = Math.max(cur.reqH,0.001); three.shell.position.y = cur.reqH/2; three.shellCap.position.y = cur.reqH;
+  three.ring.visible = cur.ringH > 0.01; three.ring.position.y = cur.ringH;
+  three.labels.nw.position.set(G.tx, cur.towerH + 0.042, G.tz);
+  three.labels.req.position.set(G.tx, Math.max(cur.reqH, cur.towerH + 0.075) + 0.046, G.tz);
+  // slabs
+  three.sf.scale.set(cur.sfW, G.slabH, cur.sfD); three.sfEdge.position.copy(three.sf.position); three.sfEdge.scale.copy(three.sf.scale);
+  three.mf.scale.set(cur.mfS, G.slabH, cur.mfS); three.mfEdge.position.copy(three.mf.position); three.mfEdge.scale.copy(three.mf.scale);
+  const c = three.colors;
+  three.sf.material.emissive = toLinear(c.inflow).lerp(toLinear(c.outflow), cur.sfHeat).multiplyScalar(0.22 + 0.25*cur.sfHeat);
+  three.mf.material.emissive = toLinear(c.inflow).lerp(toLinear(c.outflow), cur.mfHeat).multiplyScalar(0.22 + 0.25*cur.mfHeat);
+  three.labels.sf.position.set(G.sfC[0], 0.05, G.sfC[1]); three.labels.mf.position.set(G.mfC[0], 0.048, G.mfC[1]);
+  { const mul = three.labelMul || 1; Object.values(three.labels).forEach(l=>{ const b = l.userData.base; l.scale.set(b.x*mul, b.y*mul, 1); }); }
+  // selection pulse
+  if(state.selected){ const p = 0.18 + 0.14*Math.sin(time/180); pickables().forEach(m=>{ if(m.userData.id===state.selected && m.material.emissive){ m.userData.pulse = p; } }); }
+  // camera
+  if(room.on){
+    const cam = three.camera;
+    if(room.gyro && room.gyro.has) applyOrientation(cam); else { cam.position.set(0,0,0); cam.rotation.set(0,0,0); }
+    const g = room.g; three.world.rotation.set(g.tilt, g.baseYaw + g.yaw, 0); three.world.scale.setScalar(g.scale);
+    const vid = $('cam');
+    if(room.hands && vid.readyState >= 2 && time - room.lastDetect > 40){
+      room.lastDetect = time; let res = null;
+      try { res = room.hands.detectForVideo(vid, Math.round(time)); } catch(e){}
+      if(res) handleHands(res, time);
+    }
+  } else {
+    const o = three.orbit;
+    three.idle += dt;
+    if(!reduceMotion && three.idle > 7) o.theta += dt*0.07;
+    const cam = three.camera;
+    cam.position.set(o.target.x + o.radius*Math.sin(o.theta)*Math.cos(o.phi), o.target.y + o.radius*Math.sin(o.phi), o.target.z + o.radius*Math.cos(o.theta)*Math.cos(o.phi));
+    cam.lookAt(o.target);
+  }
+  updateParticles(dt);
+  three.renderer.render(three.scene, three.camera);
+}
+
+// particles ride the waterfall's running total, drain at outflows, and the survivors arc into the tower
+function levelAt(x, L){
+  const hw = G.colW/2; let lvl = 0;
+  for(let i=1;i<=5;i++){ const xc = G.x0 + (i-1)*(G.colW+G.colGap); // block i-1 index in blocks = i-1 -> maps L[i-1]->L[i]
+    if(x >= xc + hw) lvl = L[i]; else if(x > xc - hw){ lvl = L[i-1] + (L[i]-L[i-1]) * ((x-(xc-hw))/G.colW); break; } else break; }
+  return lvl;
+}
+function planParticle(p, s){
+  // choose source (which inflow) and destination (which outflow, or retained)
+  const inflows = [['nii', Math.max(s.nii,0)],['nonii', Math.max(s.nonii,0)],['prov', Math.max(s.prov,0)]];
+  const totIn = inflows.reduce((a,[,v])=>a+v,0) || 1;
+  let r = Math.random()*totIn, srcIdx = 0; for(let i=0;i<inflows.length;i++){ r -= inflows[i][1]; if(r<=0){ srcIdx=i; break; } }
+  p.src = srcIdx; // 0 = start of run, 1 = column 2 (nonii), 2 = column 3 (prov)
+  const outs = [[1, s.nonii<0?-s.nonii:0],[2, s.prov<0?-s.prov:0],[3, -s.nie],[4, -s.tax>0?-s.tax:0]].filter(([ci])=>ci>=srcIdx+1);
+  const retained = Math.max(s.ni,0);
+  const tot = outs.reduce((a,[,v])=>a+v,0) + retained;
+  let r2 = Math.random()*tot; p.dst = -1;
+  for(const [ci,v] of outs){ r2 -= v; if(r2<=0){ p.dst = ci; break; } }
+  // dst -1 => retained
+  const xs = srcIdx===0 ? G.x0 - G.colW/2 - 0.07 : G.x0 + srcIdx*(G.colW+G.colGap) - G.colW/2;
+  p.x0 = xs; p.s = 0; p.fresh = false;
+}
+function updateParticles(dt){
+  const { P, N, pPos, pCol, pAlp, cur, colors } = three; if(!N) return;
+  const { s } = current();
+  const L = cur.L; const cIn = toSRGB(colors.inflow), cOut = toSRGB(colors.outflow), cGold = toSRGB(colors.gold);
+  const xEnd = G.x0 + 5*(G.colW+G.colGap); const niTop = Math.max(L[5],0) + 0.01;
+  const towerTop = cur.towerH; const tx = G.tx, tz = G.tz;
+  for(let i=0;i<N;i++){
+    const p = P[i];
+    if(p.fresh){ planParticle(p, s); p.s = Math.random()*0.9; }
+    p.s += dt * p.v * (reduceMotion?0:1);
+    let x, y, z = G.zWF + (i%7-3)*0.006, a = 1, col = cIn;
+    const runLen = xEnd - p.x0;
+    if(p.dst >= 0){
+      const xDrop = G.x0 + p.dst*(G.colW+G.colGap);
+      const dRun = xDrop - p.x0;
+      if(p.s <= dRun){ x = p.x0 + p.s; y = levelAt(x, L) + 0.008; a = Math.min(1, p.s/0.04); }
+      else { const f = (p.s - dRun)/0.16; x = xDrop; const yTop = levelAt(xDrop, L) + 0.008; y = yTop - f*(yTop + 0.03); col = cOut; a = 1 - f; if(f>=1){ p.fresh = true; a = 0; } }
+    } else {
+      if(p.s <= runLen){ x = p.x0 + p.s; y = levelAt(x, L) + 0.008; a = Math.min(1, p.s/0.04); }
+      else { // arc from NI block top to tower top
+        const f = (p.s - runLen)/0.42; const t = clamp(f,0,1);
+        const x1 = xEnd, y1 = niTop, z1 = G.zWF, x2 = tx, y2 = towerTop + 0.004, z2 = tz;
+        const cx = (x1+x2)/2, cy = Math.max(y1,y2) + 0.16, cz = (z1+z2)/2;
+        x = (1-t)*(1-t)*x1 + 2*(1-t)*t*cx + t*t*x2; y = (1-t)*(1-t)*y1 + 2*(1-t)*t*cy + t*t*y2; z = (1-t)*(1-t)*z1 + 2*(1-t)*t*cz + t*t*z2;
+        col = cIn.clone().lerp(cGold, t); a = f < 1 ? 1 : 1 - (f-1)/0.12; if(f >= 1.12){ p.fresh = true; a = 0; }
+      }
+    }
+    pPos[i*3]=x; pPos[i*3+1]=y; pPos[i*3+2]=z; pCol[i*3]=col.r; pCol[i*3+1]=col.g; pCol[i*3+2]=col.b; pAlp[i]=clamp(a,0,1)*0.95;
+  }
+  three.points.geometry.attributes.position.needsUpdate = true;
+  three.points.geometry.attributes.aColor.needsUpdate = true;
+  three.points.geometry.attributes.aAlpha.needsUpdate = true;
+}
+
+// ---------- orbit + picking ----------
+function pickables(){ return [...three.blocks, three.tower, three.shell, three.sf, three.mf]; }
+function setSelected(id){
+  state.selected = id;
+  pickables().forEach(m=>{ if(!m.material.emissive) return; const c = three.colors;
+    if(m.userData.id === id){ m.material.emissive = toLinear(c.gold).multiplyScalar(0.35); }
+    else if(m.userData.id==='tower' || m.userData.id==='ni'){ m.material.emissive = toLinear(c.gold).multiplyScalar(0.12); }
+    else if(m.userData.id==='sf' || m.userData.id==='mf'){ /* emissive driven by heat each frame */ }
+    else { const i = COLS.indexOf(m.userData.id); const neg = three.tgt.deltas[i] < 0; m.material.emissive = toLinear(neg ? c.outflow : c.inflow).multiplyScalar(0.06); }
+  });
+}
+function bindOrbit(){
+  const el = three.renderer.domElement; const o = three.orbit;
+  const ptrs = new Map(); let downAt = 0, moved = false, pinch0 = 0, r0 = 0;
+  el.addEventListener('pointerdown', e=>{ el.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); downAt = performance.now(); moved = false; three.idle = 0;
+    if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch0 = Math.hypot(a.x-b.x,a.y-b.y); r0 = o.radius; } });
+  el.addEventListener('pointermove', e=>{ const p = ptrs.get(e.pointerId); if(!p) return; three.idle = 0;
+    const dx = e.clientX-p.x, dy = e.clientY-p.y; if(Math.hypot(dx,dy) > 4) moved = true;
+    if(ptrs.size===1){ if(room.on){ room.g.yaw += dx*0.006; room.g.tilt = clamp(room.g.tilt + dy*0.004, -0.6, 0.35); } else { o.theta -= dx*0.006; o.phi = clamp(o.phi + dy*0.005, 0.12, 1.45); } }
+    p.x = e.clientX; p.y = e.clientY;
+    if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; const d = Math.hypot(a.x-b.x,a.y-b.y); if(pinch0>0){ if(room.on){ room.g.scale = clamp(room.g.scale * (d/pinch0), 0.35, 3); pinch0 = d; } else o.radius = clamp(r0 * (pinch0/d), 0.45, 2.6); } } });
+  const up = e=>{ ptrs.delete(e.pointerId); if(ptrs.size===0 && !moved && performance.now()-downAt < 450) pickAt(e.clientX, e.clientY); };
+  el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+  el.addEventListener('wheel', e=>{ e.preventDefault(); if(room.on) room.g.scale = clamp(room.g.scale * (1 - e.deltaY*0.0012), 0.35, 3); else o.radius = clamp(o.radius * (1 + e.deltaY*0.0012), 0.45, 2.6); three.idle = 0; }, { passive:false });
+  window.addEventListener('keydown', e=>{
+    if(e.key==='ArrowRight'){ stopPlay(); setQuarter(state.qi+1); } else if(e.key==='ArrowLeft'){ stopPlay(); setQuarter(state.qi-1); }
+    else if(e.key==='Escape'){ closeDrawer(); } else if(e.key===' ' && e.target===document.body){ e.preventDefault(); togglePlay(); }
+  });
+}
+const raycaster = typeof THREE !== 'undefined' ? new THREE.Raycaster() : null;
+function pickIdAt(cx, cy){
+  const rect = three.renderer.domElement.getBoundingClientRect();
+  const v = new THREE.Vector2(((cx-rect.left)/rect.width)*2-1, -((cy-rect.top)/rect.height)*2+1);
+  raycaster.setFromCamera(v, three.camera);
+  const hits = raycaster.intersectObjects(pickables(), false);
+  return hits.length ? hits[0].object.userData.id : null;
+}
+function pickAt(cx, cy){ const id = pickIdAt(cx, cy); if(id){ setSelected(id); openDrawer(id); } }
+
+// ---------- viewport offset so the scene centers in the free area ----------
+function layoutViewport(){
+  if(!three) return;
+  const W = window.innerWidth, H = window.innerHeight;
+  three.renderer.setSize(W, H, false);
+  const cam = three.camera; cam.aspect = W/H;
+  const conH0 = $('console').offsetHeight; document.documentElement.style.setProperty('--console-h', conH0 + 'px');
+  if(room.on){ cam.clearViewOffset(); cam.fov = 62; cam.updateProjectionMatrix(); three.labelMul = 1.3; return; }
+  cam.fov = 42;
+  const topH = document.querySelector('.topbar').offsetHeight;
+  const conH = $('console').offsetHeight;
+  document.documentElement.style.setProperty('--console-h', conH + 'px');
+  const phone = window.matchMedia('(max-width: 820px)').matches;
+  const drawerW = (state.drawer && !phone) ? $('drawer').offsetWidth + 16 : 0;
+  const y0 = Math.max(0, conH - topH), x0 = drawerW;
+  cam.setViewOffset(W + x0, H + y0, x0, y0, W, H);
+  cam.updateProjectionMatrix();
+  // pull the camera back a touch on narrow screens so the whole table fits
+  three.orbit.radius = clamp(three.orbit.radius, 0.45, 2.6);
+  three.labelMul = phone ? 1.45 : 1;
+  if(!three._fitted){ three.orbit.radius = phone ? 2.3 : 1.08; if(phone){ three.orbit.theta = 0.26; three.orbit.phi = 0.6; three.orbit.target.x = 0.05; } three._fitted = true; }
+}
+
+// ---------- ROOM VIEW: camera backdrop + motion-held scene + hand gestures ----------
+const room = { on:false, stream:null, facing:'environment', gyro:null, hands:null, lastDetect:0,
+  g:{ baseYaw:0, yaw:0, tilt:0, scale:1, pin:[false,false], pinching:false, two:false, p0:null, yaw0:0, tilt0:0, d0:0, s0:1, hist:[], lastSwipe:0, hover:null, hoverSince:0, lastOpen:0 },
+  status:{} };
+const HAS3D = typeof THREE !== 'undefined';
+const _zee = HAS3D ? new THREE.Vector3(0,0,1) : null, _euler = HAS3D ? new THREE.Euler() : null, _q0 = HAS3D ? new THREE.Quaternion() : null, _q1 = HAS3D ? new THREE.Quaternion(-Math.sqrt(0.5),0,0,Math.sqrt(0.5)) : null;
+const ROOM_ICON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 5V2h3M11 2h3v3M14 11v3h-3M5 14H2v-3"/><path d="M8 4.5 11.5 6.5v3.5L8 12 4.5 10V6.5z"/></svg>';
+
+function setStatus(k, v){
+  room.status[k] = v; const el = $('st-'+k); if(!el) return;
+  el.dataset.v = v===true ? 'ok' : v===false ? 'no' : String(v);
+  el.textContent = ({cam:'Camera', motion:'Motion', hands:'Hands'})[k] + ' ' + (v===true ? '✓' : v===false ? '✕' : '…');
+  $('status').hidden = false;
+}
+
+async function startRoom(){
+  $('start').hidden = true;
+  if(!three){ toast('The 3D engine has not loaded.'); return; }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ setStatus('cam', false); toast('This browser cannot open the camera here. Open the page in Safari (iPhone) or Chrome (Android) at an https address.', 6500); return; }
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal: room.facing }, width:{ ideal:1280 }, height:{ ideal:720 } }, audio:false });
+    const vid = $('cam'); vid.srcObject = stream; vid.style.display = 'block'; try { await vid.play(); } catch(e){}
+    room.stream = stream; room.on = true;
+    const tr = stream.getVideoTracks()[0]; const st = tr && tr.getSettings ? tr.getSettings() : {}; if(st.facingMode) room.facing = st.facingMode;
+    vid.classList.toggle('mirror', room.facing === 'user');
+    setStatus('cam', true);
+  } catch(err){
+    setStatus('cam', false);
+    toast('Camera not available (' + (err && err.name ? err.name : 'blocked') + '). Open this page in Safari at an https address and allow the camera. Showing the table view.', 6500);
+    return;
+  }
+  three.scene.background = null; three.scene.fog = null; three.renderer.setClearColor(0x000000, 0); three.ground.material = three.shadowMat;
+  Object.assign(room.g, { yaw:0, tilt:0, scale:1, pinching:false, two:false, hover:null, hist:[] });
+  $('console').classList.add('collapsed'); $('btnLevers').textContent = 'Show levers'; $('btnLevers').setAttribute('aria-expanded','false');
+  $('btnAR').innerHTML = ROOM_ICON + '<span class="lbl">Exit room</span>'; $('btnAR').setAttribute('aria-label','Exit room view');
+  await enableMotion();
+  placeWorldInFront();
+  layoutViewport();
+  loadHands();
+}
+
+async function enableMotion(){
+  try {
+    if(!window.DeviceOrientationEvent) throw new Error('no sensors');
+    if(typeof DeviceOrientationEvent.requestPermission === 'function'){ const r = await DeviceOrientationEvent.requestPermission(); if(r !== 'granted') throw new Error('denied'); }
+    room.gyro = { alpha:0, beta:0, gamma:0, has:false };
+    window.addEventListener('deviceorientation', onOrient, true);
+    setStatus('motion', 'pending');
+    setTimeout(()=>{ if(room.gyro && !room.gyro.has) setStatus('motion', false); }, 2000);
+  } catch(e){ room.gyro = null; setStatus('motion', false); }
+}
+function onOrient(e){
+  const g = room.gyro; if(!g || (e.alpha == null && e.beta == null)) return;
+  g.alpha = e.alpha || 0; g.beta = e.beta || 0; g.gamma = e.gamma || 0;
+  if(!g.has){ g.has = true; setStatus('motion', true); placeWorldInFront(); }
+}
+function applyOrientation(cam){
+  const g = room.gyro, d = Math.PI/180;
+  const orient = (screen.orientation && typeof screen.orientation.angle === 'number') ? screen.orientation.angle : (window.orientation || 0);
+  _euler.set(g.beta*d, g.alpha*d, -g.gamma*d, 'YXZ');
+  cam.quaternion.setFromEuler(_euler); cam.quaternion.multiply(_q1); cam.quaternion.multiply(_q0.setFromAxisAngle(_zee, -orient*d));
+  cam.position.set(0,0,0);
+}
+function placeWorldInFront(){
+  if(!three || !room.on) return;
+  const cam = three.camera;
+  if(room.gyro && room.gyro.has) applyOrientation(cam); else { cam.position.set(0,0,0); cam.rotation.set(0,0,0); }
+  const fwd = new THREE.Vector3(0,0,-1).applyQuaternion(cam.quaternion); fwd.y = 0;
+  if(fwd.lengthSq() < 1e-4) fwd.set(0,0,-1); fwd.normalize();
+  three.world.position.set(fwd.x*1.15, -0.32, fwd.z*1.15);
+  room.g.baseYaw = Math.atan2(-fwd.x, -fwd.z);
+}
+
+async function loadHands(){
+  setStatus('hands', 'loading');
+  try {
+    const mod = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs');
+    const { FilesetResolver, HandLandmarker } = mod;
+    const fs = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
+    const make = (delegate)=> HandLandmarker.createFromOptions(fs, {
+      baseOptions:{ modelAssetPath:'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', delegate },
+      runningMode:'VIDEO', numHands:2, minHandDetectionConfidence:0.55, minHandPresenceConfidence:0.5, minTrackingConfidence:0.5 });
+    try { room.hands = await make('GPU'); } catch(e){ room.hands = await make('CPU'); }
+    if(!room.on){ try{ room.hands.close(); }catch(e){} room.hands = null; return; }
+    setStatus('hands', true);
+    toast('Hands ready — pinch to turn · open-hand swipe for quarters · point and hold to open.', 5000);
+  } catch(err){
+    console.warn('hand tracking unavailable', err); room.hands = null; setStatus('hands', false);
+    toast('Hand tracking could not load (needs internet for the model). Touch still works: drag to turn, pinch to resize, tap to open.', 5500);
+  }
+}
+
+// map a normalized landmark to screen pixels, honoring object-fit: cover and front-camera mirroring
+function toScreen(l){
+  const vid = $('cam'); const vw = vid.videoWidth || 1280, vh = vid.videoHeight || 720, W = window.innerWidth, H = window.innerHeight;
+  const sc = Math.max(W/vw, H/vh); const dw = vw*sc, dh = vh*sc; const ox = (W-dw)/2, oy = (H-dh)/2;
+  const x = room.facing === 'user' ? 1 - l.x : l.x;
+  return { x: ox + x*dw, y: oy + l.y*dh };
+}
+function handleHands(res, now){
+  const g = room.g, W = window.innerWidth, H = window.innerHeight;
+  const vid = $('cam'); const aspect = (vid.videoWidth || 1280) / (vid.videoHeight || 720);
+  const dist = (a, b)=> Math.hypot((a.x-b.x)*aspect, a.y-b.y);
+  const hands = (res.landmarks || []).slice(0, 2).map((lm, i)=>{
+    const size = dist(lm[0], lm[9]) || 1e-3;
+    const pinch = dist(lm[4], lm[8]) / size;
+    const ext = (tip, pip)=> dist(lm[tip], lm[0]) > dist(lm[pip], lm[0]) * 1.12;
+    const idx = ext(8,6), mid = ext(12,10), ring = ext(16,14), pink = ext(20,18);
+    return { pinch, open: idx && mid && ring && pink && pinch > 0.7, point: idx && !mid && !ring && !pink && pinch > 0.55, tip: toScreen(lm[8]), palm: toScreen(lm[9]) };
+  });
+  // pinch state with hysteresis per hand slot
+  hands.forEach((h, i)=>{ if(g.pin[i]) { if(h.pinch > 0.62) g.pin[i] = false; } else if(h.pinch < 0.42) g.pin[i] = true; });
+  for(let i = hands.length; i < 2; i++) g.pin[i] = false;
+  const pinchers = hands.filter((h, i)=> g.pin[i]);
+  const cur = $('hcur');
+  if(!hands.length){ cur.hidden = true; g.pinching = false; g.two = false; g.hist = []; g.hover = null; return; }
+  const h0 = hands[0];
+  let cls = '', tag = '', p = 0, at = h0.tip;
+  if(pinchers.length === 2){                       // two-hand pinch: resize
+    const d = Math.hypot(pinchers[0].tip.x - pinchers[1].tip.x, pinchers[0].tip.y - pinchers[1].tip.y);
+    if(!g.two){ g.two = true; g.d0 = Math.max(d, 1); g.s0 = g.scale; } else g.scale = clamp(g.s0 * d / g.d0, 0.35, 3);
+    g.pinching = false; cls = 'pinch'; tag = 'resize'; at = { x:(pinchers[0].tip.x + pinchers[1].tip.x)/2, y:(pinchers[0].tip.y + pinchers[1].tip.y)/2 };
+  } else {
+    g.two = false;
+    if(pinchers.length === 1){                     // one-hand pinch: turn / tilt
+      const h = pinchers[0];
+      if(!g.pinching){ g.pinching = true; g.p0 = h.tip; g.yaw0 = g.yaw; g.tilt0 = g.tilt; }
+      else { g.yaw = g.yaw0 + (h.tip.x - g.p0.x)/W * 2.4; g.tilt = clamp(g.tilt0 + (h.tip.y - g.p0.y)/H * 1.4, -0.6, 0.35); }
+      cls = 'pinch'; tag = 'turn'; at = h.tip;
+    } else {
+      g.pinching = false;
+      if(h0.open){                                 // open hand: swipe for quarters
+        g.hist.push({ x:h0.palm.x, t:now }); g.hist = g.hist.filter(e=> now - e.t < 380);
+        if(g.hist.length >= 3 && now - g.lastSwipe > 1000){
+          const dx = g.hist[g.hist.length-1].x - g.hist[0].x;
+          if(Math.abs(dx) > 0.2*W){ g.lastSwipe = now; g.hist = []; stopPlay(); setQuarter(state.qi + (dx > 0 ? 1 : -1)); toast(Q[state.qi].label, 900); }
+        }
+        cls = 'open'; tag = 'swipe ◀ ▶ quarter'; at = h0.palm;
+      } else { g.hist = []; }
+      if(h0.point){                                // pointing: hold on a block to open it
+        const id = pickIdAt(h0.tip.x, h0.tip.y);
+        if(id && id === g.hover){ p = clamp((now - g.hoverSince)/700, 0, 1); if(p >= 1 && now - g.lastOpen > 1500){ g.lastOpen = now; g.hoverSince = now; setSelected(id); openDrawer(id); p = 0; } }
+        else { g.hover = id; g.hoverSince = now; }
+        tag = id ? 'hold to open' : 'point at a block'; at = h0.tip;
+      } else g.hover = null;
+    }
+  }
+  cur.hidden = false; cur.className = cls; cur.style.transform = `translate(${at.x.toFixed(0)}px, ${at.y.toFixed(0)}px) translate(-50%,-50%)`;
+  cur.style.setProperty('--p', p.toFixed(2)); cur.querySelector('.tag').textContent = tag;
+}
+
+function stopRoom(){
+  room.on = false;
+  try { if(room.stream) room.stream.getTracks().forEach(t=> t.stop()); } catch(e){}
+  room.stream = null; const vid = $('cam'); vid.srcObject = null; vid.style.display = 'none';
+  window.removeEventListener('deviceorientation', onOrient, true); room.gyro = null;
+  if(room.hands){ try{ room.hands.close(); }catch(e){} room.hands = null; }
+  $('hcur').hidden = true; $('status').hidden = true;
+  if(three){
+    three.world.position.set(0,0,0); three.world.rotation.set(0,0,0); three.world.scale.setScalar(1);
+    three.ground.material = three.groundMat; three.renderer.setClearColor(0x000000, 1); three.camera.rotation.set(0,0,0);
+    applyTheme();
+  }
+  $('btnAR').innerHTML = ROOM_ICON + '<span class="lbl">Room view</span>'; $('btnAR').setAttribute('aria-label','Start room view');
+  layoutViewport();
+}
+function toggleRoom(){ if(room.on) stopRoom(); else $('start').hidden = false; }
+window.addEventListener('orientationchange', ()=> setTimeout(layoutViewport, 300));
+
+// ---------- boot ----------
+function boot(){
+  buildTimeline(); bindLevers();
+  $('btnRecon').addEventListener('click', ()=>{ state.drawer ? closeDrawer() : openDrawer('recon'); });
+  $('btnClose').addEventListener('click', closeDrawer);
+  $('btnBack').addEventListener('click', ()=>{ setSelected(null); openDrawer('recon'); });
+  $('btnAR').addEventListener('click', toggleRoom);
+  $('btnStart').addEventListener('click', startRoom);
+  $('btnSkip').addEventListener('click', ()=>{ $('start').hidden = true; });
+  initThree();
+  refresh();
+  const mq = window.matchMedia('(prefers-color-scheme: light)');
+  const onTheme = ()=>{ applyTheme(); };
+  if(mq.addEventListener) mq.addEventListener('change', onTheme); else mq.addListener(onTheme);
+  new MutationObserver(onTheme).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if(three){ Object.values(three.labels).forEach(l=>l.userData.txt=''); setTargets(false); } });
+  if(window.matchMedia('(max-width: 820px)').matches){ $('console').classList.add('collapsed'); $('btnLevers').textContent='Show levers'; $('btnLevers').setAttribute('aria-expanded','false'); requestAnimationFrame(layoutViewport); }
+}
+boot();
+</script>
+</body>
+</html>
