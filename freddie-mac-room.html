@@ -3,55 +3,97 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="mobile-web-app-capable" content="yes">
-<meta name="theme-color" content="#0D1524">
+<meta name="theme-color" content="#070C16">
 <title>Freddie Mac Tabletop — Room view</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
 <style>
 :root{
-  --bg:#0D1524; --bg-2:#131E31; --veil:rgba(13,21,36,.94);
-  --panel:rgba(17,27,45,.84); --panel-solid:#111B2D;
-  --line:rgba(147,168,201,.18); --line-strong:rgba(147,168,201,.38);
-  --text:#E8EDF6; --muted:#93A4BE; --dim:#66779A;
-  --gold:#F1C15C; --gold-ink:#1A1405;
-  --inflow:#47C1A0; --outflow:#E8836A; --req:#7FA8EA;
-  --slab:#3A4E6C; --slab-edge:#9DB4D6;
-  --shadow:0 14px 44px rgba(0,0,0,.45);
-  --hemi-sky:#3b4f70; --hemi-ground:#0D1524;
+  --bg:#070C16; --veil:rgba(7,12,22,.92); --panel:rgba(10,18,32,.78); --panel-solid:#0C1526;
+  --line:rgba(120,160,220,.22); --line-strong:rgba(120,160,220,.45);
+  --text:#EAF0FA; --muted:#8FA3C2; --dim:#5B6E8F;
+  --gold:#F5C55C; --gold-ink:#1A1405; --teal:#3FE0B0; --clay:#FF7A5C; --blue:#6FA3FF;
+  --shadow:0 14px 44px rgba(0,0,0,.55);
 }
-@media (prefers-color-scheme: light){
-  :root:not([data-theme="dark"]){
-    --bg:#EDF0F5; --bg-2:#FFFFFF; --veil:rgba(237,240,245,.94);
-    --panel:rgba(255,255,255,.86); --panel-solid:#FFFFFF;
-    --line:rgba(20,33,61,.12); --line-strong:rgba(20,33,61,.3);
-    --text:#14213D; --muted:#5A6A85; --dim:#8A98B0;
-    --gold:#C48F12; --gold-ink:#FFFFFF;
-    --inflow:#149B7B; --outflow:#CF5A3E; --req:#3D6BD0;
-    --slab:#AAB9CF; --slab-edge:#3C4E6B;
-    --shadow:0 14px 44px rgba(20,33,61,.18);
-    --hemi-sky:#ffffff; --hemi-ground:#c9d2e0;
-  }
-}
-:root[data-theme="light"]{
-  --bg:#EDF0F5; --bg-2:#FFFFFF; --veil:rgba(237,240,245,.94);
-  --panel:rgba(255,255,255,.86); --panel-solid:#FFFFFF;
-  --line:rgba(20,33,61,.12); --line-strong:rgba(20,33,61,.3);
-  --text:#14213D; --muted:#5A6A85; --dim:#8A98B0;
-  --gold:#C48F12; --gold-ink:#FFFFFF;
-  --inflow:#149B7B; --outflow:#CF5A3E; --req:#3D6BD0;
-  --slab:#AAB9CF; --slab-edge:#3C4E6B;
-  --shadow:0 14px 44px rgba(20,33,61,.18);
-  --hemi-sky:#ffffff; --hemi-ground:#c9d2e0;
-}
+*{box-sizing:border-box}
 html,body{height:100%}
-body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 "IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 "IBM Plex Sans",system-ui,-apple-system,Segoe UI,sans-serif;overflow:hidden;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
 button{font:inherit;color:inherit}
 :focus-visible{outline:2px solid var(--gold);outline-offset:2px}
+[hidden]{display:none!important}
 
 #cam{position:fixed;inset:0;width:100%;height:100%;object-fit:cover;z-index:0;display:none;background:#000}
 #cam.mirror{transform:scaleX(-1)}
-[hidden]{display:none!important}
+#stage{position:fixed;inset:0;z-index:1;touch-action:none}
+#stage canvas{display:block;width:100%;height:100%}
+#nogl{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:24px;color:var(--muted);z-index:2}
+
+.topbar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:10px;padding:calc(10px + env(safe-area-inset-top,0px)) 12px 8px;pointer-events:none}
+.topbar > *{pointer-events:auto}
+.brand{display:flex;flex-direction:column;gap:3px;min-width:0}
+.brand .eyebrow{font:600 10px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
+.brand h1{margin:0;font:700 16px/1.1 Archivo,system-ui,sans-serif;letter-spacing:-.01em;color:var(--text)}
+.actions{display:flex;gap:8px;margin-left:auto;flex:0 0 auto}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 12px;border-radius:12px;border:1px solid var(--line-strong);background:var(--panel);color:var(--text);cursor:pointer;font:600 13px/1 "IBM Plex Sans",system-ui,sans-serif;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);white-space:nowrap}
+.btn:hover{border-color:var(--gold)}
+.btn[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
+.btn.primary{background:var(--gold);color:var(--gold-ink);border-color:transparent}
+.btn svg{width:15px;height:15px;flex:0 0 auto}
+.readout{order:3;flex:1 1 100%;display:flex;align-items:baseline;justify-content:space-between;gap:12px;padding:7px 12px;border-radius:14px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+.readout .q{font:700 18px/1 Archivo,system-ui,sans-serif;font-variant-numeric:tabular-nums}
+.readout .ni{font:500 12px/1.25 "IBM Plex Sans",system-ui,sans-serif;color:var(--muted);text-align:right}
+.readout .ni b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
+.readout .ni .sc{color:var(--gold);font-weight:600}
+@media (min-width:821px){.topbar{gap:14px;padding-left:16px;padding-right:16px}.brand h1{font-size:18px}.readout{order:0;flex:0 1 auto;margin-left:auto;gap:14px;padding:8px 14px}.readout .q{font-size:22px}.actions{margin-left:0}}
+@media (max-width:820px){.btn .lbl{display:none}}
+
+.status{position:fixed;left:12px;top:calc(112px + env(safe-area-inset-top,0px));z-index:5;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
+@media (min-width:821px){.status{top:calc(78px + env(safe-area-inset-top,0px));left:16px}}
+.status span{font:600 10.5px/1 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.04em;padding:6px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--muted);backdrop-filter:blur(10px)}
+.status span[data-v="ok"]{color:var(--teal);border-color:var(--teal)}
+.status span[data-v="no"]{color:var(--clay);border-color:var(--clay)}
+
+.strip{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:8px 12px calc(10px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--veil) 60%,transparent);display:flex;flex-direction:column;gap:8px}
+.strip .row{display:flex;align-items:center;gap:6px;overflow-x:auto;scrollbar-width:none;padding:2px 0}
+.strip .row::-webkit-scrollbar{display:none}
+.strip.collapsed .row{display:none}
+.chip{flex:0 0 auto;padding:8px 11px;border-radius:999px;border:1px solid var(--line-strong);background:var(--panel);color:var(--muted);font:600 12px/1 "IBM Plex Mono",ui-monospace,monospace;cursor:pointer;letter-spacing:.02em}
+.chip:hover{border-color:var(--gold);color:var(--text)}
+.chip[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink);border-color:transparent}
+.chip.tab{font-family:"IBM Plex Sans",system-ui,sans-serif;letter-spacing:.04em;text-transform:uppercase;font-size:11px}
+.chip.play{width:34px;height:31px;padding:0;display:inline-flex;align-items:center;justify-content:center}
+.chip.play svg{width:12px;height:12px}
+.handle{display:flex;justify-content:space-between;align-items:center;gap:8px}
+.link{background:none;border:0;padding:6px 8px;color:var(--muted);cursor:pointer;font:600 12px/1 "IBM Plex Sans",system-ui,sans-serif;border-radius:8px}
+.link:hover{color:var(--text)}
+.badge{display:none;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:var(--gold);color:var(--gold-ink);font:600 11px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase}
+.badge.on{display:inline-flex}
+
+.drawer{position:fixed;z-index:7;left:0;right:0;bottom:0;height:74vh;display:flex;flex-direction:column;background:var(--panel-solid);border:1px solid var(--line);border-radius:18px 18px 0 0;box-shadow:var(--shadow);transform:translateY(105%);transition:transform .28s cubic-bezier(.2,.7,.2,1);overflow:hidden;padding-bottom:env(safe-area-inset-bottom,0px)}
+.drawer.open{transform:none}
+@media (min-width:821px){.drawer{top:calc(78px + env(safe-area-inset-top,0px));right:16px;left:auto;bottom:calc(var(--strip-h,120px) + 8px);height:auto;width:420px;border-radius:18px;transform:translateX(calc(100% + 24px))}.drawer.open{transform:none}}
+.drawer-h{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+.drawer-h h2{margin:0;font:700 16px/1.2 Archivo,system-ui,sans-serif;flex:1 1 auto}
+.drawer-h .sub{font:500 11px/1.2 "IBM Plex Sans",system-ui,sans-serif;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
+.iconbtn{width:32px;height:32px;border-radius:10px;border:1px solid var(--line);background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);flex:0 0 auto}
+.iconbtn svg{width:14px;height:14px}
+.drawer-b{overflow:auto;padding:14px 16px 22px;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:16px}
+.drawer-b > *{flex:0 0 auto}
+.note{font:400 12px/1.5 "IBM Plex Sans",system-ui,sans-serif;color:var(--muted);margin:0}
+h3.sec{margin:0;font:600 11px/1.2 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+.tablewrap{overflow-x:auto}
+table.recon{width:100%;border-collapse:collapse;font:12.5px/1.35 "IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.recon th{font:600 10.5px/1.2 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;padding:6px 4px;border-bottom:1px solid var(--line-strong);white-space:nowrap}
+.recon th:first-child{text-align:left}
+.recon td{padding:6px 4px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;color:var(--text)}
+.recon td:first-child{text-align:left;color:var(--muted);font-family:"IBM Plex Sans",system-ui,sans-serif;white-space:normal;padding-right:8px}
+.recon tr.total td{font-weight:600}
+.recon tr.total td:first-child{color:var(--text)}
+.recon td.chg{color:var(--gold);font-weight:500}
+.recon td.zero{color:var(--dim)}
+.recon td.est::after{content:" ≈";color:var(--dim)}
+.srcs{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font:400 12px/1.45 "IBM Plex Sans",system-ui,sans-serif}
+.srcs a{color:var(--blue);text-decoration:none}
+.foot{font:400 11px/1.5 "IBM Plex Sans",system-ui,sans-serif;color:var(--dim);margin:0}
 
 .start{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:20px;background:var(--veil);overflow:auto}
 .start-card{max-width:440px;width:100%;background:var(--panel-solid);border:1px solid var(--line);border-radius:20px;padding:22px 22px 18px;box-shadow:var(--shadow);display:flex;flex-direction:column;gap:12px}
@@ -62,227 +104,60 @@ button{font:inherit;color:inherit}
 .start-card li b{color:var(--gold)}
 .start-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:4px}
 .start-actions .btn{padding:12px 16px;font-size:14px}
-#hcur{position:fixed;left:0;top:0;z-index:8;pointer-events:none;transform:translate(-50%,-50%);display:flex;flex-direction:column;align-items:center;gap:8px}
-#hcur .ring{width:34px;height:34px;border-radius:50%;border:2.5px solid var(--gold);background:radial-gradient(circle,rgba(241,193,92,.4) 0 28%,transparent 30%);box-shadow:0 0 0 2px rgba(0,0,0,.28);position:relative;transition:transform .12s}
-#hcur .ring::after{content:"";position:absolute;inset:-7px;border-radius:50%;background:conic-gradient(var(--gold) calc(var(--p,0)*1turn),transparent 0);-webkit-mask:radial-gradient(circle,transparent 0 60%,#000 61%);mask:radial-gradient(circle,transparent 0 60%,#000 61%)}
-#hcur.pinch .ring{background:var(--gold);transform:scale(.78)}
-#hcur.open .ring{border-style:dashed;transform:scale(1.15)}
-#hcur .tag{font:600 11px/1 "IBM Plex Sans",system-ui,sans-serif;padding:5px 9px;border-radius:999px;background:var(--panel-solid);border:1px solid var(--line-strong);color:var(--text);white-space:nowrap}
-#hcur .tag:empty{display:none}
-.status{position:fixed;left:16px;top:calc(92px + env(safe-area-inset-top,0px));z-index:5;display:flex;gap:6px;flex-wrap:wrap;pointer-events:none}
-.status span{font:600 10.5px/1 "IBM Plex Mono",ui-monospace,monospace;letter-spacing:.04em;padding:6px 8px;border-radius:999px;background:var(--panel);border:1px solid var(--line);color:var(--muted);backdrop-filter:blur(10px)}
-.status span[data-v="ok"]{color:var(--inflow);border-color:var(--inflow)}
-.status span[data-v="no"]{color:var(--outflow);border-color:var(--outflow)}
-@media (max-width:820px){.status{top:calc(120px + env(safe-area-inset-top,0px));left:12px}}
 
-#stage{position:fixed;inset:0;z-index:1;touch-action:none}
-#stage canvas{display:block;width:100%;height:100%}
-#nogl{position:fixed;inset:0;display:none;place-items:center;text-align:center;padding:24px;color:var(--muted);z-index:1}
-
-.topbar{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:12px;padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px;pointer-events:none}
-.topbar > *{pointer-events:auto}
-.brand{display:flex;flex-direction:column;gap:3px;min-width:0}
-.brand .eyebrow{font:600 10.5px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);white-space:nowrap}
-.brand h1{margin:0;font:700 18px/1.1 Archivo,system-ui,sans-serif;letter-spacing:-.01em;color:var(--text);text-wrap:balance}
-.readout{margin-left:auto;display:flex;align-items:baseline;gap:12px;padding:8px 14px;border-radius:14px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
-.readout .q{font:700 22px/1 Archivo,system-ui,sans-serif;font-variant-numeric:tabular-nums;letter-spacing:-.01em}
-.readout .ni{font:500 12.5px/1.25 "IBM Plex Sans",system-ui,sans-serif;color:var(--muted)}
-.readout .ni b{color:var(--text);font-weight:600;font-variant-numeric:tabular-nums}
-.readout .ni .sc{color:var(--gold);font-weight:600}
-.actions{display:flex;gap:8px;flex:0 0 auto}
-.btn{display:inline-flex;align-items:center;gap:8px;padding:9px 14px;border-radius:12px;border:1px solid var(--line-strong);background:var(--panel);color:var(--text);cursor:pointer;font:600 13px/1 "IBM Plex Sans",system-ui,sans-serif;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);white-space:nowrap}
-.btn:hover{border-color:var(--gold)}
-.btn[aria-pressed="true"]{border-color:var(--gold);color:var(--gold)}
-.btn.primary{background:var(--gold);color:var(--gold-ink);border-color:transparent}
-.btn.primary:hover{filter:brightness(1.06)}
-.btn svg{width:15px;height:15px;flex:0 0 auto}
-
-.console{position:fixed;left:0;right:0;bottom:0;z-index:6;padding:14px 16px calc(12px + env(safe-area-inset-bottom,0px));background:linear-gradient(to top,var(--veil) 70%,transparent)}
-.console-inner{max-width:1120px;margin:0 auto;display:flex;flex-direction:column;gap:10px}
-.console-row{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}
-.timeline{display:flex;align-items:center;gap:6px;overflow-x:auto;padding:2px 0;scrollbar-width:none;flex:1 1 auto;min-width:0}
-.timeline::-webkit-scrollbar{display:none}
-.chip{flex:0 0 auto;padding:8px 11px;border-radius:999px;border:1px solid var(--line-strong);background:var(--panel);color:var(--muted);font:600 12px/1 "IBM Plex Mono",ui-monospace,monospace;cursor:pointer;letter-spacing:.02em}
-.chip:hover{border-color:var(--gold);color:var(--text)}
-.chip[aria-pressed="true"]{background:var(--gold);color:var(--gold-ink);border-color:transparent}
-.chip.play{display:inline-flex;align-items:center;justify-content:center;width:34px;height:31px;padding:0}
-.chip.play svg{width:12px;height:12px}
-.rowtools{display:flex;align-items:center;gap:8px;flex:0 0 auto}
-.link{background:none;border:0;padding:6px 8px;color:var(--muted);cursor:pointer;font:600 12px/1 "IBM Plex Sans",system-ui,sans-serif;border-radius:8px}
-.link:hover{color:var(--text)}
-.badge{display:none;align-items:center;gap:6px;padding:5px 9px;border-radius:999px;background:var(--gold);color:var(--gold-ink);font:600 11px/1 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.06em;text-transform:uppercase}
-.badge.on{display:inline-flex}
-
-.levers{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px}
-.console.collapsed .levers{display:none}
-.lever{padding:10px 12px 9px;border-radius:14px;background:var(--panel);border:1px solid var(--line);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);display:flex;flex-direction:column;gap:6px;min-width:0}
-.lever.active{border-color:var(--gold)}
-.lever .lh{display:flex;justify-content:space-between;align-items:baseline;gap:8px}
-.lever .ln{font:600 10.5px/1.2 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.09em;text-transform:uppercase;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lever .lv{font:700 15px/1 Archivo,system-ui,sans-serif;font-variant-numeric:tabular-nums;white-space:nowrap}
-.lever.active .lv{color:var(--gold)}
-.lever .lf{font:400 11px/1.3 "IBM Plex Mono",ui-monospace,monospace;color:var(--dim);min-height:14px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lever input[type=range]{width:100%;margin:2px 0 0;accent-color:var(--gold);cursor:pointer}
-
-.drawer{position:fixed;z-index:7;top:calc(78px + env(safe-area-inset-top,0px));right:16px;bottom:calc(var(--console-h,210px) + 6px);width:400px;max-width:calc(100vw - 32px);display:flex;flex-direction:column;background:var(--panel-solid);border:1px solid var(--line);border-radius:18px;box-shadow:var(--shadow);transform:translateX(calc(100% + 24px));transition:transform .28s cubic-bezier(.2,.7,.2,1);overflow:hidden}
-.drawer.open{transform:none}
-.drawer-h{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
-.drawer-h h2{margin:0;font:700 16px/1.2 Archivo,system-ui,sans-serif;flex:1 1 auto;min-width:0}
-.drawer-h .sub{font:500 11px/1.2 "IBM Plex Sans",system-ui,sans-serif;color:var(--muted);letter-spacing:.08em;text-transform:uppercase;margin-top:3px}
-.iconbtn{width:32px;height:32px;border-radius:10px;border:1px solid var(--line);background:transparent;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;color:var(--muted);flex:0 0 auto}
-.iconbtn:hover{color:var(--text);border-color:var(--line-strong)}
-.iconbtn svg{width:14px;height:14px}
-.drawer-b{overflow:auto;padding:14px 16px 22px;-webkit-overflow-scrolling:touch;display:flex;flex-direction:column;gap:16px}
-.drawer-b > *{flex:0 0 auto}
-.note{font:400 12px/1.5 "IBM Plex Sans",system-ui,sans-serif;color:var(--muted);margin:0}
-.note a{color:var(--req)}
-h3.sec{margin:0;font:600 11px/1.2 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
-.tablewrap{overflow-x:auto}
-table.recon{width:100%;border-collapse:collapse;font:12.5px/1.35 "IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
-.recon th{font:600 10.5px/1.2 "IBM Plex Sans",system-ui,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);text-align:right;padding:6px 4px;border-bottom:1px solid var(--line-strong);white-space:nowrap}
-.recon th:first-child{text-align:left}
-.recon td{padding:6px 4px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap;color:var(--text)}
-.recon td:first-child{text-align:left;color:var(--muted);font-family:"IBM Plex Sans",system-ui,sans-serif;white-space:normal;padding-right:8px}
-.recon tr.total td{font-weight:600;color:var(--text)}
-.recon tr.total td:first-child{color:var(--text)}
-.recon td.chg{color:var(--gold);font-weight:500}
-.recon td.zero{color:var(--dim)}
-.recon td.est::after{content:" ≈";color:var(--dim)}
-.kv{display:grid;grid-template-columns:1fr auto;gap:7px 14px;font:12.5px/1.35 "IBM Plex Sans",system-ui,sans-serif;margin:0}
-.kv dt{color:var(--muted);margin:0}
-.kv dd{margin:0;text-align:right;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums;color:var(--text)}
-.kv dd.gold{color:var(--gold)}
-.big{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
-.big .v{font:700 30px/1 Archivo,system-ui,sans-serif;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
-.big .d{font:500 12.5px/1.3 "IBM Plex Sans",system-ui,sans-serif;color:var(--muted)}
-.big .d b{color:var(--gold);font-weight:600}
-.swatch{display:inline-block;width:9px;height:9px;border-radius:3px;margin-right:7px;vertical-align:1px}
-.toggle{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 12px;border:1px solid var(--line);border-radius:12px;font:500 12.5px/1.3 "IBM Plex Sans",system-ui,sans-serif}
-.toggle input{accent-color:var(--gold);width:18px;height:18px;margin:0}
-.srcs{margin:0;padding:0;list-style:none;display:flex;flex-direction:column;gap:6px;font:400 12px/1.45 "IBM Plex Sans",system-ui,sans-serif}
-.srcs a{color:var(--req);text-decoration:none;border-bottom:1px solid transparent}
-.srcs a:hover{border-bottom-color:var(--req)}
-.foot{font:400 11px/1.5 "IBM Plex Sans",system-ui,sans-serif;color:var(--dim);margin:0}
-
-.toast{position:fixed;left:50%;top:calc(92px + env(safe-area-inset-top,0px));transform:translate(-50%,-8px);z-index:9;max-width:min(92vw,480px);padding:10px 14px;border-radius:12px;background:var(--panel-solid);border:1px solid var(--line-strong);box-shadow:var(--shadow);font:500 13px/1.4 "IBM Plex Sans",system-ui,sans-serif;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+.toast{position:fixed;left:50%;top:calc(150px + env(safe-area-inset-top,0px));transform:translate(-50%,-8px);z-index:9;max-width:min(92vw,480px);padding:10px 14px;border-radius:12px;background:var(--panel-solid);border:1px solid var(--line-strong);box-shadow:var(--shadow);font:500 13px/1.4 "IBM Plex Sans",system-ui,sans-serif;opacity:0;pointer-events:none;transition:opacity .25s,transform .25s}
+@media (min-width:821px){.toast{top:calc(120px + env(safe-area-inset-top,0px))}}
 .toast.show{opacity:1;transform:translate(-50%,0)}
-.arhint{position:fixed;left:50%;bottom:calc(240px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:8;display:none;padding:10px 16px;border-radius:999px;background:var(--panel);border:1px solid var(--line-strong);backdrop-filter:blur(12px);font:600 13px/1.2 "IBM Plex Sans",system-ui,sans-serif;white-space:nowrap}
-.arhint.show{display:block}
-
-@media (max-width:820px){
-  .topbar{flex-wrap:wrap;gap:8px 10px;padding-left:12px;padding-right:12px}
-  .brand h1{font-size:15px}
-  .brand .eyebrow{font-size:10px}
-  .readout{order:3;flex:1 1 100%;margin-left:0;justify-content:space-between;padding:7px 12px}
-  .readout .q{font-size:18px}
-  .actions{margin-left:auto}
-  .btn{padding:8px 11px}
-  .btn .lbl{display:none}
-  .console{padding-left:12px;padding-right:12px}
-  .levers{grid-template-columns:repeat(2,minmax(0,1fr))}
-  .drawer{top:auto;left:0;right:0;bottom:0;width:auto;max-width:none;height:72vh;border-radius:18px 18px 0 0;transform:translateY(105%);padding-bottom:env(safe-area-inset-bottom,0px)}
-  .drawer.open{transform:none}
-  .arhint{bottom:calc(260px + env(safe-area-inset-bottom,0px))}
-}
-@media (prefers-reduced-motion: reduce){
-  .drawer,.toast{transition:none}
-}
 </style>
 </head>
 <body>
 <video id="cam" playsinline muted autoplay aria-hidden="true"></video>
-<div id="stage" aria-label="3D view of Freddie Mac quarterly results on a table" role="img"></div>
-<div id="nogl">
-  <div>
-    <p style="margin:0 0 6px;font:700 18px/1.2 Archivo,system-ui,sans-serif;color:var(--text)">The 3D engine didn't load</p>
-    <p class="note">Check your connection and reload. The reconciliation panel still works from the top-right button.</p>
-  </div>
-</div>
+<div id="stage" role="img" aria-label="Holographic dashboard of Freddie Mac quarterly results"></div>
+<div id="nogl"><div><p style="margin:0 0 6px;font:700 18px/1.2 Archivo,system-ui,sans-serif;color:var(--text)">The 3D engine didn't load</p><p class="note">Check your connection and reload.</p></div></div>
 
 <header class="topbar">
-  <div class="brand">
-    <span class="eyebrow">Quarterly results · public filings</span>
-    <h1>Freddie Mac Tabletop</h1>
-  </div>
-  <div class="readout" aria-live="polite">
-    <span class="q" id="roQ">2Q 2026</span>
-    <span class="ni" id="roNI">Net income <b>$3.84B</b></span>
-  </div>
+  <div class="brand"><span class="eyebrow">Quarterly results · public filings</span><h1>Freddie Mac Tabletop</h1></div>
+  <div class="readout" aria-live="polite"><span class="q" id="roQ">2Q 2026</span><span class="ni" id="roNI">Net income <b>$3.84B</b></span></div>
   <div class="actions">
-    <button class="btn" id="btnRecon" aria-pressed="false" aria-label="Open reconciliation">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3h12M2 8h12M2 13h8"/></svg><span class="lbl">Reconcile</span>
-    </button>
-    <button class="btn primary" id="btnAR" aria-label="Start room view">
-      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 5V2h3M11 2h3v3M14 11v3h-3M5 14H2v-3"/><path d="M8 4.5 11.5 6.5v3.5L8 12 4.5 10V6.5z"/></svg><span class="lbl">Room view</span>
-    </button>
+    <button class="btn" id="btnRecon" aria-pressed="false" aria-label="Reconciliation"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 3h12M2 8h12M2 13h8"/></svg><span class="lbl">Reconcile</span></button>
+    <button class="btn primary" id="btnRoom" aria-label="Start room view"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 5V2h3M11 2h3v3M14 11v3h-3M5 14H2v-3"/><path d="M8 4.5 11.5 6.5v3.5L8 12 4.5 10V6.5z"/></svg><span class="lbl">Room view</span></button>
   </div>
 </header>
-
 <div class="status" id="status" hidden><span id="st-cam"></span><span id="st-motion"></span><span id="st-hands"></span></div>
-<div id="hcur" hidden><div class="ring"></div><span class="tag"></span></div>
+<div class="toast" id="toast" role="status"></div>
+
+<section class="strip collapsed" id="strip" aria-label="Controls">
+  <div class="handle">
+    <div style="display:flex;gap:8px;align-items:center"><span class="badge" id="badge">Scenario</span><button class="link" id="btnReset">Reset to reported</button></div>
+    <button class="link" id="btnStrip" aria-expanded="false">Show touch controls</button>
+  </div>
+  <div class="row" id="tabsRow" role="group" aria-label="View"></div>
+  <div class="row" id="qRow" role="group" aria-label="Quarter"></div>
+</section>
+
+<aside class="drawer" id="drawer" aria-hidden="true">
+  <div class="drawer-h"><div style="flex:1 1 auto;min-width:0"><h2>Reconciliation</h2><div class="sub" id="dSub">$ millions</div></div><button class="iconbtn" id="btnClose" aria-label="Close"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3 3 13"/></svg></button></div>
+  <div class="drawer-b" id="dBody"></div>
+</aside>
+
 <div class="start" id="start">
   <div class="start-card">
     <span class="eyebrow">Freddie Mac Tabletop</span>
     <h2>Room view</h2>
-    <p>Your camera becomes the backdrop and the scene holds its place as you turn the phone. Then use a hand in front of the lens:</p>
+    <p>The camera becomes the backdrop and a holographic dashboard floats in front of you. Your index finger is the pointer:</p>
     <ul>
-      <li><b>Pinch</b> thumb and index, then move — turns and tilts the scene</li>
-      <li><b>Open hand, swipe</b> left or right — previous / next quarter</li>
-      <li><b>Point</b> at a block and hold — opens its detail</li>
-      <li><b>Two hands pinching</b>, spread or squeeze — resize</li>
+      <li><b>Point</b> at a tile, tab, block or quarter column and <b>hold</b> — it activates (a pinch taps instantly)</li>
+      <li><b>Pinch on the table</b> and move — turns it · <b>pinch on empty air</b> and move — carries the whole hologram</li>
+      <li><b>Two hands pinching</b> — resize · <b>open-hand swipe</b> — previous / next quarter</li>
+      <li>Touch a block, the tower or the Single-Family slab to <b>explode it</b> into its parts</li>
     </ul>
     <div class="start-actions">
       <button class="btn primary" id="btnStart">Start · camera + motion</button>
       <button class="btn" id="btnSkip">Table view instead</button>
     </div>
-    <p class="foot">Safari on iPhone or Chrome on Android, opened from an https address. The camera feed and hand tracking run on the phone; nothing is uploaded.</p>
+    <p class="foot">Safari on iPhone or Chrome on Android at an https address. Camera and hand tracking run on the phone; nothing is uploaded.</p>
   </div>
 </div>
-<div class="toast" id="toast" role="status"></div>
-
-<section class="console" id="console" aria-label="Controls">
-  <div class="console-inner">
-    <div class="console-row">
-      <div class="timeline" id="timeline" role="group" aria-label="Quarter"></div>
-      <div class="rowtools">
-        <span class="badge" id="badge">Scenario</span>
-        <button class="link" id="btnReset">Reset to reported</button>
-        <button class="link" id="btnLevers" aria-expanded="true">Hide levers</button>
-      </div>
-    </div>
-    <div class="levers" id="levers">
-      <div class="lever" id="lv-gfee">
-        <div class="lh"><label class="ln" for="in-gfee">SF guarantee fee</label><span class="lv" id="v-gfee">50 bps</span></div>
-        <input type="range" id="in-gfee" min="-10" max="10" step="1" value="0" aria-describedby="f-gfee">
-        <div class="lf" id="f-gfee">portfolio-wide · reported</div>
-      </div>
-      <div class="lever" id="lv-sf">
-        <div class="lh"><label class="ln" for="in-sf">SF reserve coverage</label><span class="lv" id="v-sf">19 bps</span></div>
-        <input type="range" id="in-sf" min="10" max="40" step="1" value="19" aria-describedby="f-sf">
-        <div class="lf" id="f-sf">allowance / loans · reported</div>
-      </div>
-      <div class="lever" id="lv-mf">
-        <div class="lh"><label class="ln" for="in-mf">MF reserve coverage</label><span class="lv" id="v-mf">36 bps</span></div>
-        <input type="range" id="in-mf" min="20" max="80" step="1" value="36" aria-describedby="f-mf">
-        <div class="lf" id="f-mf">allowance / loans · reported</div>
-      </div>
-      <div class="lever" id="lv-opex">
-        <div class="lh"><label class="ln" for="in-opex">Non-interest expense</label><span class="lv" id="v-opex">$2.10B</span></div>
-        <input type="range" id="in-opex" min="-15" max="15" step="1" value="0" aria-describedby="f-opex">
-        <div class="lf" id="f-opex">reported</div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<aside class="drawer" id="drawer" aria-hidden="true">
-  <div class="drawer-h">
-    <button class="iconbtn" id="btnBack" aria-label="Back to reconciliation" hidden><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M10 3 5 8l5 5"/></svg></button>
-    <div style="flex:1 1 auto;min-width:0"><h2 id="dTitle">Reconciliation</h2><div class="sub" id="dSub">$ millions · 2Q 2026</div></div>
-    <button class="iconbtn" id="btnClose" aria-label="Close"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 3l10 10M13 3 3 13"/></svg></button>
-  </div>
-  <div class="drawer-b" id="dBody"></div>
-</aside>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
 <script>
@@ -307,27 +182,27 @@ const QUARTERS = [
   noniiD:{g:496,inv:405,oth:97},nieD:{sal:421,ce:597,leg:787,oth:317},
   sf:{nii:4488,nonii:-14,prov:-120,nie:-1925,tax:-484,ni:1945,ci:1940},mf:{nii:271,nonii:1012,prov:-61,nie:-197,tax:-204,ni:821,ci:801},
   sfUPB:3043,mfUPB:443,sfSDQ:0.52,mfDQ:0.34,sfACL:20,mfACL:64,sfGfee:49,mfGfee:47,sfNew:62,sfPurch:53,sfRefi:9,mfNew:9,homes:194,units:85,
-  niy:null,hpi:null,pmms:6.79,reqCET1:99,reqEst:true,srcs:['r1q25','s4q24']},
+  niy:0.58,hpi:[0.2,0.6],pmms:6.79,reqCET1:99,reqEst:true,srcs:['r1q25','s4q24']},
  {id:'2Q24',label:'2Q 2024',end:'Jun 30, 2024',nii:4928,nonii:1060,prov:-394,nie:-2134,tax:-695,ni:2765,oci:-5,nwEnd:53223,liq:123111,
-  noniiD:{g:383,inv:549,oth:128},nieD:{sal:420,ce:595,leg:768,oth:351},
+  noniiD:{g:383,inv:549,oth:128},nieD:{sal:420,ce:588,leg:802,oth:324},
   sf:{nii:4635,nonii:459,prov:-315,nie:-1921,tax:-574,ni:2284,ci:2279},mf:{nii:293,nonii:601,prov:-79,nie:-213,tax:-121,ni:481,ci:481},
   sfUPB:3058,mfUPB:447,sfSDQ:0.50,mfDQ:0.38,sfACL:21,mfACL:61,sfGfee:49,mfGfee:48,sfNew:85,sfPurch:74,sfRefi:11,mfNew:11,homes:257,units:92,
-  niy:null,hpi:null,pmms:6.86,reqCET1:101.5,reqEst:true,srcs:['r3q24','s4q24']},
+  niy:0.60,hpi:[0.6,0.5],pmms:6.86,reqCET1:101.5,reqEst:true,srcs:['r3q24','s4q24']},
  {id:'3Q24',label:'3Q 2024',end:'Sep 30, 2024',nii:4999,nonii:839,prov:191,nie:-2183,tax:-741,ni:3105,oci:62,nwEnd:56390,liq:125871,
-  noniiD:{g:487,inv:243,oth:109},nieD:{sal:424,ce:620,leg:780,oth:359},
+  noniiD:{g:487,inv:243,oth:109},nieD:{sal:424,ce:616,leg:814,oth:329},
   sf:{nii:4692,nonii:364,prov:99,nie:-1966,tax:-616,ni:2573,ci:2583},mf:{nii:307,nonii:475,prov:92,nie:-217,tax:-125,ni:532,ci:584},
   sfUPB:3082,mfUPB:452,sfSDQ:0.54,mfDQ:0.39,sfACL:21,mfACL:49,sfGfee:49,mfGfee:49,sfNew:98,sfPurch:84,sfRefi:14,mfNew:15,homes:284,units:131,
-  niy:null,hpi:null,pmms:6.08,reqCET1:104,reqEst:true,srcs:['r3q24','s4q24']},
+  niy:0.61,hpi:[0.0,0.8],pmms:6.08,reqCET1:104,reqEst:true,srcs:['r3q24','s4q24']},
  {id:'4Q24',label:'4Q 2024',end:'Dec 31, 2024',nii:5051,nonii:1278,prov:-92,nie:-2219,tax:-796,ni:3222,oci:-37,nwEnd:59575,liq:129038,
   noniiD:{g:245,inv:879,oth:154},nieD:{sal:412,ce:544,leg:830,oth:433},
   sf:{nii:4698,nonii:497,prov:-38,nie:-1971,tax:-631,ni:2555,ci:2554},mf:{nii:353,nonii:781,prov:-54,nie:-248,tax:-165,ni:667,ci:631},
   sfUPB:3104,mfUPB:467,sfSDQ:0.59,mfDQ:0.40,sfACL:21,mfACL:46,sfGfee:49,mfGfee:51,sfNew:100,sfPurch:74,sfRefi:26,mfNew:30,homes:294,units:245,
-  niy:null,hpi:null,pmms:6.85,reqCET1:107,reqEst:false,srcs:['r4q25','r1q25','s4q24']},
+  niy:null,hpi:[2.7,3.3],pmms:6.85,reqCET1:107,reqEst:false,srcs:['r4q25','r1q25','s4q24']},
  {id:'1Q25',label:'1Q 2025',end:'Mar 31, 2025',nii:5102,nonii:750,prov:-280,nie:-2088,tax:-690,ni:2794,oci:34,nwEnd:62403,liq:132223,
   noniiD:{g:440,inv:192,oth:118},nieD:{sal:423,ce:540,leg:817,oth:308},
   sf:{nii:4753,nonii:165,prov:-228,nie:-1871,tax:-558,ni:2261,ci:2269},mf:{nii:349,nonii:585,prov:-52,nie:-217,tax:-132,ni:533,ci:559},
   sfUPB:3115,mfUPB:467,sfSDQ:0.59,mfDQ:0.46,sfACL:21,mfACL:49,sfGfee:49,mfGfee:52,sfNew:78,sfPurch:62,sfRefi:16,mfNew:10,homes:224,units:89,
-  niy:0.60,hpi:[4.2,2.8],pmms:6.65,reqCET1:108,reqEst:true,srcs:['r1q25','s1q26']},
+  niy:0.60,hpi:[4.2,2.8],pmms:6.65,reqCET1:108,reqEst:false,srcs:['r1q25','s1q26']},
  {id:'2Q25',label:'2Q 2025',end:'Jun 30, 2025',nii:5299,nonii:617,prov:-783,nie:-2158,tax:-588,ni:2387,oci:21,nwEnd:64811,liq:135051,
   noniiD:{g:398,inv:119,oth:100},nieD:{sal:453,ce:511,leg:825,oth:369},
   sf:{nii:4898,nonii:237,prov:-622,nie:-1905,tax:-516,ni:2092,ci:2101},mf:{nii:401,nonii:380,prov:-161,nie:-253,tax:-72,ni:295,ci:307},
@@ -342,17 +217,17 @@ const QUARTERS = [
   noniiD:{g:377,inv:-283,oth:123},nieD:{sal:412,ce:542,leg:842,oth:462},
   sf:{nii:5080,nonii:-178,prov:210,nie:-2005,tax:-609,ni:2498,ci:2497},mf:{nii:467,nonii:395,prov:-262,nie:-253,tax:-68,ni:279,ci:287},
   sfUPB:3156,mfUPB:496,sfSDQ:0.59,mfDQ:0.44,sfACL:23,mfACL:46,sfGfee:50,mfGfee:56,sfNew:118,sfPurch:77,sfRefi:41,mfNew:29,homes:331,units:234,
-  niy:0.64,hpi:[0.5,1.4],pmms:6.15,reqCET1:114,reqEst:false,srcs:['r4q25','s4q25','p2q26']},
+  niy:0.64,hpi:[0.5,1.4],pmms:6.15,reqCET1:114,reqEst:false,reqTotal:158,cet1min:55,buffers:59,srcs:['r4q25','s4q25','p2q26']},
  {id:'1Q26',label:'1Q 2026',end:'Mar 31, 2026',nii:5619,nonii:514,prov:320,nie:-2022,tax:-873,ni:3558,oci:-20,nwEnd:73922,liq:143032,
   noniiD:{g:320,inv:42,oth:152},nieD:{sal:376,ce:441,leg:832,oth:373},
   sf:{nii:5120,nonii:55,prov:311,nie:-1780,tax:-730,ni:2976,ci:2963},mf:{nii:499,nonii:459,prov:9,nie:-242,tax:-143,ni:582,ci:575},
   sfUPB:3158,mfUPB:498,sfSDQ:0.60,mfDQ:0.43,sfACL:22,mfACL:42,sfGfee:50,mfGfee:58,sfNew:103,sfPurch:60,sfRefi:43,mfNew:13,homes:281,units:99,
-  niy:0.65,hpi:[2.3,2.4],pmms:null,reqCET1:115.5,reqEst:true,srcs:['r2q26','s1q26']},
+  niy:0.65,hpi:[2.3,2.4],pmms:6.38,reqCET1:117,reqEst:false,reqTotal:161,srcs:['r2q26','s1q26']},
  {id:'2Q26',label:'2Q 2026',end:'Jun 30, 2026',nii:6010,nonii:-19,prov:880,nie:-2097,tax:-936,ni:3838,oci:9,nwEnd:77769,liq:146570,
   noniiD:{g:288,inv:-426,oth:119},nieD:{sal:395,ce:507,leg:840,oth:355},
   sf:{nii:5449,nonii:-349,prov:846,nie:-1870,tax:-799,ni:3277,ci:3280},mf:{nii:561,nonii:330,prov:34,nie:-227,tax:-137,ni:561,ci:567},
   sfUPB:3172,mfUPB:505,sfSDQ:0.60,mfDQ:0.51,sfACL:19,mfACL:36,sfGfee:50,mfGfee:59,sfNew:110,sfPurch:74,sfRefi:36,mfNew:18,homes:306,units:133,
-  niy:0.69,hpi:null,pmms:null,reqCET1:117,reqEst:false,reqTotal:161,srcs:['r2q26','p2q26']},
+  niy:0.69,hpi:[1.7,2.1],pmms:6.49,reqCET1:117,reqEst:false,reqTotal:161,cet1min:57,buffers:60,srcs:['r2q26','p2q26']},
 ];
 
 function derive(q){
@@ -390,7 +265,7 @@ function scenario(q, L){
 const Q = QUARTERS.map(derive);
 /*@model-end*/
 
-// ---------- formatting ----------
+// ================= formatting & state =================
 const fmt = {
   b:(m,d=2)=>{const v=m/1000;const s=Math.abs(v).toFixed(d);return v<0?`($${s}B)`:`$${s}B`;},
   bB:(b,d=1)=>{const s=Math.abs(b).toFixed(d);return b<0?`($${s}B)`:`$${s}B`;},
@@ -398,836 +273,794 @@ const fmt = {
   md:(m)=>{const r=Math.round(m);if(r===0)return '—';const s=Math.abs(r).toLocaleString('en-US');return r>0?`+${s}`:`(${s})`;},
   t:(b)=>b>=1000?`$${(b/1000).toFixed(2)}T`:`$${Math.round(b)}B`,
   pct:(x,d=2)=>`${x.toFixed(d)}%`,
-  esc:(s)=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])),
-};
-
-// ---------- app state ----------
-const state = {
-  qi: Q.length - 1,
-  levers: { gfee:0, sfCov:Q[Q.length-1].sfACL, mfCov:Q[Q.length-1].mfACL, opex:0 },
-  touched: { sf:false, mf:false },
-  countSPS: false,
-  drawer: null,      // null | 'recon' | id
-  playing: false,
-  selected: null,
 };
 const $ = (id)=>document.getElementById(id);
+const clamp = (x,a,b)=>Math.max(a,Math.min(b,x));
 const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
+const state = { qi:Q.length-1, view:'overview', detail:null, levers:{gfee:0, sfCov:Q[Q.length-1].sfACL, mfCov:Q[Q.length-1].mfACL, opex:0}, touched:{sf:false,mf:false}, countSPS:false, playing:false, drawer:false };
 function current(){ const q = Q[state.qi]; return { q, s: scenario(q, state.levers) }; }
 
-// ---------- console UI ----------
-function buildTimeline(){
-  const tl = $('timeline'); tl.innerHTML = '';
-  const play = document.createElement('button');
-  play.className = 'chip play'; play.id = 'btnPlay'; play.setAttribute('aria-label','Play through quarters');
-  play.innerHTML = '<svg viewBox="0 0 12 12" fill="currentColor"><path d="M2.5 1.5v9l8-4.5z"/></svg>';
-  play.addEventListener('click', togglePlay);
-  tl.appendChild(play);
-  Q.forEach((q,i)=>{
-    const b = document.createElement('button');
-    b.className = 'chip'; b.textContent = q.id; b.dataset.i = i;
-    b.setAttribute('aria-pressed', i===state.qi ? 'true':'false');
-    b.addEventListener('click', ()=>{ stopPlay(); setQuarter(i); });
-    tl.appendChild(b);
-  });
+// ================= KPI definitions =================
+const KPI = {
+  netrev:{ t:'Net revenues', v:(q,s)=>s.netrev, f:'b', series:q=>q.netrev, detail:'netrev' },
+  ni:{ t:'Net income', v:(q,s)=>s.ni, f:'b', series:q=>q.ni, detail:'ni', gold:true },
+  nw:{ t:'Net worth', v:(q,s)=>s.nwEnd, f:'bB1', series:q=>q.nwEnd, detail:'tower', gold:true },
+  gap:{ t:'Still to build to CET1', v:(q,s)=>s.gap, f:'bB1', series:q=>q.reqCET1*1000-q.nwEnd, detail:'tower', invert:true },
+  nii:{ t:'Net interest income', v:(q,s)=>s.nii, f:'b', series:q=>q.nii, detail:'nii' },
+  nonii:{ t:'Non-interest income', v:(q,s)=>s.nonii, f:'b', series:q=>q.nonii, detail:'nonii' },
+  prov:{ t:'Credit (provision) / benefit', v:(q,s)=>s.prov, f:'b', series:q=>q.prov, detail:'prov' },
+  nie:{ t:'Non-interest expense', v:(q,s)=>-s.nie, f:'b', series:q=>-q.nie, detail:'nie', invert:true },
+  tax:{ t:'Income tax', v:(q,s)=>-s.tax, f:'b', series:q=>-q.tax, detail:'tax', invert:true },
+  req:{ t:'Required CET1 capital', v:(q,s)=>q.reqCET1*1000, f:'bB0', series:q=>q.reqCET1*1000, detail:'tower' },
+  qtrs:{ t:'Quarters to close the gap', v:(q,s)=>s.qtrs, f:'qtrs', series:q=>(q.reqCET1*1000-q.nwEnd)/q.ci, detail:'tower', invert:true },
+  liq:{ t:'Sr. preferred liquidation pref.', v:(q,s)=>q.liq, f:'bB1', series:q=>q.liq, detail:'tower' },
+  sfUPB:{ t:'SF mortgage portfolio', v:q=>q.sfUPB, f:'t', series:q=>q.sfUPB, detail:'sf' },
+  sfSDQ:{ t:'SF serious delinquency', v:q=>q.sfSDQ, f:'pct', series:q=>q.sfSDQ, detail:'sf', invert:true },
+  sfNew:{ t:'SF new business', v:q=>q.sfNew, f:'B0', series:q=>q.sfNew, detail:'sf' },
+  sfACL:{ t:'SF allowance / loans', v:(q,s)=>state.levers.sfCov, f:'bps', series:q=>q.sfACL, detail:'prov' },
+  sfGfee:{ t:'SF guarantee fee (portfolio)', v:(q,s)=>q.sfGfee+state.levers.gfee, f:'bps', series:q=>q.sfGfee, detail:'nii' },
+  sf_ni:{ t:'SF net income', v:q=>q.sf.ni, f:'b', series:q=>q.sf.ni, detail:'sf', gold:true },
+  mfUPB:{ t:'MF mortgage portfolio', v:q=>q.mfUPB, f:'t', series:q=>q.mfUPB, detail:'mf' },
+  mfDQ:{ t:'MF delinquency (60+ days)', v:q=>q.mfDQ, f:'pct', series:q=>q.mfDQ, detail:'mf', invert:true },
+  mfNew:{ t:'MF new business', v:q=>q.mfNew, f:'B0', series:q=>q.mfNew, detail:'mf' },
+  mfACL:{ t:'MF allowance / loans', v:(q,s)=>state.levers.mfCov, f:'bps', series:q=>q.mfACL, detail:'prov' },
+  mfGfee:{ t:'MF guarantee fee charged', v:q=>q.mfGfee, f:'bps', series:q=>q.mfGfee, detail:'mf' },
+  mf_ni:{ t:'MF net income', v:q=>q.mf.ni, f:'b', series:q=>q.mf.ni, detail:'mf', gold:true },
+};
+function fmtKPI(f, v){
+  switch(f){ case 'b': return fmt.b(v); case 'bB1': return fmt.bB(v/1000,1); case 'bB0': return fmt.bB(v/1000,0); case 't': return fmt.t(v); case 'pct': return fmt.pct(v);
+    case 'B0': return `$${Math.round(v)}B`; case 'bps': return `${Math.round(v)} bps`; case 'qtrs': return isFinite(v) ? `${v.toFixed(1)} qtrs` : 'never'; }
+  return String(v);
 }
-function setQuarter(i){
-  state.qi = Math.max(0, Math.min(Q.length-1, i));
-  const q = Q[state.qi];
-  if(!state.touched.sf) state.levers.sfCov = q.sfACL;
-  if(!state.touched.mf) state.levers.mfCov = q.mfACL;
-  $('in-sf').value = state.levers.sfCov; $('in-mf').value = state.levers.mfCov;
-  document.querySelectorAll('#timeline .chip[data-i]').forEach(c=>c.setAttribute('aria-pressed', +c.dataset.i===state.qi ? 'true':'false'));
-  const active = document.querySelector('#timeline .chip[aria-pressed="true"]');
-  if(active && active.scrollIntoView) active.scrollIntoView({block:'nearest', inline:'center', behavior: reduceMotion?'auto':'smooth'});
-  refresh();
+function fmtDelta(f, d){
+  const sign = d>0?'+':d<0?'−':'';
+  const a = Math.abs(d);
+  switch(f){ case 'b': return `${sign}$${(a/1000).toFixed(2)}B`; case 'bB1': return `${sign}$${(a/1000).toFixed(1)}B`; case 'bB0': return `${sign}$${(a/1000).toFixed(0)}B`; case 't': return `${sign}$${a.toFixed(0)}B`; case 'pct': return `${sign}${a.toFixed(2)} pts`;
+    case 'B0': return `${sign}$${a.toFixed(0)}B`; case 'bps': return `${sign}${a.toFixed(0)} bps`; case 'qtrs': return `${sign}${a.toFixed(1)}`; }
+  return String(d);
 }
-let playTimer = null;
-function togglePlay(){ state.playing ? stopPlay() : startPlay(); }
-function startPlay(){
-  state.playing = true; $('btnPlay').innerHTML = '<svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 1.5h3v9H2zM7 1.5h3v9H7z"/></svg>'; $('btnPlay').setAttribute('aria-label','Pause');
-  if(state.qi === Q.length-1) setQuarter(0);
-  playTimer = setInterval(()=>{ if(state.qi >= Q.length-1){ stopPlay(); return; } setQuarter(state.qi+1); }, 1700);
-}
-function stopPlay(){
-  state.playing = false; clearInterval(playTimer); playTimer = null;
-  const p = $('btnPlay'); if(p){ p.innerHTML = '<svg viewBox="0 0 12 12" fill="currentColor"><path d="M2.5 1.5v9l8-4.5z"/></svg>'; p.setAttribute('aria-label','Play through quarters'); }
-}
-function bindLevers(){
-  $('in-gfee').addEventListener('input', e=>{ state.levers.gfee = +e.target.value; refresh(); });
-  $('in-sf').addEventListener('input', e=>{ state.levers.sfCov = +e.target.value; state.touched.sf = true; refresh(); });
-  $('in-mf').addEventListener('input', e=>{ state.levers.mfCov = +e.target.value; state.touched.mf = true; refresh(); });
-  $('in-opex').addEventListener('input', e=>{ state.levers.opex = +e.target.value; refresh(); });
-  $('btnReset').addEventListener('click', resetLevers);
-  $('btnLevers').addEventListener('click', ()=>{
-    const c = $('console'); c.classList.toggle('collapsed');
-    const open = !c.classList.contains('collapsed');
-    $('btnLevers').textContent = open ? 'Hide levers' : 'Show levers';
-    $('btnLevers').setAttribute('aria-expanded', open ? 'true':'false');
-    requestAnimationFrame(layoutViewport);
-  });
-}
-function resetLevers(){
-  const q = Q[state.qi];
-  state.levers = { gfee:0, sfCov:q.sfACL, mfCov:q.mfACL, opex:0 };
-  state.touched = { sf:false, mf:false };
-  $('in-gfee').value = 0; $('in-sf').value = q.sfACL; $('in-mf').value = q.mfACL; $('in-opex').value = 0;
-  refresh();
-}
-function updateLeverUI(q, s){
-  const L = state.levers;
-  // g-fee
-  $('v-gfee').textContent = `${q.sfGfee + L.gfee} bps`;
-  $('f-gfee').textContent = L.gfee===0 ? 'portfolio-wide · reported' : `${L.gfee>0?'+':''}${L.gfee} bps → ${fmt.md(s.d.nii)} NII / qtr`;
-  $('lv-gfee').classList.toggle('active', L.gfee!==0);
-  // SF coverage
-  $('v-sf').textContent = `${L.sfCov} bps`;
-  $('f-sf').textContent = L.sfCov===q.sfACL ? 'allowance / loans · reported' : `${fmt.md(-s.d.provSF)} reserve ${s.d.provSF<0?'build':'release'}`;
-  $('lv-sf').classList.toggle('active', L.sfCov!==q.sfACL);
-  // MF coverage
-  $('v-mf').textContent = `${L.mfCov} bps`;
-  $('f-mf').textContent = L.mfCov===q.mfACL ? 'allowance / loans · reported' : `${fmt.md(-s.d.provMF)} reserve ${s.d.provMF<0?'build':'release'}`;
-  $('lv-mf').classList.toggle('active', L.mfCov!==q.mfACL);
-  // opex
-  $('v-opex').textContent = fmt.b(-s.nie);
-  $('f-opex').textContent = L.opex===0 ? 'reported' : `${L.opex>0?'+':''}${L.opex}% → ${fmt.md(s.d.nie)} / qtr`;
-  $('lv-opex').classList.toggle('active', L.opex!==0);
-  $('badge').classList.toggle('on', s.changed);
-}
-function updateReadout(q, s){
-  $('roQ').textContent = q.label;
-  if(s.changed){
-    const dn = s.ni - q.ni;
-    $('roNI').innerHTML = `Net income <b>${fmt.b(s.ni)}</b> <span class="sc">${fmt.md(dn)}M</span> vs reported ${fmt.b(q.ni)}`;
-  } else {
-    $('roNI').innerHTML = `Net income <b>${fmt.b(q.ni)}</b> · net worth <b>${fmt.bB(q.nwEnd/1000)}</b>`;
-  }
-}
+const VIEWS = [
+  { id:'overview', label:'Overview', kpis:['netrev','ni','nw','gap'], focus:{wf:1,tower:1,sf:1,mf:1} },
+  { id:'earnings', label:'Earnings', kpis:['nii','nonii','prov','nie','tax','ni'], focus:{wf:1,tower:.22,sf:.22,mf:.22} },
+  { id:'capital', label:'Capital', kpis:['nw','req','gap','qtrs','liq','ni'], focus:{wf:.22,tower:1,sf:.22,mf:.22} },
+  { id:'sf', label:'Single-Family', kpis:['sfUPB','sfSDQ','sfNew','sfACL','sfGfee','sf_ni'], focus:{wf:.22,tower:.22,sf:1,mf:.22} },
+  { id:'mf', label:'Multifamily', kpis:['mfUPB','mfDQ','mfNew','mfACL','mfGfee','mf_ni'], focus:{wf:.22,tower:.22,sf:.22,mf:1} },
+  { id:'scenario', label:'Scenario', kpis:['ni','nw','gap','qtrs'], levers:true, focus:{wf:1,tower:1,sf:.5,mf:.5} },
+];
+const viewOf = (id)=>VIEWS.find(v=>v.id===id);
 
-// ---------- drawer (reconciliation + drill-downs) ----------
-function openDrawer(mode){
-  state.drawer = mode;
-  $('drawer').classList.add('open'); $('drawer').setAttribute('aria-hidden','false');
-  $('btnRecon').setAttribute('aria-pressed','true');
-  renderDrawer();
-  requestAnimationFrame(layoutViewport);
-}
-function closeDrawer(){
-  state.drawer = null;
-  $('drawer').classList.remove('open'); $('drawer').setAttribute('aria-hidden','true');
-  $('btnRecon').setAttribute('aria-pressed','false');
-  setSelected(null);
-  requestAnimationFrame(layoutViewport);
-}
-function renderDrawer(){
-  if(!state.drawer) return;
-  const { q, s } = current();
-  const body = $('dBody');
-  const back = $('btnBack');
-  if(state.drawer === 'recon'){
-    back.hidden = true;
-    $('dTitle').textContent = 'Reconciliation';
-    $('dSub').textContent = `$ millions · ${q.label} · quarter ended ${q.end}`;
-    body.innerHTML = reconHTML(q, s);
-  } else {
-    back.hidden = false;
-    const c = cardHTML(state.drawer, q, s);
-    $('dTitle').textContent = c.title; $('dSub').textContent = c.sub;
-    body.innerHTML = c.html;
-    const t = $('tglSPS'); if(t) t.addEventListener('change', e=>{ state.countSPS = e.target.checked; renderDrawer(); });
-  }
-}
-function row(label, rep, sc, opts={}){
-  const chg = Math.abs(sc-rep) > 0.5;
-  const cls = [opts.total?'total':''].join(' ');
-  const est = opts.est ? ' est' : '';
-  return `<tr class="${cls}"><td>${label}</td><td class="${est}">${fmt.m(rep)}</td><td class="${chg?'chg':''}${est}">${fmt.m(sc)}</td><td class="${chg?'chg':'zero'}">${fmt.md(sc-rep)}</td></tr>`;
-}
-function reconHTML(q, s){
-  const rows = [
-    row('Net interest income', q.nii, s.nii),
-    row('Non-interest income (loss)', q.nonii, s.nonii),
-    row('Net revenues', q.netrev, s.netrev, {total:true}),
-    row('(Provision) benefit for credit losses', q.prov, s.prov),
-    row('Non-interest expense', q.nie, s.nie),
-    row('Income before income tax', q.pretax, s.pretax, {total:true}),
-    row(`Income tax expense (${(q.rate*100).toFixed(1)}% effective)`, q.tax, s.tax),
-    row('Net income', q.ni, s.ni, {total:true}),
-    row('Other comprehensive income (loss)', q.oci, q.oci),
-    row('Comprehensive income', q.ci, s.ci, {total:true}),
-    row('Net worth, beginning of quarter', q.nwStart, q.nwStart),
-    row('Net worth, end of quarter', q.nwEnd, s.nwEnd, {total:true}),
-    row('Required CET1 capital (ERCF)', q.reqCET1*1000, q.reqCET1*1000, {est:q.reqEst}),
-    row('Net worth still to build to CET1 requirement', q.reqCET1*1000 - q.nwEnd, s.gap, {total:true}),
-  ].join('');
-  const qtrsRep = (q.reqCET1*1000 - q.nwEnd) / q.ci;
-  const pace = s.changed
-    ? `At the scenario's ${fmt.b(s.ci)} of quarterly comprehensive income, closing the gap takes <b>${isFinite(s.qtrs)? s.qtrs.toFixed(1)+' quarters' : 'never'}</b> (reported pace: ${qtrsRep.toFixed(1)}), holding the requirement flat.`
-    : `At the reported ${fmt.b(q.ci)} of quarterly comprehensive income, closing the gap takes <b>${qtrsRep.toFixed(1)} quarters</b>, holding the requirement flat.`;
-  const segs = `
-    <h3 class="sec">Segments (reported net income)</h3>
-    <dl class="kv">
-      <dt><span class="swatch" style="background:var(--slab-edge)"></span>Single-Family</dt><dd>${fmt.m(q.sf.ni)}</dd>
-      <dt><span class="swatch" style="background:var(--slab)"></span>Multifamily</dt><dd>${fmt.m(q.mf.ni)}</dd>
-      <dt>Consolidated</dt><dd>${fmt.m(q.sf.ni + q.mf.ni)}</dd>
-    </dl>`;
-  const notes = `
-    <h3 class="sec">How the scenario is computed</h3>
-    <p class="note">Every lever is arithmetic on disclosed figures — no model behind the curtain. Guarantee fee: bps × Single-Family portfolio UPB (${fmt.t(q.sfUPB)}) ÷ 4. Reserve coverage: (target − reported bps) × portfolio UPB, booked as a reserve build or release in the quarter. Expense: a flat % on reported non-interest expense. Tax follows the quarter's effective rate; OCI is held at reported. ${q.reqEst ? 'The CET1 requirement for this quarter (≈) is interpolated between the disclosed year-end and mid-year points.' : 'The CET1 requirement is as disclosed in the 2Q 2026 earnings presentation.'}</p>
-    <p class="note">The tower and the waterfall use different vertical scales (net worth is ~13× quarterly revenue). Net worth here is GAAP equity; regulatory capital deducts the $72.6B senior preferred stock — tap the tower for that view.</p>
-    <p class="note">Room view holds the scene in place with the phone's motion sensors (rotation only — walking around it shifts it) and reads your hand with on-device tracking. Hand tracking needs a reasonably lit room and the hand within about arm's length of the lens.</p>`;
-  const srcs = `<h3 class="sec">Sources</h3><ul class="srcs">${q.srcs.map(k=>`<li><a href="${SRC[k].url}" target="_blank" rel="noopener">${SRC[k].label}</a></li>`).join('')}<li><a href="${SRC.p2q26.url}" target="_blank" rel="noopener">${SRC.p2q26.label}</a> — required CET1 capital series</li></ul>
-    <p class="foot">Independent visualization built from Freddie Mac's public SEC filings. Not affiliated with or endorsed by Freddie Mac or FHFA. Scenario figures are illustrative arithmetic, not forecasts.</p>`;
-  return `<div class="tablewrap"><table class="recon"><thead><tr><th>Line</th><th>Reported</th><th>Scenario</th><th>Δ</th></tr></thead><tbody>${rows}</tbody></table></div>
-    <p class="note">${pace}</p>${segs}${notes}${srcs}`;
-}
-function cardHTML(id, q, s){
-  const kv = (pairs)=>`<dl class="kv">${pairs.map(([k,v,cls])=>`<dt>${k}</dt><dd class="${cls||''}">${v}</dd>`).join('')}</dl>`;
-  const src = (keys)=>`<h3 class="sec">Source</h3><ul class="srcs">${keys.map(k=>`<li><a href="${SRC[k].url}" target="_blank" rel="noopener">${SRC[k].label}</a></li>`).join('')}</ul>`;
-  const big = (v, d)=>`<div class="big"><span class="v">${v}</span><span class="d">${d}</span></div>`;
+// ================= detail card specs (numbers from the filings) =================
+function detailSpec(id){
+  const { q, s } = current(); const L = state.levers;
+  const ser = (fn, label, color)=>({ label, values:Q.map(fn), color });
   switch(id){
-    case 'nii': return { title:'Net interest income', sub:`${q.label} · $ millions`, html:
-      big(fmt.b(s.nii), s.changed && Math.abs(s.d.nii)>0.5 ? `reported ${fmt.b(q.nii)} · <b>${fmt.md(s.d.nii)}M</b> from the guarantee-fee lever` : `${q.niy? 'net interest yield '+fmt.pct(q.niy):'reported'}`) +
-      kv([['Single-Family', fmt.m(q.sf.nii)],['Multifamily', fmt.m(q.mf.nii)],['Consolidated', fmt.m(q.nii)],['SF portfolio guarantee fee (avg est.)', `${q.sfGfee} bps`],['MF guarantee fee charged (period end)', `${q.mfGfee} bps`]]) +
-      `<p class="note">Guarantee income on the credit-guarantee book is earned inside net interest income once loans are securitized. A ${state.levers.gfee||10} bps portfolio-wide change on ${fmt.t(q.sfUPB)} of Single-Family UPB is worth ${fmt.md(((state.levers.gfee||10)/10000)*q.sfUPB*1000/4)}M per quarter — real repricing phases in with new acquisitions, so this is a run-rate view.</p>` + src(q.srcs) };
-    case 'nonii': return { title:'Non-interest income (loss)', sub:`${q.label} · $ millions`, html:
-      big(fmt.b(q.nonii), 'reported · not levered') +
-      kv([['Guarantee income', fmt.m(q.noniiD.g)],['Investment gains (losses), net', fmt.m(q.noniiD.inv)],['Other income', fmt.m(q.noniiD.oth)],['Total', fmt.m(q.nonii)]]) +
-      `<p class="note">The volatile line: mark-to-market on investments and hedges swings this between ${fmt.b(-426)} (2Q 2026) and ${fmt.b(879)} (4Q 2024) inside eight quarters. Multifamily's shift to fully guaranteed securitizations moves revenue from here into net interest income.</p>` + src(q.srcs) };
-    case 'prov': return { title: s.prov>=0 ? 'Benefit for credit losses' : 'Provision for credit losses', sub:`${q.label} · $ millions`, html:
-      big(fmt.b(s.prov), s.changed && Math.abs(s.d.prov)>0.5 ? `reported ${fmt.b(q.prov)} · <b>${fmt.md(s.d.prov)}M</b> from the coverage levers` : 'reported') +
-      kv([['Single-Family', fmt.m(s.provSF), Math.abs(s.d.provSF)>0.5?'gold':''],['Multifamily', fmt.m(s.provMF), Math.abs(s.d.provMF)>0.5?'gold':''],['SF allowance / loans', `${state.levers.sfCov} bps${state.levers.sfCov!==q.sfACL?` (reported ${q.sfACL})`:''}`],['MF allowance / loans', `${state.levers.mfCov} bps${state.levers.mfCov!==q.mfACL?` (reported ${q.mfACL})`:''}`],['SF serious delinquency', fmt.pct(q.sfSDQ)],['MF delinquency (60+ days)', fmt.pct(q.mfDQ)]]) +
-      (q.hpi ? `<p class="note">House-price path behind the reserve: management's forecast at quarter end assumed ${q.hpi[0]}% growth over the next 12 months and ${q.hpi[1]}% over the following 12 (earnings call).</p>` : '') +
-      `<p class="note">Each basis point of Single-Family coverage is ${fmt.md(q.sfUPB*1000/10000)}M of reserve on ${fmt.t(q.sfUPB)} of UPB; each Multifamily basis point is ${fmt.md(q.mfUPB*1000/10000)}M.</p>` + src(q.srcs) };
-    case 'nie': return { title:'Non-interest expense', sub:`${q.label} · $ millions`, html:
-      big(fmt.b(-s.nie), s.changed && Math.abs(s.d.nie)>0.5 ? `reported ${fmt.b(-q.nie)} · <b>${state.levers.opex>0?'+':''}${state.levers.opex}%</b> lever` : 'reported') +
-      kv([['Salaries and employee benefits', fmt.m(q.nieD.sal)],['Credit enhancement expense', fmt.m(q.nieD.ce)],['Legislative & regulatory assessments', fmt.m(q.nieD.leg)],['Professional services, technology, occupancy & other', fmt.m(q.nieD.oth)],['Total', fmt.m(-q.nie)]]) +
-      `<p class="note">Roughly 40% of the expense base is the legislated 10 bps TCCA fee remitted to Treasury and FHFA assessments, which management cannot flex. Credit enhancement expense is the cost of CRT protection on the guarantee book.</p>` + src(q.srcs) };
-    case 'tax': return { title:'Income tax expense', sub:`${q.label} · $ millions`, html:
-      big(fmt.b(-s.tax), `${(q.rate*100).toFixed(1)}% effective rate${s.changed?' · held constant in the scenario':''}`) +
-      kv([['Income before income tax', fmt.m(s.pretax)],['Income tax expense', fmt.m(s.tax)],['Net income', fmt.m(s.ni)]]) + src(q.srcs) };
-    case 'ni': return { title:'Net income', sub:`${q.label} · $ millions`, html:
-      big(fmt.b(s.ni), s.changed ? `reported ${fmt.b(q.ni)} · <b>${fmt.md(s.ni-q.ni)}M</b>` : `comprehensive income ${fmt.b(q.ci)}`) +
-      kv([['Single-Family (reported)', fmt.m(q.sf.ni)],['Multifamily (reported)', fmt.m(q.mf.ni)],['Other comprehensive income', fmt.m(q.oci)],['Comprehensive income', fmt.m(s.ci), s.changed?'gold':''],['Households helped (SF homes + MF units)', `${q.homes + q.units}K`]]) +
-      `<p class="note">Under the Purchase Agreement no dividend is paid to Treasury while capital is being built, so every dollar of comprehensive income is retained — and the senior preferred liquidation preference steps up by the same amount the following quarter (${fmt.bB(q.liq/1000)} at ${q.end}).</p>` + src(q.srcs) };
-    case 'tower': {
-      const nw = s.nwEnd/1000;
-      const adjTotal = nw - CAP.sps - CAP.adj + (state.countSPS ? CAP.sps : 0);
-      const cet1 = adjTotal - CAP.jrPref;
-      return { title:'Net worth & regulatory capital', sub:`${q.end} · $ billions`, html:
-        big(fmt.bB(nw), s.changed ? `reported ${fmt.bB(q.nwEnd/1000)} · <b>${fmt.md(s.nwEnd-q.nwEnd)}M</b>` : `required CET1 capital ${fmt.bB(q.reqCET1,0)}${q.reqEst?' (≈ interpolated)':''}`) +
-        kv([['Net worth (GAAP equity)', fmt.bB(nw)],['Required CET1 capital (ERCF)', fmt.bB(q.reqCET1, q.reqEst?1:0)],['Net worth still to build', fmt.bB(s.gap/1000), 'gold'],
-            ...(q.reqTotal ? [['Total capital requirement incl. buffers', fmt.bB(q.reqTotal,0)],['— of which buffers', fmt.bB(CAP.buffers2Q26,0)]] : []),
-            ['Senior preferred liquidation preference', fmt.bB(q.liq/1000)]]) +
-        `<h3 class="sec">Regulatory view (approx.)</h3>
-        <label class="toggle"><span>Count the $72.6B senior preferred stock as capital</span><input type="checkbox" id="tglSPS" ${state.countSPS?'checked':''}></label>` +
-        kv([['Net worth', fmt.bB(nw)],['Less: senior preferred stock', state.countSPS ? 'counted' : fmt.bB(-CAP.sps)],['Less: adjustments & deductions (~)', fmt.bB(-CAP.adj)],['Adjusted total capital', fmt.bB(adjTotal), 'gold'],['Less: junior preferred → CET1 capital', fmt.bB(cet1)],['CET1 vs. requirement', fmt.bB(cet1 - q.reqCET1)]]) +
-        `<p class="note">Under the ERCF the Treasury senior preferred does not qualify as regulatory capital, which is why Freddie Mac reported adjusted total capital of about zero at June 30, 2026 despite $78B of net worth (1Q 2026: CET1 capital of ($18B), Tier 1 ($4B), risk-weighted assets $1,259B). The toggle shows the arithmetic if it were counted — a policy question, not a forecast.</p>` +
-        src(['p2q26','s1q26', q.srcs[0]]) };
-    }
-    case 'sf': return { title:'Single-Family', sub:`${q.label} · guarantee book`, html:
-      big(fmt.t(q.sfUPB), `mortgage portfolio UPB · serious delinquency <b>${fmt.pct(q.sfSDQ)}</b>`) +
-      kv([['New business activity', `$${q.sfNew}B`],['— home purchase', `$${q.sfPurch}B`],['— refinance', `$${q.sfRefi}B`],['Homes funded', `${q.homes}K`],['Allowance / loans', `${q.sfACL} bps`],['Avg. estimated guarantee fee (portfolio)', `${q.sfGfee} bps`],['Segment net revenues', fmt.m(q.sf.nii+q.sf.nonii)],['Segment net income', fmt.m(q.sf.ni)], ...(q.pmms?[['30-yr mortgage rate at quarter end (PMMS)', fmt.pct(q.pmms)]]:[])]) +
-      `<p class="note">The slab's footprint is proportional to UPB; its rim glows warmer as serious delinquency rises. Roughly 13.9 million loans, 62% covered by credit enhancement.</p>` + src(q.srcs) };
-    case 'mf': return { title:'Multifamily', sub:`${q.label} · guarantee book`, html:
-      big(fmt.t(q.mfUPB), `mortgage portfolio UPB · delinquency <b>${fmt.pct(q.mfDQ)}</b>`) +
-      kv([['New business activity', `$${q.mfNew}B`],['Rental units financed', `${q.units}K`],['Allowance / loans', `${q.mfACL} bps`],['Avg. guarantee fee charged (period end)', `${q.mfGfee} bps`],['Segment net revenues', fmt.m(q.mf.nii+q.mf.nonii)],['Segment net income', fmt.m(q.mf.ni)]]) +
-      `<p class="note">In 2025 Multifamily shifted to issuing fully guaranteed securitizations, so revenue is migrating from non-interest income (loan sales) into net interest income, and reserve builds now follow new purchase commitments. Delinquency is concentrated in floating-rate and small-balance loans; 91%+ of the book carries credit enhancement.</p>` + src(q.srcs) };
+    case 'netrev': return { title:'Net revenues', sub:`${q.label} · $ millions`, big:{ v:fmt.b(s.netrev), d:s.changed?`reported ${fmt.b(q.netrev)}`:`net interest income + non-interest income` },
+      rows:[['Net interest income', fmt.m(s.nii)],['Non-interest income (loss)', fmt.m(q.nonii)],['Net revenues', fmt.m(s.netrev)],['Single-Family net revenues', fmt.m(q.sf.nii+q.sf.nonii)],['Multifamily net revenues', fmt.m(q.mf.nii+q.mf.nonii)],['Net interest yield', q.niy?fmt.pct(q.niy):'n/a']],
+      note:'Net interest income now carries most of the guarantee-fee revenue as the credit-guarantee book is securitized; non-interest income is the volatile mark-to-market line.', series:ser(x=>x.netrev,'Net revenues, 10 quarters ($M)','#6FA3FF') };
+    case 'nii': return { title:'Net interest income', sub:`${q.label} · $ millions`, big:{ v:fmt.b(s.nii), d:s.changed&&Math.abs(s.d.nii)>0.5?`reported ${fmt.b(q.nii)} · ${fmt.md(s.d.nii)}M from the guarantee-fee lever`:(q.niy?`net interest yield ${fmt.pct(q.niy)}`:'reported') },
+      rows:[['Single-Family', fmt.m(q.sf.nii)],['Multifamily', fmt.m(q.mf.nii)],['Consolidated', fmt.m(q.nii)],['SF guarantee fee, portfolio avg.', `${q.sfGfee} bps`],['MF guarantee fee charged', `${q.mfGfee} bps`]],
+      note:`One basis point on ${fmt.t(q.sfUPB)} of Single-Family UPB is ${fmt.md(q.sfUPB*1000/10000/4)}M per quarter of run-rate; repricing phases in with new acquisitions.`, series:ser(x=>x.nii,'Net interest income ($M)','#3FE0B0') };
+    case 'nonii': return { title:'Non-interest income (loss)', sub:`${q.label} · $ millions`, big:{ v:fmt.b(q.nonii), d:'reported · not levered' },
+      rows:[['Guarantee income', fmt.m(q.noniiD.g)],['Investment gains (losses), net', fmt.m(q.noniiD.inv)],['Other income', fmt.m(q.noniiD.oth)],['Total', fmt.m(q.nonii)]],
+      note:'Swings between ($0.43B) in 2Q 2026 and $0.88B in 4Q 2024 inside eight quarters as investment and hedge marks move. Multifamily\'s shift to fully guaranteed securitizations moves revenue from here into net interest income.', series:ser(x=>x.nonii,'Non-interest income ($M)','#6FA3FF') };
+    case 'prov': return { title: s.prov>=0?'Benefit for credit losses':'Provision for credit losses', sub:`${q.label} · $ millions`, big:{ v:fmt.b(s.prov), d:s.changed&&Math.abs(s.d.prov)>0.5?`reported ${fmt.b(q.prov)} · ${fmt.md(s.d.prov)}M from the coverage levers`:'reported' },
+      rows:[['Single-Family', fmt.m(s.provSF)],['Multifamily', fmt.m(s.provMF)],['SF allowance / loans', `${L.sfCov} bps${L.sfCov!==q.sfACL?` (reported ${q.sfACL})`:''}`],['MF allowance / loans', `${L.mfCov} bps${L.mfCov!==q.mfACL?` (reported ${q.mfACL})`:''}`],['SF serious delinquency', fmt.pct(q.sfSDQ)],['MF delinquency (60+ days)', fmt.pct(q.mfDQ)]],
+      note:(q.hpi?`House-price path behind the reserve: management assumed ${q.hpi[0]}% growth over the next 12 months and ${q.hpi[1]}% over the following 12. `:'')+`Each SF basis point of coverage is ${fmt.md(q.sfUPB*1000/10000)}M of reserve; each MF basis point ${fmt.md(q.mfUPB*1000/10000)}M.`, series:ser(x=>x.prov,'(Provision) benefit ($M)','#FF7A5C') };
+    case 'nie': return { title:'Non-interest expense', sub:`${q.label} · $ millions`, big:{ v:fmt.b(-s.nie), d:s.changed&&Math.abs(s.d.nie)>0.5?`reported ${fmt.b(-q.nie)} · ${L.opex>0?'+':''}${L.opex}% lever`:'reported' },
+      rows:[['Salaries and employee benefits', fmt.m(q.nieD.sal)],['Credit enhancement expense', fmt.m(q.nieD.ce)],['Legislative & regulatory assessments', fmt.m(q.nieD.leg)],['Professional services, tech, occupancy & other', fmt.m(q.nieD.oth)],['Total', fmt.m(-q.nie)]],
+      note:'About 40% of the base is the legislated 10 bps TCCA fee remitted to Treasury plus FHFA assessments, which management cannot flex. Credit enhancement expense is the cost of CRT protection.', series:ser(x=>-x.nie,'Non-interest expense ($M)','#FF7A5C') };
+    case 'tax': return { title:'Income tax expense', sub:`${q.label} · $ millions`, big:{ v:fmt.b(-s.tax), d:`${(q.rate*100).toFixed(1)}% effective rate${s.changed?' · held constant':''}` },
+      rows:[['Income before income tax', fmt.m(s.pretax)],['Income tax expense', fmt.m(s.tax)],['Net income', fmt.m(s.ni)]], note:'The effective rate has sat between 19.3% and 20.1% across the ten quarters.', series:ser(x=>-x.tax,'Income tax ($M)','#8FA3C2') };
+    case 'ni': return { title:'Net income', sub:`${q.label} · $ millions`, big:{ v:fmt.b(s.ni), d:s.changed?`reported ${fmt.b(q.ni)} · ${fmt.md(s.ni-q.ni)}M`:`comprehensive income ${fmt.b(q.ci)}` },
+      rows:[['Single-Family (reported)', fmt.m(q.sf.ni)],['Multifamily (reported)', fmt.m(q.mf.ni)],['Other comprehensive income', fmt.m(q.oci)],['Comprehensive income', fmt.m(s.ci)],['Households helped (homes + units)', `${q.homes+q.units}K`]],
+      note:`No dividend is paid to Treasury while capital is being built, so every dollar of comprehensive income is retained — and the senior preferred liquidation preference steps up by the same amount the following quarter (${fmt.bB(q.liq/1000)} at ${q.end}).`, series:ser(x=>x.ni,'Net income ($M)','#F5C55C') };
+    case 'tower': { const nw = s.nwEnd/1000; const adj = nw - CAP.sps - CAP.adj + (state.countSPS?CAP.sps:0); const cet1 = adj - CAP.jrPref;
+      return { title:'Net worth & regulatory capital', sub:`${q.end} · $ billions`, big:{ v:fmt.bB(nw), d:s.changed?`reported ${fmt.bB(q.nwEnd/1000)} · ${fmt.md(s.nwEnd-q.nwEnd)}M`:`required CET1 ${fmt.bB(q.reqCET1,0)}${q.reqEst?' (≈ interpolated)':''}` },
+      rows:[['Net worth (GAAP equity)', fmt.bB(nw)],['Required CET1 capital (ERCF)', fmt.bB(q.reqCET1,q.reqEst?1:0)],['Net worth still to build', fmt.bB(s.gap/1000)],['Quarters to close at current pace', isFinite(s.qtrs)?s.qtrs.toFixed(1):'never'], ...(q.reqTotal?[['Total requirement incl. $60B buffers', fmt.bB(q.reqTotal,0)]]:[]),['Less senior preferred ($72.6B)' + (state.countSPS?' — counted':''), state.countSPS?'—':fmt.bB(-CAP.sps)],['Adjusted total capital (approx.)', fmt.bB(adj)],['CET1 capital vs. requirement', fmt.bB(cet1-q.reqCET1)]],
+      note:'Under the ERCF the Treasury senior preferred does not count as regulatory capital, which is why adjusted total capital was about zero at June 30, 2026 despite $78B of net worth. Touch the toggle in the Scenario tab to see the arithmetic if it were counted.', series:ser(x=>x.nwEnd,'Net worth ($M)','#F5C55C') }; }
+    case 'sf': return { title:'Single-Family', sub:`${q.label} · guarantee book`, big:{ v:fmt.t(q.sfUPB), d:`serious delinquency ${fmt.pct(q.sfSDQ)} · net income ${fmt.b(q.sf.ni)}` },
+      rows:[['New business activity', `$${q.sfNew}B`],['— home purchase', `$${q.sfPurch}B`],['— refinance', `$${q.sfRefi}B`],['Homes funded', `${q.homes}K`],['Allowance / loans', `${q.sfACL} bps`],['Avg. estimated guarantee fee (portfolio)', `${q.sfGfee} bps`],['Segment net revenues', fmt.m(q.sf.nii+q.sf.nonii)], ...(q.pmms?[['30-yr mortgage rate at quarter end', fmt.pct(q.pmms)]]:[])],
+      note:'Roughly 13.9 million loans; 62% of the book carries credit enhancement. The slab\'s footprint is proportional to UPB and its rim warms as delinquency rises.', series:ser(x=>x.sfSDQ,'Serious delinquency (%)','#FF7A5C') };
+    case 'mf': return { title:'Multifamily', sub:`${q.label} · guarantee book`, big:{ v:fmt.t(q.mfUPB), d:`delinquency ${fmt.pct(q.mfDQ)} · net income ${fmt.b(q.mf.ni)}` },
+      rows:[['New business activity', `$${q.mfNew}B`],['Rental units financed', `${q.units}K`],['Allowance / loans', `${q.mfACL} bps`],['Avg. guarantee fee charged (period end)', `${q.mfGfee} bps`],['Segment net revenues', fmt.m(q.mf.nii+q.mf.nonii)],['Segment net income', fmt.m(q.mf.ni)]],
+      note:'In 2025 Multifamily shifted to fully guaranteed securitizations: revenue is migrating from loan sales (non-interest income) into net interest income. Delinquency sits in floating-rate and small-balance loans; 91%+ of the book is credit-enhanced.', series:ser(x=>x.mfDQ,'Delinquency (%)','#FF7A5C') };
   }
-  return { title:'', sub:'', html:'' };
+  return null;
 }
 
-// ---------- toast ----------
-let toastTimer = null;
-function toast(msg, ms=3200){
-  const t = $('toast'); t.textContent = msg; t.classList.add('show');
-  clearTimeout(toastTimer); toastTimer = setTimeout(()=>t.classList.remove('show'), ms);
+// ================= canvas drawing kit =================
+const CC = { text:'#EAF0FA', muted:'#8FA3C2', dim:'#5B6E8F', gold:'#F5C55C', teal:'#3FE0B0', clay:'#FF7A5C', blue:'#6FA3FF' };
+function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
+function glass(ctx, w, h, o={}){
+  const r = o.r||34; ctx.save();
+  roundRect(ctx, 3, 3, w-6, h-6, r);
+  const g = ctx.createLinearGradient(0,0,w,h); g.addColorStop(0,'rgba(16,30,54,0.80)'); g.addColorStop(1,'rgba(7,13,26,0.74)'); ctx.fillStyle = g; ctx.fill();
+  ctx.save(); ctx.clip(); const sh = ctx.createLinearGradient(0,0,0,h*0.45); sh.addColorStop(0,'rgba(255,255,255,0.08)'); sh.addColorStop(1,'rgba(255,255,255,0)'); ctx.fillStyle = sh; ctx.fillRect(0,0,w,h*0.45); ctx.restore();
+  ctx.lineWidth = o.hover ? 6 : 3;
+  const bg = ctx.createLinearGradient(0,0,w,0);
+  if(o.hover){ bg.addColorStop(0,CC.gold); bg.addColorStop(1,'#FFE7A6'); } else { bg.addColorStop(0,'rgba(63,224,176,0.85)'); bg.addColorStop(1,'rgba(111,163,255,0.85)'); }
+  ctx.strokeStyle = bg; ctx.stroke();
+  ctx.strokeStyle = o.hover ? CC.gold : 'rgba(210,230,255,0.95)'; ctx.lineWidth = 4; const t = 22, m = 13;
+  [[m,m,1,1],[w-m,m,-1,1],[m,h-m,1,-1],[w-m,h-m,-1,-1]].forEach(([x,y,sx,sy])=>{ ctx.beginPath(); ctx.moveTo(x,y+sy*t); ctx.lineTo(x,y); ctx.lineTo(x+sx*t,y); ctx.stroke(); });
+  ctx.restore();
+}
+function txt(ctx, s, x, y, size, color, o={}){
+  ctx.font = `${o.weight||'600'} ${size}px ${o.font||'"IBM Plex Sans"'}, system-ui, sans-serif`; ctx.fillStyle = color; ctx.textAlign = o.align||'left'; ctx.textBaseline = o.base||'alphabetic';
+  if(o.spacing) s = String(s).split('').join(String.fromCharCode(8202));
+  if(o.maxW){ let f = size; while(ctx.measureText(s).width > o.maxW && f > 10){ f -= 2; ctx.font = `${o.weight||'600'} ${f}px ${o.font||'"IBM Plex Sans"'}, system-ui, sans-serif`; } }
+  ctx.fillText(s, x, y);
+}
+function wrap(ctx, s, x, y, maxW, lh, size, color){
+  ctx.font = `400 ${size}px "IBM Plex Sans", system-ui, sans-serif`; ctx.fillStyle = color; ctx.textAlign='left'; ctx.textBaseline='alphabetic';
+  const words = String(s).split(' '); let line = '', yy = y;
+  for(const w of words){ const test = line ? line+' '+w : w; if(ctx.measureText(test).width > maxW && line){ ctx.fillText(line, x, yy); line = w; yy += lh; } else line = test; }
+  if(line) ctx.fillText(line, x, yy); return yy + lh;
+}
+function sparkline(ctx, x, y, w, h, vals, qi, color){
+  const n = vals.length; if(n<2) return; const mn = Math.min(...vals), mx = Math.max(...vals); const span = (mx-mn) || 1;
+  const px = i=> x + (i/(n-1))*w, py = v=> y + h - ((v-mn)/span)*h*0.86 - h*0.07;
+  ctx.save();
+  ctx.strokeStyle = 'rgba(140,170,220,0.18)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(x, y+h); ctx.lineTo(x+w, y+h); ctx.stroke();
+  const g = ctx.createLinearGradient(0,y,0,y+h); g.addColorStop(0, color+'55'); g.addColorStop(1, color+'00');
+  ctx.beginPath(); ctx.moveTo(px(0), y+h); for(let i=0;i<n;i++) ctx.lineTo(px(i), py(vals[i])); ctx.lineTo(px(n-1), y+h); ctx.closePath(); ctx.fillStyle = g; ctx.fill();
+  ctx.beginPath(); for(let i=0;i<n;i++){ i? ctx.lineTo(px(i), py(vals[i])) : ctx.moveTo(px(i), py(vals[i])); } ctx.strokeStyle = color; ctx.lineWidth = 5; ctx.lineJoin='round'; ctx.lineCap='round'; ctx.stroke();
+  if(qi>=0 && qi<n){ ctx.beginPath(); ctx.arc(px(qi), py(vals[qi]), 11, 0, Math.PI*2); ctx.fillStyle = CC.gold; ctx.fill(); ctx.lineWidth=4; ctx.strokeStyle='#0B1120'; ctx.stroke(); }
+  ctx.restore();
+}
+function chipBtn(ctx, x, y, w, h, label, o={}){
+  roundRect(ctx, x, y, w, h, h/2);
+  if(o.active){ ctx.fillStyle = CC.gold; ctx.fill(); }
+  else { ctx.fillStyle = o.hover ? 'rgba(245,197,92,0.22)' : 'rgba(255,255,255,0.05)'; ctx.fill(); ctx.strokeStyle = o.hover ? CC.gold : 'rgba(150,180,230,0.4)'; ctx.lineWidth = o.hover?4:2; ctx.stroke(); }
+  txt(ctx, label, x+w/2, y+h/2+1, o.size||34, o.active ? '#1A1405' : (o.hover?CC.gold:CC.muted), { align:'center', base:'middle', weight:'600', font:o.font||'"IBM Plex Mono"' });
 }
 
-// ---------- THREE scene ----------
-let three = null;
-function cssColor(name){ return getComputedStyle(document.documentElement).getPropertyValue(name).trim(); }
-function themeColors(){
-  const names = ['--bg','--bg-2','--panel-solid','--line-strong','--text','--muted','--gold','--inflow','--outflow','--req','--slab','--slab-edge','--hemi-sky','--hemi-ground'];
-  const o = {}; names.forEach(n=>o[n.slice(2)] = cssColor(n)); return o;
+// ================= Panel (canvas-textured plane with touch regions) =================
+class Panel {
+  constructor(id, w, h, cw, ch, draw){
+    this.id = id; this.w = w; this.h = h; this.cw = cw; this.ch = ch; this.draw = draw;
+    this.canvas = document.createElement('canvas'); this.canvas.width = cw; this.canvas.height = ch; this.ctx = this.canvas.getContext('2d');
+    this.tex = new THREE.CanvasTexture(this.canvas); this.tex.encoding = THREE.sRGBEncoding; this.tex.minFilter = THREE.LinearFilter; this.tex.anisotropy = 4;
+    this.mat = new THREE.MeshBasicMaterial({ map:this.tex, transparent:true, depthWrite:false, side:THREE.DoubleSide });
+    this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(w, h), this.mat); this.mesh.userData.panel = this; this.mesh.layers.enable(1); this.mesh.renderOrder = 20;
+    this.regions = []; this.hover = null; this.dirty = true; this.shown = false; this.s = 0.001; this.mesh.visible = false; this.mesh.scale.setScalar(this.s);
+    this.target = new THREE.Vector3(); this.rot = new THREE.Euler();
+  }
+  region(id, x, y, w, h){ this.regions.push({ id, x, y, w, h }); }
+  hit(uv){ const x = uv.x*this.cw, y = (1-uv.y)*this.ch; return this.regions.find(r=> x>=r.x && x<=r.x+r.w && y>=r.y && y<=r.y+r.h) || null; }
+  redraw(){ this.regions = []; this.ctx.clearRect(0,0,this.cw,this.ch); this.draw(this.ctx, this); this.tex.needsUpdate = true; this.dirty = false; }
+  show(on){ if(this.shown !== on){ this.shown = on; if(on){ this.mesh.visible = true; this.dirty = true; this.mesh.position.set(this.target.x, this.target.y - 0.06, this.target.z - 0.16); } } }
+  setHover(id){ if(this.hover !== id){ this.hover = id; this.dirty = true; } }
+  tick(k){
+    const goal = this.shown ? 1 : 0.001; this.s += (goal - this.s)*k; if(!this.shown && this.s < 0.01) this.mesh.visible = false;
+    this.mesh.scale.setScalar(this.s); this.mesh.position.lerp(this.target, k); this.mesh.rotation.copy(this.rot);
+    if(this.dirty && this.mesh.visible) this.redraw();
+  }
 }
-function toLinear(css){ const c = new THREE.Color(); c.setStyle(css); return c.convertSRGBToLinear(); }
-function toSRGB(css){ const c = new THREE.Color(); c.setStyle(css); return c; }
 
-// scene constants (meters)
-const G = { colW:0.072, colGap:0.03, x0:-0.33, zWF:-0.16, depth:0.06, sWF:0.028/1000, // meters per $M
-            tx:0.34, tz:0.06, tr:0.045, sT:0.0022, shellR:0.056,
-            sfC:[-0.19,0.12], mfC:[0.02,0.10], slabH:0.012, kArea:0.036/3172 };
+// ================= THREE scene =================
+let R = null; // renderer & scene bundle
+const G = { colW:0.072, colGap:0.03, x0:-0.33, zWF:-0.16, depth:0.06, sWF:0.028/1000, tx:0.34, tz:0.06, tr:0.045, sT:0.0022, shellR:0.056, sfC:[-0.19,0.12], mfC:[0.02,0.10], slabH:0.012, kArea:0.036/3172 };
 const COLS = ['nii','nonii','prov','nie','tax','ni'];
+const TL = { x0:-0.30, pitch:0.0667, z:0.40, w:0.038, hMax:0.11 };
+const TL_METRIC = { overview:'ni', earnings:'netrev', capital:'nw', sf:'sfNew', mf:'mfNew', scenario:'ni' };
+// Single-Family book by origination year, as of Mar 31, 2026 (1Q 2026 financial supplement): UPB $B and serious delinquency %
+const VINTAGE = [ {y:'Pre-2022', upb:1913.7, sdq:0.55}, {y:'2022', upb:356.0, sdq:1.03}, {y:'2023', upb:199.3, sdq:1.19}, {y:'2024', upb:272.4, sdq:0.69}, {y:'2025', upb:352.5, sdq:0.11}, {y:'2026', upb:64.1, sdq:0.00} ];
+const SEGKEY = { nii:'nii', nonii:'nonii', prov:'prov', nie:'nie', tax:'tax', ni:'ni' };
+const col3 = (hex)=> new THREE.Color(hex).convertSRGBToLinear();
 
 function initThree(){
-  if(typeof THREE === 'undefined'){ $('nogl').style.display='grid'; return; }
+  if(typeof THREE === 'undefined'){ $('nogl').style.display = 'grid'; return; }
   const stage = $('stage');
   const renderer = new THREE.WebGLRenderer({ antialias:true, alpha:true, powerPreference:'high-performance' });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2));
-  renderer.setSize(stage.clientWidth, stage.clientHeight);
-  renderer.outputEncoding = THREE.sRGBEncoding;
-  renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio||1, 2)); renderer.setSize(stage.clientWidth, stage.clientHeight);
+  renderer.outputEncoding = THREE.sRGBEncoding; renderer.shadowMap.enabled = true; renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   stage.appendChild(renderer.domElement);
-
-  const scene = new THREE.Scene();
+  const scene = new THREE.Scene(); scene.background = col3('#070C16'); scene.fog = new THREE.Fog(col3('#070C16'), 2.2, 5);
   const camera = new THREE.PerspectiveCamera(42, stage.clientWidth/stage.clientHeight, 0.01, 30);
-  const world = new THREE.Group(); scene.add(world);
+  const world = new THREE.Group(); scene.add(world);      // the table scene (turns with gestures)
+  const hud = new THREE.Group(); scene.add(hud);          // floating panels (billboarded)
 
   // lights
-  const hemi = new THREE.HemisphereLight(0xffffff, 0x223344, 0.85); scene.add(hemi);
-  const sun = new THREE.DirectionalLight(0xffffff, 0.95); sun.position.set(0.55, 1.3, 0.75); sun.castShadow = true;
-  sun.shadow.mapSize.set(1024,1024); sun.shadow.camera.near = 0.2; sun.shadow.camera.far = 4;
-  sun.shadow.camera.left = -0.7; sun.shadow.camera.right = 0.7; sun.shadow.camera.top = 0.7; sun.shadow.camera.bottom = -0.7; sun.shadow.bias = -0.0008;
+  const hemi = new THREE.HemisphereLight(0x8fb2ff, 0x0b1020, 0.7); scene.add(hemi);
+  const sun = new THREE.DirectionalLight(0xffffff, 0.9); sun.position.set(0.55, 1.3, 0.75); sun.castShadow = true; sun.shadow.mapSize.set(1024,1024);
+  sun.shadow.camera.near = 0.2; sun.shadow.camera.far = 4; sun.shadow.camera.left = -0.7; sun.shadow.camera.right = 0.7; sun.shadow.camera.top = 0.7; sun.shadow.camera.bottom = -0.7; sun.shadow.bias = -0.0008;
   world.add(sun); world.add(sun.target);
-  const fill = new THREE.DirectionalLight(0xffffff, 0.25); fill.position.set(-0.8, 0.6, -0.5); world.add(fill);
+  const rim = new THREE.PointLight(0x3fe0b0, 0.6, 2.5); rim.position.set(-0.6, 0.5, -0.4); world.add(rim);
+  const rim2 = new THREE.PointLight(0xf5c55c, 0.5, 2.5); rim2.position.set(0.7, 0.6, 0.5); world.add(rim2);
 
-  // ground (table)
-  const gridCanvas = document.createElement('canvas'); gridCanvas.width = gridCanvas.height = 1024;
-  const gridTex = new THREE.CanvasTexture(gridCanvas); gridTex.encoding = THREE.sRGBEncoding; gridTex.anisotropy = 4;
-  const groundMat = new THREE.MeshStandardMaterial({ map: gridTex, roughness:0.95, metalness:0 });
-  const shadowMat = new THREE.ShadowMaterial({ opacity:0.32 });
-  const ground = new THREE.Mesh(new THREE.CircleGeometry(0.62, 72), groundMat); ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; world.add(ground);
+  // hologram pad + shadow catcher
+  const padMat = new THREE.ShaderMaterial({ uniforms:{ uTime:{value:0}, uColor:{value:col3('#3FE0B0')}, uAlpha:{value:0.55} }, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    vertexShader:`varying vec2 vUv; void main(){ vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position,1.0); }`,
+    fragmentShader:`uniform float uTime; uniform vec3 uColor; uniform float uAlpha; varying vec2 vUv;
+      void main(){ vec2 p = vUv - 0.5; float r = length(p)*2.0; if(r > 1.0) discard;
+        float gx = smoothstep(0.955, 1.0, abs(fract(p.x*9.0)*2.0-1.0)); float gy = smoothstep(0.955, 1.0, abs(fract(p.y*9.0)*2.0-1.0));
+        float grid = max(gx, gy) * 0.35; float ring = smoothstep(0.985, 1.0, abs(fract(r*3.0)*2.0-1.0)) * 0.55;
+        float sweep = smoothstep(0.035, 0.0, abs(r - fract(uTime*0.22))) * 0.9; float edge = smoothstep(0.975, 1.0, r) * 1.2;
+        float fade = 1.0 - smoothstep(0.45, 1.0, r); float a = (grid + ring + sweep) * fade + edge * (1.0 - smoothstep(0.995, 1.0, r));
+        a *= uAlpha; gl_FragColor = vec4(uColor * a, a); }` });
+  const pad = new THREE.Mesh(new THREE.PlaneGeometry(1.3, 1.3), padMat); pad.rotation.x = -Math.PI/2; pad.position.y = 0.0015; pad.layers.enable(1); world.add(pad);
+  const shadowMat = new THREE.ShadowMaterial({ opacity:0.35 });
+  const ground = new THREE.Mesh(new THREE.CircleGeometry(0.66, 64), shadowMat); ground.rotation.x = -Math.PI/2; ground.receiveShadow = true; world.add(ground);
 
   // materials
-  const M = {
-    inflow: new THREE.MeshStandardMaterial({ roughness:0.5, metalness:0.05 }),
-    outflow: new THREE.MeshStandardMaterial({ roughness:0.5, metalness:0.05 }),
-    gold: new THREE.MeshStandardMaterial({ roughness:0.35, metalness:0.25 }),
-    shell: new THREE.MeshStandardMaterial({ roughness:0.2, metalness:0, transparent:true, opacity:0.18, depthWrite:false, side:THREE.DoubleSide }),
-    shellEdge: new THREE.LineBasicMaterial({ transparent:true, opacity:0.75 }),
-    ring: new THREE.MeshStandardMaterial({ roughness:0.4, metalness:0.2 }),
-    slab: new THREE.MeshStandardMaterial({ roughness:0.7, metalness:0 }),
-    slabEdge: new THREE.LineBasicMaterial({ transparent:true, opacity:0.9 }),
-  };
+  const mk = (hex, o={})=> new THREE.MeshStandardMaterial(Object.assign({ color:col3(hex), roughness:0.45, metalness:0.1, transparent:true, opacity:1 }, o));
+  const M = { inflow: mk('#2FC79A'), outflow: mk('#F07A5E'), gold: mk('#F5C55C', { roughness:0.3, metalness:0.35, emissive:col3('#F5C55C').multiplyScalar(0.18) }),
+              shell: new THREE.MeshStandardMaterial({ color:col3('#6FA3FF'), roughness:0.15, transparent:true, opacity:0.16, depthWrite:false, side:THREE.DoubleSide }),
+              slab: mk('#3C5070', { roughness:0.7 }), edgeIn: new THREE.LineBasicMaterial({ color:col3('#7CFFD9'), transparent:true, opacity:0.7, blending:THREE.AdditiveBlending }),
+              edgeOut: new THREE.LineBasicMaterial({ color:col3('#FFB39E'), transparent:true, opacity:0.7, blending:THREE.AdditiveBlending }),
+              edgeGold: new THREE.LineBasicMaterial({ color:col3('#FFE39A'), transparent:true, opacity:0.95, blending:THREE.AdditiveBlending }),
+              edgeSlab: new THREE.LineBasicMaterial({ color:col3('#9DB4D6'), transparent:true, opacity:0.8, blending:THREE.AdditiveBlending }),
+              conn: new THREE.LineBasicMaterial({ color:col3('#8FA3C2'), transparent:true, opacity:0.5 }) };
 
-  // waterfall blocks
-  const unitBox = new THREE.BoxGeometry(1,1,1);
+  const unitBox = new THREE.BoxGeometry(1,1,1); const unitEdges = new THREE.EdgesGeometry(unitBox);
   const blocks = COLS.map((id,i)=>{
-    const m = new THREE.Mesh(unitBox, i<5 ? M.inflow.clone() : M.gold.clone());
-    m.castShadow = true; m.receiveShadow = true; m.userData.id = id; m.userData.pick = true;
-    m.position.set(G.x0 + i*(G.colW+G.colGap), 0, G.zWF);
-    m.scale.set(G.colW, 0.001, G.depth);
-    world.add(m); return m;
-  });
-  // connectors (thin lines between block levels)
+    const m = new THREE.Mesh(unitBox, (i<5 ? M.inflow : M.gold).clone()); m.castShadow = true; m.userData.id = id; m.userData.pick = true;
+    m.position.set(G.x0 + i*(G.colW+G.colGap), 0, G.zWF); m.scale.set(G.colW, 0.001, G.depth); world.add(m);
+    const e = new THREE.LineSegments(unitEdges, (i<5 ? M.edgeIn : M.edgeGold).clone()); e.layers.enable(1); world.add(e); m.userData.edge = e; return m; });
   const connGeo = new THREE.BufferGeometry(); connGeo.setAttribute('position', new THREE.Float32BufferAttribute(new Float32Array(5*2*3), 3));
-  const conn = new THREE.LineSegments(connGeo, new THREE.LineBasicMaterial({ transparent:true, opacity:0.45 })); world.add(conn);
+  const conn = new THREE.LineSegments(connGeo, M.conn); world.add(conn);
 
-  // capital tower
-  const towerGeo = new THREE.CylinderGeometry(G.tr, G.tr, 1, 48);
-  const tower = new THREE.Mesh(towerGeo, M.gold); tower.castShadow = true; tower.receiveShadow = true; tower.userData.id='tower'; tower.userData.pick=true;
-  tower.position.set(G.tx, 0, G.tz); world.add(tower);
-  const shell = new THREE.Mesh(new THREE.CylinderGeometry(G.shellR, G.shellR, 1, 48, 1, true), M.shell); shell.position.set(G.tx, 0, G.tz); shell.userData.id='tower'; shell.userData.pick=true; world.add(shell);
-  const shellCap = new THREE.LineLoop(new THREE.BufferGeometry().setFromPoints(Array.from({length:64},(_,i)=>{const a=i/64*Math.PI*2;return new THREE.Vector3(Math.cos(a)*G.shellR,0,Math.sin(a)*G.shellR);})), M.shellEdge); shellCap.position.set(G.tx,0,G.tz); world.add(shellCap);
-  const ring = new THREE.Mesh(new THREE.TorusGeometry(G.shellR+0.004, 0.0014, 8, 72), M.ring); ring.rotation.x = Math.PI/2; ring.position.set(G.tx, 0, G.tz); ring.visible=false; world.add(ring);
+  const tower = new THREE.Mesh(new THREE.CylinderGeometry(G.tr, G.tr, 1, 48), M.gold); tower.castShadow = true; tower.userData.id = 'tower'; tower.userData.pick = true; tower.position.set(G.tx, 0, G.tz); world.add(tower);
+  const shell = new THREE.Mesh(new THREE.CylinderGeometry(G.shellR, G.shellR, 1, 48, 1, true), M.shell); shell.position.set(G.tx, 0, G.tz); shell.userData.id = 'tower'; shell.userData.pick = true; world.add(shell);
+  const ringGeo = new THREE.TorusGeometry(G.shellR+0.002, 0.0022, 8, 72);
+  const shellTop = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color:col3('#8FBBFF'), transparent:true, opacity:0.9, blending:THREE.AdditiveBlending })); shellTop.rotation.x = Math.PI/2; shellTop.position.set(G.tx, 0, G.tz); shellTop.layers.enable(1); world.add(shellTop);
+  const scanner = new THREE.Mesh(ringGeo, new THREE.MeshBasicMaterial({ color:col3('#3FE0B0'), transparent:true, opacity:0.7, blending:THREE.AdditiveBlending })); scanner.rotation.x = Math.PI/2; scanner.position.set(G.tx, 0, G.tz); scanner.layers.enable(1); world.add(scanner);
 
-  // portfolio slabs
-  const sf = new THREE.Mesh(unitBox, M.slab.clone()); sf.castShadow=true; sf.receiveShadow=true; sf.userData.id='sf'; sf.userData.pick=true; sf.position.set(G.sfC[0], G.slabH/2, G.sfC[1]); world.add(sf);
-  const mf = new THREE.Mesh(unitBox, M.slab.clone()); mf.castShadow=true; mf.receiveShadow=true; mf.userData.id='mf'; mf.userData.pick=true; mf.position.set(G.mfC[0], G.slabH/2, G.mfC[1]); world.add(mf);
-  const sfEdge = new THREE.LineSegments(new THREE.EdgesGeometry(unitBox), M.slabEdge); world.add(sfEdge);
-  const mfEdge = new THREE.LineSegments(new THREE.EdgesGeometry(unitBox), M.slabEdge); world.add(mfEdge);
+  const sf = new THREE.Mesh(unitBox, M.slab.clone()); sf.castShadow = true; sf.userData.id = 'sf'; sf.userData.pick = true; sf.position.set(G.sfC[0], G.slabH/2, G.sfC[1]); world.add(sf);
+  const mf = new THREE.Mesh(unitBox, M.slab.clone()); mf.castShadow = true; mf.userData.id = 'mf'; mf.userData.pick = true; mf.position.set(G.mfC[0], G.slabH/2, G.mfC[1]); world.add(mf);
+  const sfEdge = new THREE.LineSegments(unitEdges, M.edgeSlab.clone()); sfEdge.layers.enable(1); world.add(sfEdge);
+  const mfEdge = new THREE.LineSegments(unitEdges, M.edgeSlab.clone()); mfEdge.layers.enable(1); world.add(mfEdge);
 
-  // labels
+  // scene name plates (sprites)
   const labels = {};
-  function makeLabel(){
-    const c = document.createElement('canvas'); c.width = 640; c.height = 280;
-    const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; tex.minFilter = THREE.LinearFilter; tex.anisotropy = 4;
-    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map:tex, transparent:true, depthWrite:false }));
-    sp.scale.set(0.16, 0.07, 1); sp.renderOrder = 10; sp.userData.canvas = c; sp.userData.tex = tex; sp.userData.txt = '';
-    world.add(sp); return sp;
+  const makeLabel = (w)=>{ const c = document.createElement('canvas'); c.width = 640; c.height = 280; const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; tex.minFilter = THREE.LinearFilter;
+    const sp = new THREE.Sprite(new THREE.SpriteMaterial({ map:tex, transparent:true, depthWrite:false })); sp.scale.set(w, w*280/640, 1); sp.renderOrder = 10; sp.userData = { canvas:c, tex, txt:'', base:sp.scale.clone() }; world.add(sp); return sp; };
+  COLS.forEach(k=> labels[k] = makeLabel(0.092)); labels.nw = makeLabel(0.13); labels.req = makeLabel(0.13); labels.sf = makeLabel(0.14); labels.mf = makeLabel(0.13);
+  // --- 3D quarter timeline (touch a column to select that quarter) ---
+  const tl = { group:new THREE.Group(), cols:[], edges:[], plate:null, play:null };
+  world.add(tl.group);
+  for(let i=0;i<Q.length;i++){
+    const m = new THREE.Mesh(unitBox, new THREE.MeshStandardMaterial({ color:col3('#2FC79A'), roughness:0.35, metalness:0.1, transparent:true, opacity:0.92, emissive:col3('#2FC79A').multiplyScalar(0.15) }));
+    m.userData.id = 'tl:'+i; m.userData.pick = true; m.castShadow = true; m.position.set(TL.x0 + i*TL.pitch, 0.01, TL.z); m.scale.set(TL.w, 0.02, TL.w); tl.group.add(m); tl.cols.push(m);
+    const e = new THREE.LineSegments(unitEdges, new THREE.LineBasicMaterial({ color:col3('#7CFFD9'), transparent:true, opacity:0.55, blending:THREE.AdditiveBlending })); e.layers.enable(1); tl.group.add(e); tl.edges.push(e);
   }
-  [...COLS,'nw','req','sf','mf'].forEach(k=>labels[k]=makeLabel());
-  COLS.forEach(k=>labels[k].scale.set(0.092, 0.04025, 1));      // name plates along the table edge
-  labels.nw.scale.set(0.13, 0.056875, 1); labels.req.scale.set(0.13, 0.056875, 1);
-  labels.sf.scale.set(0.14, 0.06125, 1); labels.mf.scale.set(0.13, 0.056875, 1);
-  Object.values(labels).forEach(l=>{ l.userData.base = l.scale.clone(); });
+  { const c = document.createElement('canvas'); c.width = 1400; c.height = 150; const tex = new THREE.CanvasTexture(c); tex.encoding = THREE.sRGBEncoding; tex.minFilter = THREE.LinearFilter;
+    const plate = new THREE.Mesh(new THREE.PlaneGeometry(0.72, 0.72*150/1400), new THREE.MeshBasicMaterial({ map:tex, transparent:true, depthWrite:false })); plate.rotation.x = -Math.PI/2; plate.position.set(TL.x0 + 4.5*TL.pitch, 0.0012, TL.z + 0.062); plate.userData = { canvas:c, tex, key:'' }; tl.group.add(plate); tl.plate = plate; }
+  { const orb = new THREE.Mesh(new THREE.SphereGeometry(0.017, 24, 16), new THREE.MeshStandardMaterial({ color:col3('#F5C55C'), emissive:col3('#F5C55C').multiplyScalar(0.6), roughness:0.3, metalness:0.2 })); orb.userData.id = 'tl:play'; orb.userData.pick = true; orb.position.set(TL.x0 - TL.pitch*0.9, 0.024, TL.z); orb.layers.enable(1); tl.group.add(orb); tl.play = orb; }
+  const tlLabel = makeLabel(0.12); tlLabel.visible = false;
+  // --- explode children: Single-Family / Multifamily halves of each waterfall block ---
+  const seg = blocks.map((b, i)=> ['sf','mf'].map((side, k)=>{
+    const m = new THREE.Mesh(unitBox, b.material.clone()); m.visible = false; m.castShadow = true; m.userData.id = b.userData.id; m.userData.pick = true; m.position.set(b.position.x + (k?0.019:-0.019), 0, G.zWF); m.scale.set(0.001, 0.001, G.depth*0.9); world.add(m);
+    const e = new THREE.LineSegments(unitEdges, b.userData.edge.material.clone()); e.visible = false; e.layers.enable(1); world.add(e);
+    const lab = makeLabel(0.075); lab.visible = false; return { m, e, lab, side }; }));
+  // --- capital tower composition (senior preferred / adjustments / adjusted total capital) + requirement bands ---
+  const cylGeo = new THREE.CylinderGeometry(G.tr, G.tr, 1, 48);
+  const comp = ['sps','adj','atc'].map(k=>{ const col = k==='sps' ? '#5B7BD5' : k==='adj' ? '#8FA3C2' : '#F5C55C'; const m = new THREE.Mesh(cylGeo, new THREE.MeshStandardMaterial({ color:col3(col), roughness:0.35, metalness:0.2, transparent:true, opacity:0, emissive:col3(col).multiplyScalar(0.2) })); m.visible = false; m.position.set(G.tx, 0, G.tz); m.userData.id = 'tower'; m.userData.pick = true; world.add(m); const lab = makeLabel(0.11); lab.visible = false; return { k, m, lab }; });
+  const bandGeo = new THREE.CylinderGeometry(G.shellR+0.004, G.shellR+0.004, 1, 48, 1, true);
+  const bands = ['min','buf'].map(k=>{ const col = k==='min' ? '#6FA3FF' : '#B39DFF'; const m = new THREE.Mesh(bandGeo, new THREE.MeshStandardMaterial({ color:col3(col), roughness:0.2, transparent:true, opacity:0, depthWrite:false, side:THREE.DoubleSide })); m.visible = false; m.position.set(G.tx, 0, G.tz); world.add(m); const lab = makeLabel(0.11); lab.visible = false; return { k, m, lab }; });
+  const totalRing = new THREE.Mesh(new THREE.TorusGeometry(G.shellR+0.01, 0.002, 8, 72), new THREE.MeshBasicMaterial({ color:col3('#B39DFF'), transparent:true, opacity:0, blending:THREE.AdditiveBlending })); totalRing.rotation.x = Math.PI/2; totalRing.position.set(G.tx, 0, G.tz); totalRing.visible = false; totalRing.layers.enable(1); world.add(totalRing);
+  const totalLab = makeLabel(0.12); totalLab.visible = false;
+  // --- Single-Family vintage stack (as of Mar 31, 2026) ---
+  const vint = VINTAGE.map((v, i)=>{ const heat = clamp(v.sdq/1.2, 0, 1); const col = col3('#2FC79A').lerp(col3('#F07A5E'), heat); const m = new THREE.Mesh(unitBox, new THREE.MeshStandardMaterial({ color:col, roughness:0.6, transparent:true, opacity:0, emissive:col.clone().multiplyScalar(0.18) })); m.visible = false; m.userData.id = 'sf'; m.userData.pick = true; m.position.set(G.sfC[0], 0, G.sfC[1]); world.add(m); const e = new THREE.LineSegments(unitEdges, M.edgeSlab.clone()); e.visible = false; e.layers.enable(1); world.add(e); const lab = makeLabel(0.12); lab.visible = false; return { v, m, e, lab }; });
+  const vintTitle = makeLabel(0.13); vintTitle.visible = false;
 
-  // reticle for AR placement
-  const reticle = new THREE.Mesh(new THREE.RingGeometry(0.05, 0.062, 48).rotateX(-Math.PI/2), new THREE.MeshBasicMaterial({ transparent:true, opacity:0.9 }));
-  reticle.matrixAutoUpdate = false; reticle.visible = false; scene.add(reticle);
+  // particles (glow layer)
+  const N = reduceMotion ? 0 : 360;
+  const pGeo = new THREE.BufferGeometry(); const pPos = new Float32Array(Math.max(N,1)*3), pCol = new Float32Array(Math.max(N,1)*3), pAlp = new Float32Array(Math.max(N,1));
+  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3).setUsage(THREE.DynamicDrawUsage)); pGeo.setAttribute('aColor', new THREE.BufferAttribute(pCol,3).setUsage(THREE.DynamicDrawUsage)); pGeo.setAttribute('aAlpha', new THREE.BufferAttribute(pAlp,1).setUsage(THREE.DynamicDrawUsage));
+  const pMat = new THREE.ShaderMaterial({ uniforms:{ uSize:{ value: 14*renderer.getPixelRatio() } }, transparent:true, depthWrite:false, blending:THREE.AdditiveBlending,
+    vertexShader:`attribute vec3 aColor; attribute float aAlpha; varying vec3 vC; varying float vA; uniform float uSize; void main(){ vC = aColor; vA = aAlpha; vec4 mv = modelViewMatrix * vec4(position,1.0); gl_PointSize = uSize / max(-mv.z, 0.05); gl_Position = projectionMatrix * mv; }`,
+    fragmentShader:`varying vec3 vC; varying float vA; void main(){ float r = length(gl_PointCoord - 0.5); float a = smoothstep(0.5, 0.15, r) * vA; if(a < 0.02) discard; gl_FragColor = vec4(vC * a, a); }` });
+  const points = new THREE.Points(pGeo, pMat); points.frustumCulled = false; points.visible = N>0; points.layers.enable(1); world.add(points);
+  const P = Array.from({length:N}, ()=>({ s:0, v:0.16+Math.random()*0.12, src:0, dst:0, x0:0, fresh:true }));
 
-  // particles
-  const N = reduceMotion ? 0 : 340;
-  const pGeo = new THREE.BufferGeometry();
-  const pPos = new Float32Array(Math.max(N,1)*3), pCol = new Float32Array(Math.max(N,1)*3), pAlp = new Float32Array(Math.max(N,1));
-  pGeo.setAttribute('position', new THREE.BufferAttribute(pPos,3).setUsage(THREE.DynamicDrawUsage));
-  pGeo.setAttribute('aColor', new THREE.BufferAttribute(pCol,3).setUsage(THREE.DynamicDrawUsage));
-  pGeo.setAttribute('aAlpha', new THREE.BufferAttribute(pAlp,1).setUsage(THREE.DynamicDrawUsage));
-  const pMat = new THREE.ShaderMaterial({
-    uniforms:{ uSize:{ value: 13 * renderer.getPixelRatio() } }, transparent:true, depthWrite:false,
-    vertexShader:`attribute vec3 aColor; attribute float aAlpha; varying vec3 vC; varying float vA; uniform float uSize;
-      void main(){ vC=aColor; vA=aAlpha; vec4 mv = modelViewMatrix * vec4(position,1.0); gl_PointSize = uSize * (1.0 / max(-mv.z, 0.05)); gl_Position = projectionMatrix * mv; }`,
-    fragmentShader:`varying vec3 vC; varying float vA; void main(){ vec2 d = gl_PointCoord - 0.5; float r = length(d); float a = smoothstep(0.5, 0.22, r) * vA; if(a < 0.02) discard; gl_FragColor = vec4(vC, a); }`
-  });
-  const points = new THREE.Points(pGeo, pMat); points.frustumCulled = false; points.visible = N>0; world.add(points);
-  const P = Array.from({length:N}, ()=>({ s: Math.random()*1.2, v: 0.16 + Math.random()*0.12, src:0, dst:0, x0:0, fresh:true }));
+  // finger cursor (sprite) — ring with dwell progress
+  const cc = document.createElement('canvas'); cc.width = 256; cc.height = 256; const cTex = new THREE.CanvasTexture(cc); cTex.minFilter = THREE.LinearFilter;
+  const cursor = new THREE.Sprite(new THREE.SpriteMaterial({ map:cTex, transparent:true, depthTest:false, depthWrite:false })); cursor.scale.set(0.06,0.06,1); cursor.renderOrder = 50; cursor.visible = false; cursor.layers.enable(1); scene.add(cursor);
+  const tagC = document.createElement('canvas'); tagC.width = 512; tagC.height = 128; const tagTex = new THREE.CanvasTexture(tagC); tagTex.minFilter = THREE.LinearFilter;
+  const tag = new THREE.Sprite(new THREE.SpriteMaterial({ map:tagTex, transparent:true, depthTest:false, depthWrite:false })); tag.scale.set(0.16,0.04,1); tag.renderOrder = 51; tag.visible = false; scene.add(tag);
 
-  three = { renderer, scene, camera, world, ground, groundMat, shadowMat, gridCanvas, gridTex, M, blocks, conn, tower, shell, shellCap, ring, sf, mf, sfEdge, mfEdge, labels, reticle, points, P, pPos, pCol, pAlp, N,
-            hemi, sun, fill,
-            orbit:{ theta:0.36, phi:0.68, radius:1.05, target:new THREE.Vector3(0.01,0.09,-0.02) },
-            cur:null, tgt:null, colors:null, lastT:0, idle:0, ar:{ active:false, placed:false, hitSource:null, mode:null }, cam:{ on:false, stream:null } };
-  applyTheme();
+  // glow (bloom) pass: layer-1 objects → quarter-res target → blur → additive composite
+  const rtOpts = { minFilter:THREE.LinearFilter, magFilter:THREE.LinearFilter, format:THREE.RGBAFormat };
+  const rtA = new THREE.WebGLRenderTarget(64,64,rtOpts), rtB = new THREE.WebGLRenderTarget(64,64,rtOpts);
+  const fsVert = `varying vec2 vUv; void main(){ vUv = uv; gl_Position = vec4(position.xy, 0.0, 1.0); }`;
+  const blurMat = new THREE.ShaderMaterial({ uniforms:{ tDiffuse:{value:null}, uDir:{value:new THREE.Vector2(1,0)}, uRes:{value:new THREE.Vector2(64,64)} }, depthTest:false, depthWrite:false, vertexShader:fsVert,
+    fragmentShader:`uniform sampler2D tDiffuse; uniform vec2 uDir; uniform vec2 uRes; varying vec2 vUv; void main(){ vec2 px = uDir / uRes * 1.8; vec4 c = texture2D(tDiffuse, vUv) * 0.227027;
+      c += texture2D(tDiffuse, vUv + px*1.3846) * 0.3162162; c += texture2D(tDiffuse, vUv - px*1.3846) * 0.3162162; c += texture2D(tDiffuse, vUv + px*3.2308) * 0.0702703; c += texture2D(tDiffuse, vUv - px*3.2308) * 0.0702703; gl_FragColor = c; }` });
+  const compMat = new THREE.ShaderMaterial({ uniforms:{ tDiffuse:{value:null}, uStrength:{value:0.7} }, depthTest:false, depthWrite:false, transparent:true, blending:THREE.AdditiveBlending, vertexShader:fsVert,
+    fragmentShader:`uniform sampler2D tDiffuse; uniform float uStrength; varying vec2 vUv; void main(){ vec3 c = pow(texture2D(tDiffuse, vUv).rgb, vec3(1.0/2.2)) * uStrength; float l = dot(c, vec3(0.299,0.587,0.114)); gl_FragColor = vec4(c, clamp(l, 0.0, 1.0)); }` });
+  const quadScene = new THREE.Scene(); const quadCam = new THREE.OrthographicCamera(-1,1,1,-1,0,1); const quad = new THREE.Mesh(new THREE.PlaneGeometry(2,2), blurMat); quad.frustumCulled = false; quadScene.add(quad);
+
+  R = { renderer, scene, camera, world, hud, pad, padMat, ground, M, blocks, conn, tower, shell, shellTop, scanner, sf, mf, sfEdge, mfEdge, labels, points, P, pPos, pCol, pAlp, N, cursor, cc, cTex, tag, tagC, tagTex, tl, tlLabel, seg, comp, bands, totalRing, totalLab, vint, vintTitle, explode:{ id:null, e:0, kind:null }, hoverId:null,
+        rtA, rtB, blurMat, compMat, quad, quadScene, quadCam, orbit:{ theta:0.32, phi:0.5, radius:1.5, target:new THREE.Vector3(0.02,0.42,0) }, cur:null, tgt:null, lastT:0, idle:0, focus:{wf:1,tower:1,sf:1,mf:1}, focusCur:{wf:1,tower:1,sf:1,mf:1}, panels:{}, hudYaw:0 };
+  buildPanels();
   setTargets(true);
-  bindOrbit();
+  bindPointer();
   renderer.setAnimationLoop(frame);
-  window.addEventListener('resize', ()=>{ layoutViewport(); });
-  layoutViewport();
+  window.addEventListener('resize', layoutViewport); layoutViewport();
 }
 
-function drawGrid(colors){
-  const c = three.gridCanvas, ctx = c.getContext('2d'), W = c.width;
-  ctx.fillStyle = colors['bg-2']; ctx.fillRect(0,0,W,W);
-  ctx.strokeStyle = colors['line-strong']; ctx.lineWidth = 1.5;
-  for(let i=0;i<=W;i+=64){ ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,W); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(W,i); ctx.stroke(); }
-  const g = ctx.createRadialGradient(W/2,W/2,W*0.18,W/2,W/2,W*0.5); g.addColorStop(0,'rgba(0,0,0,0)'); g.addColorStop(1, colors.bg);
-  ctx.fillStyle = g; ctx.fillRect(0,0,W,W);
-  three.gridTex.needsUpdate = true;
-}
-function applyTheme(){
-  if(!three) return;
-  const c = themeColors(); three.colors = c;
-  const { M } = three;
-  M.inflow.color = toLinear(c.inflow); M.outflow.color = toLinear(c.outflow);
-  M.gold.color = toLinear(c.gold); M.gold.emissive = toLinear(c.gold).multiplyScalar(0.12);
-  M.shell.color = toLinear(c.req); M.shellEdge.color = toLinear(c.req); M.ring.color = toLinear(c.req); M.ring.emissive = toLinear(c.req).multiplyScalar(0.25);
-  M.slab.color = toLinear(c.slab); M.slabEdge.color = toLinear(c['slab-edge']);
-  three.sf.material.color = toLinear(c.slab); three.mf.material.color = toLinear(c.slab);
-  three.blocks.forEach((b,i)=>{ if(i===5){ b.material.color = toLinear(c.gold); b.material.emissive = toLinear(c.gold).multiplyScalar(0.12); } });
-  three.conn.material.color = toLinear(c.muted);
-  three.reticle.material.color = toLinear(c.gold);
-  three.hemi.color = toLinear(c['hemi-sky']); three.hemi.groundColor = toLinear(c['hemi-ground']);
-  drawGrid(c);
-  const bg = toLinear(c.bg);
-  if(!room.on){ three.scene.background = bg; three.scene.fog = new THREE.Fog(bg, 1.6, 3.6); }
-  Object.values(three.labels).forEach(l=>{ l.userData.txt=''; });
-  setTargets(false); // redraw labels with new colors
-}
-
-// compute target geometry from current scenario
+// ---------- scene targets (waterfall levels, tower, slabs, labels) ----------
 function setTargets(snap){
-  if(!three) return;
-  const { q, s } = current();
-  const sc = G.sWF;
-  const L = [0, s.nii, s.nii+s.nonii, s.nii+s.nonii+s.prov, s.nii+s.nonii+s.prov+s.nie, s.ni].map(v=>v*sc);
+  if(!R) return; const { q, s } = current();
+  const L = [0, s.nii, s.nii+s.nonii, s.nii+s.nonii+s.prov, s.nii+s.nonii+s.prov+s.nie, s.ni].map(v=>v*G.sWF);
   const deltas = [s.nii, s.nonii, s.prov, s.nie, s.tax];
   const sfA = G.kArea*q.sfUPB, mfA = G.kArea*q.mfUPB;
-  const t = {
-    L, deltas,
-    towerH: Math.max(s.nwEnd/1000*G.sT, 0.002), reqH: q.reqCET1*G.sT, ringH: 0,
-    sfW: Math.sqrt(sfA*1.5), sfD: Math.sqrt(sfA/1.5), mfS: Math.sqrt(mfA),
-    sfHeat: clamp((q.sfSDQ-0.40)/(0.75-0.40),0,1), mfHeat: clamp((q.mfDQ-0.25)/(0.80-0.25),0,1),
-  };
-  three.tgt = t;
-  if(snap || !three.cur) three.cur = JSON.parse(JSON.stringify(t));
-  // label text
-  const c = three.colors;
-  const names = { nii:'Net interest income', nonii:s.nonii<0?'Non-interest loss':'Non-interest income', prov: s.prov<0?'Credit provision':'Credit benefit', nie:'Non-interest expense', tax:'Income tax', ni:'Net income' };
-  COLS.forEach((k,i)=>{
-    const v = i<5 ? deltas[i] : s.ni;
-    const changed = s.changed && (k==='nii'?Math.abs(s.d.nii)>0.5 : k==='prov'?Math.abs(s.d.prov)>0.5 : k==='nie'?Math.abs(s.d.nie)>0.5 : (k==='tax'||k==='ni'));
-    setLabel(three.labels[k], names[k], fmt.b(v), changed ? 'scenario' : null, k==='ni' ? c.gold : c.text);
-  });
-  setLabel(three.labels.nw, 'Net worth', fmt.bB(s.nwEnd/1000), s.changed ? `reported ${fmt.bB(q.nwEnd/1000)}` : `${q.end}`, c.gold);
-  setLabel(three.labels.req, 'Required CET1 capital', `${fmt.bB(q.reqCET1, q.reqEst?1:0)}${q.reqEst?' ≈':''}`, s.gap>0 ? `${fmt.bB(s.gap/1000)} to build` : 'requirement met', c.req);
-  setLabel(three.labels.sf, 'Single-Family', fmt.t(q.sfUPB), `SDQ ${fmt.pct(q.sfSDQ)} · new $${q.sfNew}B`, c.text);
-  setLabel(three.labels.mf, 'Multifamily', fmt.t(q.mfUPB), `DQ ${fmt.pct(q.mfDQ)} · new $${q.mfNew}B`, c.text);
-  // block colors by sign
-  three.blocks.forEach((b,i)=>{
-    if(i<5){ const neg = deltas[i] < 0; b.material.color = toLinear(neg ? c.outflow : c.inflow); b.material.emissive = toLinear(neg ? c.outflow : c.inflow).multiplyScalar(0.06); }
-    else { const neg = s.ni < 0; b.material.color = toLinear(neg ? c.outflow : c.gold); }
-  });
+  const t = { L, deltas, towerH:Math.max(s.nwEnd/1000*G.sT, 0.002), reqH:q.reqCET1*G.sT, sfW:Math.sqrt(sfA*1.5), sfD:Math.sqrt(sfA/1.5), mfS:Math.sqrt(mfA), sfHeat:clamp((q.sfSDQ-0.40)/(0.35),0,1), mfHeat:clamp((q.mfDQ-0.25)/(0.55),0,1) };
+  // timeline heights for the view's metric
+  const mk = TL_METRIC[state.view] || 'ni'; const def = KPI[mk]; const vals = Q.map(def.series); const mx = Math.max(...vals.map(v=>Math.abs(v))) || 1;
+  t.tlH = vals.map(v=> 0.012 + TL.hMax*Math.max(v,0)/mx); t.tlMetric = mk;
+  // explode targets (segment halves) for the block under drill
+  t.seg = COLS.map((k,i)=>{ const key = SEGKEY[k]; let sfV = q.sf[key], mfV = q.mf[key];
+    if(k==='nii') sfV += s.d.nii; if(k==='prov'){ sfV = s.provSF; mfV = s.provMF; } if(k==='nie'){ sfV *= (1+state.levers.opex/100); mfV *= (1+state.levers.opex/100); }
+    if(k==='tax' && q.tax){ sfV *= s.tax/q.tax; mfV *= s.tax/q.tax; } if(k==='ni' && q.ni){ sfV *= s.ni/q.ni; mfV *= s.ni/q.ni; }
+    const base = i<5 ? L[i] : 0; return { sf:sfV*G.sWF, mf:mfV*G.sWF, base, sfV, mfV }; });
+  t.comp = { sps:CAP.sps*G.sT, adj:CAP.adj*G.sT, atc:Math.max(s.nwEnd/1000 - CAP.sps - CAP.adj, 0.15)*G.sT, nwB:s.nwEnd/1000 };
+  t.bands = q.cet1min ? { min:q.cet1min*G.sT, buf:q.reqCET1*G.sT, total:(q.reqTotal||0)*G.sT, minB:q.cet1min, bufB:q.buffers, totalB:q.reqTotal } : null;
+  R.tgt = t; if(snap || !R.cur) R.cur = JSON.parse(JSON.stringify(t));
+  if(R.tl){ const c = R.tl.plate.userData; const key = state.view+'|'+state.qi; if(c.key !== key){ c.key = key; const ctx = c.canvas.getContext('2d'); ctx.clearRect(0,0,1400,150);
+      txt(ctx, (def.t + ' by quarter · touch a column').toUpperCase(), 700, 40, 26, CC.muted, { align:'center', spacing:true, maxW:1300 });
+      Q.forEach((qq,i)=>{ const x = 700 + (i-4.5)*(TL.pitch/0.72*1400); txt(ctx, qq.id, x, 112, 34, i===state.qi ? CC.gold : CC.text, { align:'center', weight:'700', font:'"IBM Plex Mono"' }); }); c.tex.needsUpdate = true; } }
+  const names = { nii:'Net interest income', nonii:s.nonii<0?'Non-interest loss':'Non-interest income', prov:s.prov<0?'Credit provision':'Credit benefit', nie:'Non-interest expense', tax:'Income tax', ni:'Net income' };
+  COLS.forEach((k,i)=>{ const v = i<5 ? deltas[i] : s.ni; const changed = s.changed && (k==='nii'?Math.abs(s.d.nii)>0.5 : k==='prov'?Math.abs(s.d.prov)>0.5 : k==='nie'?Math.abs(s.d.nie)>0.5 : (k==='tax'||k==='ni')); setLabel(R.labels[k], names[k], fmt.b(v), changed?'scenario':null, k==='ni'?CC.gold:CC.text); });
+  setLabel(R.labels.nw, 'Net worth', fmt.bB(s.nwEnd/1000), s.changed?`reported ${fmt.bB(q.nwEnd/1000)}`:q.end, CC.gold);
+  setLabel(R.labels.req, 'Required CET1 capital', `${fmt.bB(q.reqCET1, q.reqEst?1:0)}${q.reqEst?' ≈':''}`, s.gap>0?`${fmt.bB(s.gap/1000)} to build`:'requirement met', CC.blue);
+  setLabel(R.labels.sf, 'Single-Family', fmt.t(q.sfUPB), `SDQ ${fmt.pct(q.sfSDQ)} · new $${q.sfNew}B`, CC.text);
+  setLabel(R.labels.mf, 'Multifamily', fmt.t(q.mfUPB), `DQ ${fmt.pct(q.mfDQ)} · new $${q.mfNew}B`, CC.text);
+  R.blocks.forEach((b,i)=>{ if(i<5){ const neg = deltas[i] < 0; b.material.color = col3(neg?'#F07A5E':'#2FC79A'); b.material.emissive = col3(neg?'#F07A5E':'#2FC79A').multiplyScalar(0.12); b.userData.edge.material.color = col3(neg?'#FFB39E':'#7CFFD9'); } else { b.material.color = col3(s.ni<0?'#F07A5E':'#F5C55C'); } });
+  Object.values(R.panels).forEach(p=> p.dirty = true);
 }
-function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
-function roundRect(ctx,x,y,w,h,r){ ctx.beginPath(); ctx.moveTo(x+r,y); ctx.arcTo(x+w,y,x+w,y+h,r); ctx.arcTo(x+w,y+h,x,y+h,r); ctx.arcTo(x,y+h,x,y,r); ctx.arcTo(x,y,x+w,y,r); ctx.closePath(); }
 function setLabel(sp, title, value, sub, valueColor){
-  const key = [title,value,sub,valueColor,three.colors.text].join('|');
-  if(sp.userData.txt === key) return; sp.userData.txt = key;
-  const c = sp.userData.canvas, ctx = c.getContext('2d'), W = c.width, H = c.height, col = three.colors;
-  ctx.clearRect(0,0,W,H);
-  ctx.fillStyle = col['panel-solid']; ctx.globalAlpha = 0.86; roundRect(ctx, 6, 6, W-12, H-12, 40); ctx.fill(); ctx.globalAlpha = 1;
-  ctx.strokeStyle = col['line-strong']; ctx.lineWidth = 3; ctx.stroke();
-  ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-  ctx.fillStyle = col.muted; ctx.font = '600 44px "IBM Plex Sans", system-ui, sans-serif';
-  ctx.fillText(title.toUpperCase().split('').join(String.fromCharCode(8202)), W/2, sub ? 62 : 84);
-  ctx.fillStyle = valueColor; ctx.font = '700 96px Archivo, system-ui, sans-serif';
-  ctx.fillText(value, W/2, sub ? 146 : 176);
-  if(sub){ ctx.fillStyle = col.muted; ctx.font = '500 38px "IBM Plex Sans", system-ui, sans-serif'; ctx.fillText(sub, W/2, 226); }
+  const key = [title,value,sub,valueColor].join('|'); if(sp.userData.txt === key) return; sp.userData.txt = key;
+  const c = sp.userData.canvas, ctx = c.getContext('2d'), W = c.width, H = c.height; ctx.clearRect(0,0,W,H);
+  glass(ctx, W, H, { r:40 });
+  txt(ctx, title.toUpperCase(), W/2, sub?66:88, 36, CC.muted, { align:'center', spacing:true, maxW:W-80 });
+  txt(ctx, value, W/2, sub?150:180, 96, valueColor, { align:'center', weight:'700', font:'Archivo', maxW:W-80 });
+  if(sub) txt(ctx, sub, W/2, 228, 38, CC.muted, { align:'center', weight:'500', maxW:W-80 });
   sp.userData.tex.needsUpdate = true;
 }
 
+// ---------- panels ----------
+function buildPanels(){
+  const P = R.panels;
+  // tabs
+  P.tabs = new Panel('tabs', 0.62, 0.062, 1400, 140, (ctx, p)=>{
+    glass(ctx, 1400, 140, { r:70 }); const n = VIEWS.length, w = (1400-40)/n;
+    VIEWS.forEach((v,i)=>{ const x = 20 + i*w; const active = state.view===v.id; const hov = p.hover === 'tab:'+v.id;
+      if(active){ roundRect(ctx, x+6, 22, w-12, 96, 48); ctx.fillStyle = 'rgba(245,197,92,0.16)'; ctx.fill(); }
+      txt(ctx, v.label.toUpperCase(), x+w/2, 82, 30, active?CC.gold:(hov?CC.text:CC.muted), { align:'center', spacing:true, maxW:w-24 });
+      if(active){ ctx.fillStyle = CC.gold; roundRect(ctx, x+w/2-30, 104, 60, 6, 3); ctx.fill(); }
+      p.region('tab:'+v.id, x, 10, w, 120); });
+  });
+  // KPI tiles (6 slots)
+  for(let i=0;i<6;i++){ P['kpi'+i] = new Panel('kpi'+i, 0.28, 0.104, 900, 334, (ctx, p)=> drawKPI(ctx, p)); }
+  // levers
+  P.levers = new Panel('levers', 0.58, 0.215, 1400, 520, (ctx, p)=> drawLevers(ctx, p));
+  // detail
+  P.detail = new Panel('detail', 0.58, 0.40, 1400, 966, (ctx, p)=> drawDetail(ctx, p));
+  Object.values(P).forEach(p=> R.hud.add(p.mesh));
+}
+function drawKPI(ctx, p){
+  const id = p.kpi; if(!id) return; const def = KPI[id]; const { q, s } = current();
+  const hov = p.hover === 'kpi:'+id; glass(ctx, 900, 334, { hover:hov });
+  const v = def.v(q, s); const series = Q.map(def.series); const prev = state.qi>0 ? series[state.qi-1] : null;
+  const disp = animVal('k_'+id, v);
+  txt(ctx, def.t.toUpperCase(), 44, 70, 27, CC.muted, { spacing:true, maxW:500 });
+  txt(ctx, fmtKPI(def.f, disp), 44, 180, 96, def.gold?CC.gold:CC.text, { weight:'700', font:'Archivo', maxW:520 });
+  if(prev !== null){ const rep = def.series(q); const d = rep - prev; const good = (d >= 0) !== !!def.invert; const col = d===0?CC.muted:(good?CC.teal:CC.clay);
+    roundRect(ctx, 44, 222, 26, 26, 6); ctx.fillStyle = col; ctx.fill(); txt(ctx, `${fmtDelta(def.f, d)} vs ${Q[state.qi-1].id}`, 84, 244, 28, col, { weight:'600' }); }
+  else txt(ctx, 'first quarter in the series', 44, 244, 26, CC.dim);
+  if(s.changed && Math.abs(v - def.series(q)) > 1e-6 && !['sfACL','mfACL','sfGfee'].includes(id)) txt(ctx, `reported ${fmtKPI(def.f, def.series(q))}`, 44, 292, 24, CC.gold, { weight:'500' });
+  sparkline(ctx, 570, 70, 280, 190, series, state.qi, def.gold?CC.gold:(def.invert?CC.clay:CC.teal));
+  txt(ctx, '10 quarters', 850, 300, 22, CC.dim, { align:'right', weight:'500' });
+  p.region('kpi:'+id, 0, 0, 900, 334);
+}
+function drawLevers(ctx, p){
+  const { q, s } = current(); const L = state.levers; glass(ctx, 1400, 520);
+  txt(ctx, 'WHAT-IF LEVERS · TOUCH − / + · HOLD TO REPEAT', 44, 58, 26, CC.muted, { spacing:true });
+  const rows = [
+    { id:'gfee', name:'SF guarantee fee', val:`${q.sfGfee + L.gfee} bps`, eff: L.gfee===0?'portfolio-wide · reported':`${L.gfee>0?'+':''}${L.gfee} bps → ${fmt.md(s.d.nii)}M NII / qtr`, active:L.gfee!==0 },
+    { id:'sfCov', name:'SF reserve coverage', val:`${L.sfCov} bps`, eff: L.sfCov===q.sfACL?'allowance / loans · reported':`${fmt.md(-s.d.provSF)} reserve ${s.d.provSF<0?'build':'release'}`, active:L.sfCov!==q.sfACL },
+    { id:'mfCov', name:'MF reserve coverage', val:`${L.mfCov} bps`, eff: L.mfCov===q.mfACL?'allowance / loans · reported':`${fmt.md(-s.d.provMF)} reserve ${s.d.provMF<0?'build':'release'}`, active:L.mfCov!==q.mfACL },
+    { id:'opex', name:'Non-interest expense', val:fmt.b(-s.nie), eff: L.opex===0?'reported':`${L.opex>0?'+':''}${L.opex}% → ${fmt.md(s.d.nie)}M / qtr`, active:L.opex!==0 },
+  ];
+  rows.forEach((r,i)=>{ const y = 92 + i*96;
+    ctx.strokeStyle = 'rgba(140,170,220,0.15)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(44, y+72); ctx.lineTo(1356, y+72); ctx.stroke();
+    txt(ctx, r.name, 44, y+34, 30, r.active?CC.gold:CC.text, { weight:'600' }); txt(ctx, r.eff, 44, y+62, 22, CC.dim, { weight:'500', maxW:640 });
+    txt(ctx, r.val, 960, y+42, 40, r.active?CC.gold:CC.text, { align:'right', weight:'700', font:'Archivo' });
+    chipBtn(ctx, 1010, y+6, 150, 66, '−', { hover:p.hover==='lever:'+r.id+':-1', size:44, font:'Archivo' }); p.region('lever:'+r.id+':-1', 1000, y-4, 170, 86);
+    chipBtn(ctx, 1190, y+6, 150, 66, '+', { hover:p.hover==='lever:'+r.id+':1', size:44, font:'Archivo' }); p.region('lever:'+r.id+':1', 1180, y-4, 170, 86);
+  });
+  const y = 92 + 4*96 - 6;
+  chipBtn(ctx, 44, y, 360, 62, 'Reset to reported', { hover:p.hover==='reset', size:26, font:'"IBM Plex Sans"' }); p.region('reset', 34, y-6, 380, 74);
+  chipBtn(ctx, 430, y, 560, 62, `Count senior preferred: ${state.countSPS?'ON':'OFF'}`, { hover:p.hover==='sps', active:state.countSPS, size:26, font:'"IBM Plex Sans"' }); p.region('sps', 420, y-6, 580, 74);
+  txt(ctx, s.changed ? `Net income ${fmt.b(s.ni)} · ${fmt.md(s.ni-q.ni)}M vs reported` : 'All levers at reported values', 1356, y+40, 26, s.changed?CC.gold:CC.dim, { align:'right', weight:'600', maxW:340 });
+}
+function drawDetail(ctx, p){
+  const spec = state.detail ? detailSpec(state.detail) : null; if(!spec) return; const W = 1400, H = 966;
+  glass(ctx, W, H, { r:44 });
+  txt(ctx, spec.title, 56, 92, 56, CC.text, { weight:'700', font:'Archivo', maxW:1100 });
+  txt(ctx, spec.sub.toUpperCase(), 56, 134, 24, CC.muted, { spacing:true, maxW:1100 });
+  // close button
+  const hov = p.hover === 'close'; ctx.beginPath(); ctx.arc(1310, 90, 44, 0, Math.PI*2); ctx.fillStyle = hov?CC.gold:'rgba(255,255,255,0.08)'; ctx.fill(); ctx.strokeStyle = hov?CC.gold:'rgba(150,180,230,0.5)'; ctx.lineWidth = 3; ctx.stroke();
+  ctx.strokeStyle = hov?'#1A1405':CC.text; ctx.lineWidth = 6; ctx.lineCap='round'; ctx.beginPath(); ctx.moveTo(1294,74); ctx.lineTo(1326,106); ctx.moveTo(1326,74); ctx.lineTo(1294,106); ctx.stroke(); p.region('close', 1240, 20, 140, 140);
+  txt(ctx, spec.big.v, 56, 262, 118, CC.gold, { weight:'700', font:'Archivo', maxW:760 });
+  txt(ctx, spec.big.d, 56, 306, 26, CC.muted, { weight:'500', maxW:760 });
+  if(spec.series){ sparkline(ctx, 880, 190, 460, 130, spec.series.values, state.qi, spec.series.color); txt(ctx, spec.series.label, 1340, 350, 22, CC.dim, { align:'right', weight:'500' }); }
+  let y = 372; const rows = spec.rows.slice(0, 8);
+  rows.forEach(([k,v])=>{ ctx.strokeStyle = 'rgba(140,170,220,0.15)'; ctx.lineWidth = 2; ctx.beginPath(); ctx.moveTo(56, y+16); ctx.lineTo(1344, y+16); ctx.stroke();
+    txt(ctx, k, 56, y, 30, CC.muted, { weight:'500', maxW:860 }); txt(ctx, v, 1344, y, 32, CC.text, { align:'right', weight:'500', font:'"IBM Plex Mono"' }); y += 54; });
+  wrap(ctx, spec.note, 56, y+40, 1288, 36, 27, CC.muted);
+  txt(ctx, 'HOLD ✕ OR PINCH TO CLOSE · SWIPE FOR QUARTERS', 1344, 930, 20, CC.dim, { align:'right', spacing:true });
+}
+const anim = {};
+function animVal(key, target){ const a = anim[key] || (anim[key] = { v:target, t:target }); a.t = target; return a.v; }
+function tickAnim(k){ let busy = false; for(const key in anim){ const a = anim[key]; if(Math.abs(a.t - a.v) > 1e-9){ a.v += (a.t - a.v)*k; if(Math.abs(a.t - a.v) < Math.abs(a.t)*1e-4 + 1e-6) a.v = a.t; busy = true; } } return busy; }
+
+// ---------- layout of the HUD for the current view ----------
+function layoutHUD(){
+  const P = R.panels, view = viewOf(state.view); const detail = !!state.detail;
+  P.tabs.target.set(0, detail ? 0.80 : 0.76, -0.06); P.tabs.rot.set(0,0,0); P.tabs.show(true);
+  const kp = view.kpis; const nK = detail ? 0 : kp.length;
+  for(let i=0;i<6;i++){ const p = P['kpi'+i]; const on = i < nK; if(on){ const col = i%2, row = Math.floor(i/2); const x = col ? 0.152 : -0.152; const a = x/0.9; p.kpi = kp[i]; p.target.set(Math.sin(a)*0.9, 0.655 - row*0.113, -0.06 + row*0.02 + (1-Math.cos(a))*0.9); p.rot.set(-0.12 - row*0.03, -a, 0); } p.show(on); if(on && p.dirty===false && p.kpi!==p._lastKpi){ p.dirty = true; } p._lastKpi = p.kpi; }
+  P.levers.target.set(0, 0.36, 0.28); P.levers.rot.set(-0.25,0,0); P.levers.show(!detail && !!view.levers);
+  { const phone = window.matchMedia('(max-width: 820px)').matches; const objX = ({ tower:G.tx, sf:G.sfC[0], mf:G.mfC[0] })[state.detail]; const bi = COLS.indexOf(state.detail); const ox = bi >= 0 ? G.x0 + bi*(G.colW+G.colGap) : (objX !== undefined ? objX : 0);
+    const off = (bi >= 0 || objX !== undefined) ? (ox < 0.02 ? 1 : -1) * (phone ? 0.09 : 0.17) : 0;
+    P.detail.target.set(off, phone ? 0.58 : 0.55, 0.26); P.detail.rot.set(-0.16, -off*0.35, 0); P.detail.show(detail); }
+  R.explode.id = detail && ['nii','nonii','prov','nie','tax','ni','tower','sf'].includes(state.detail) ? state.detail : null;
+  R.focus = detail ? {wf:.35,tower:.35,sf:.35,mf:.35} : view.focus;
+}
+
+// ---------- actions ----------
+function setQuarter(i){ state.qi = clamp(i, 0, Q.length-1); const q = Q[state.qi]; if(!state.touched.sf) state.levers.sfCov = q.sfACL; if(!state.touched.mf) state.levers.mfCov = q.mfACL; refresh(); }
+function setView(id){ state.view = id; state.detail = null; refresh(); toast(viewOf(id).label, 900); }
+function openDetail(id){ state.detail = id; refresh(); }
+function closeDetail(){ state.detail = null; refresh(); }
+let playTimer = null;
+function togglePlay(){ state.playing ? stopPlay() : startPlay(); }
+function startPlay(){ state.playing = true; if(state.qi === Q.length-1) setQuarter(0); playTimer = setInterval(()=>{ if(state.qi >= Q.length-1){ stopPlay(); return; } setQuarter(state.qi+1); }, 1700); refresh(); }
+function stopPlay(){ state.playing = false; clearInterval(playTimer); playTimer = null; refresh(); }
+function nudgeLever(id, dir){
+  const L = state.levers; const q = Q[state.qi];
+  if(id==='gfee') L.gfee = clamp(L.gfee + dir, -10, 10);
+  else if(id==='sfCov'){ L.sfCov = clamp(L.sfCov + dir, 10, 40); state.touched.sf = true; }
+  else if(id==='mfCov'){ L.mfCov = clamp(L.mfCov + dir, 20, 80); state.touched.mf = true; }
+  else if(id==='opex') L.opex = clamp(L.opex + dir, -15, 15);
+  refresh();
+}
+function resetLevers(){ const q = Q[state.qi]; state.levers = { gfee:0, sfCov:q.sfACL, mfCov:q.mfACL, opex:0 }; state.touched = { sf:false, mf:false }; refresh(); toast('Levers reset to reported', 900); }
+function activate(target){
+  if(!target) return false; const id = target.region ? target.region.id : (target.scene ? 'scene:'+target.scene : null); if(!id) return false;
+  if(id.startsWith('tab:')){ setView(id.slice(4)); return true; }
+  if(id.startsWith('q:')){ stopPlay(); setQuarter(+id.slice(2)); toast(Q[state.qi].label, 700); return true; }
+  if(id === 'play'){ togglePlay(); return true; }
+  if(id === 'close'){ closeDetail(); return true; }
+  if(id === 'reset'){ resetLevers(); return true; }
+  if(id === 'sps'){ state.countSPS = !state.countSPS; refresh(); toast(state.countSPS?'Counting senior preferred as capital (hypothetical)':'Senior preferred excluded (as reported)', 1400); return true; }
+  if(id.startsWith('lever:')){ const [,name,dir] = id.split(':'); nudgeLever(name, +dir); return true; }
+  if(id.startsWith('kpi:')){ const def = KPI[id.slice(4)]; openDetail(def.detail); return true; }
+  if(id.startsWith('scene:tl:')){ const w = id.slice(9); if(w==='play') togglePlay(); else { stopPlay(); setQuarter(+w); toast(Q[state.qi].label, 700); } return true; }
+  if(id.startsWith('scene:')){ const sid = id.slice(6); if(state.detail === sid) closeDetail(); else openDetail(sid); return true; }
+  return false;
+}
+const REPEATABLE = /^lever:/;
+
 function refresh(){
   const { q, s } = current();
-  updateLeverUI(q, s); updateReadout(q, s); renderDrawer();
-  setTargets(false);
+  $('roQ').textContent = q.label;
+  $('roNI').innerHTML = s.changed ? `Net income <b>${fmt.b(s.ni)}</b> <span class="sc">${fmt.md(s.ni-q.ni)}M</span> vs reported` : `Net income <b>${fmt.b(q.ni)}</b> · net worth <b>${fmt.bB(q.nwEnd/1000)}</b>`;
+  $('badge').classList.toggle('on', s.changed);
+  document.querySelectorAll('#qRow .chip[data-i]').forEach(c=> c.setAttribute('aria-pressed', +c.dataset.i===state.qi?'true':'false'));
+  document.querySelectorAll('#tabsRow .chip[data-v]').forEach(c=> c.setAttribute('aria-pressed', c.dataset.v===state.view?'true':'false'));
+  const p = $('btnPlay'); if(p) p.innerHTML = state.playing ? '<svg viewBox="0 0 12 12" fill="currentColor"><path d="M2 1.5h3v9H2zM7 1.5h3v9H7z"/></svg>' : '<svg viewBox="0 0 12 12" fill="currentColor"><path d="M2.5 1.5v9l8-4.5z"/></svg>';
+  if(state.drawer) renderDrawer();
+  if(R){ setTargets(false); layoutHUD(); }
 }
 
-// ---------- per-frame ----------
-function frame(time, xrFrame){
-  if(!three) return;
-  const dt = Math.min(0.05, three.lastT ? (time - three.lastT)/1000 : 0.016); three.lastT = time;
-  const { cur, tgt } = three;
-  // ease geometry toward targets
+// ================= per-frame =================
+function frame(time){
+  if(!R) return;
+  const dt = Math.min(0.05, R.lastT ? (time - R.lastT)/1000 : 0.016); R.lastT = time;
+  if(!R.lowQ){ R.fpsAcc = (R.fpsAcc||0) + dt; R.fpsN = (R.fpsN||0) + 1; if(R.fpsAcc > 3){ if(R.fpsN/R.fpsAcc < 24 && R.renderer.getPixelRatio() > 1){ R.renderer.setPixelRatio(1); layoutViewport(); R.lowQ = true; } R.fpsAcc = 0; R.fpsN = 0; } }
   const k = reduceMotion ? 1 : 1 - Math.exp(-dt*7);
+  const { cur, tgt } = R;
   for(let i=0;i<6;i++) cur.L[i] += (tgt.L[i]-cur.L[i])*k;
-  ['towerH','reqH','ringH','sfW','sfD','mfS','sfHeat','mfHeat'].forEach(p=>{ cur[p] += (tgt[p]-cur[p])*k; });
-  // blocks
-  for(let i=0;i<5;i++){
-    const a = cur.L[i], b = cur.L[i+1]; const bot = Math.min(a,b), h = Math.max(Math.abs(b-a), 0.0015);
-    const m = three.blocks[i]; m.scale.y = h; m.position.y = bot + h/2;
-    three.labels[COLS[i]].position.set(m.position.x, 0.014, G.zWF + G.depth/2 + (i%2 ? 0.095 : 0.045));
-  }
-  { const ni = cur.L[5]; const bot = Math.min(0,ni), h = Math.max(Math.abs(ni),0.0015); const m = three.blocks[5]; m.scale.y = h; m.position.y = bot + h/2;
-    three.labels.ni.position.set(m.position.x, 0.014, G.zWF + G.depth/2 + 0.095); }
-  // connectors between blocks
-  { const arr = three.conn.geometry.attributes.position.array; let j=0;
-    for(let i=0;i<5;i++){ const xA = three.blocks[i].position.x + G.colW/2, xB = three.blocks[i+1].position.x - G.colW/2; const y = cur.L[i+1];
-      arr[j++]=xA; arr[j++]=y; arr[j++]=G.zWF; arr[j++]=xB; arr[j++]=y; arr[j++]=G.zWF; }
-    three.conn.geometry.attributes.position.needsUpdate = true; }
-  // tower & shell
-  three.tower.scale.y = cur.towerH; three.tower.position.y = cur.towerH/2;
-  three.shell.scale.y = Math.max(cur.reqH,0.001); three.shell.position.y = cur.reqH/2; three.shellCap.position.y = cur.reqH;
-  three.ring.visible = cur.ringH > 0.01; three.ring.position.y = cur.ringH;
-  three.labels.nw.position.set(G.tx, cur.towerH + 0.042, G.tz);
-  three.labels.req.position.set(G.tx, Math.max(cur.reqH, cur.towerH + 0.075) + 0.046, G.tz);
+  ['towerH','reqH','sfW','sfD','mfS','sfHeat','mfHeat'].forEach(p=>{ cur[p] += (tgt[p]-cur[p])*k; });
+  // waterfall
+  for(let i=0;i<5;i++){ const a = cur.L[i], b = cur.L[i+1]; const bot = Math.min(a,b), h = Math.max(Math.abs(b-a), 0.0015); const m = R.blocks[i]; m.scale.y = h; m.position.y = bot + h/2; m.userData.edge.position.copy(m.position); m.userData.edge.scale.copy(m.scale);
+    R.labels[COLS[i]].position.set(m.position.x, 0.014, G.zWF + G.depth/2 + (i%2 ? 0.095 : 0.045)); }
+  { const ni = cur.L[5]; const bot = Math.min(0,ni), h = Math.max(Math.abs(ni),0.0015); const m = R.blocks[5]; m.scale.y = h; m.position.y = bot + h/2; m.userData.edge.position.copy(m.position); m.userData.edge.scale.copy(m.scale); R.labels.ni.position.set(m.position.x, 0.014, G.zWF + G.depth/2 + 0.095); }
+  { const arr = R.conn.geometry.attributes.position.array; let j = 0; for(let i=0;i<5;i++){ const xA = R.blocks[i].position.x + G.colW/2, xB = R.blocks[i+1].position.x - G.colW/2, y = cur.L[i+1]; arr[j++]=xA; arr[j++]=y; arr[j++]=G.zWF; arr[j++]=xB; arr[j++]=y; arr[j++]=G.zWF; } R.conn.geometry.attributes.position.needsUpdate = true; }
+  // tower
+  R.tower.scale.y = cur.towerH; R.tower.position.y = cur.towerH/2; R.shell.scale.y = Math.max(cur.reqH,0.001); R.shell.position.y = cur.reqH/2; R.shellTop.position.y = cur.reqH;
+  R.scanner.position.y = (0.5 + 0.5*Math.sin(time/1400)) * cur.reqH; R.scanner.material.opacity = 0.35 + 0.35*(0.5+0.5*Math.sin(time/700));
+  R.labels.nw.position.set(G.tx, cur.towerH + 0.042, G.tz); R.labels.req.position.set(G.tx, Math.max(cur.reqH, cur.towerH + 0.075) + 0.046, G.tz);
   // slabs
-  three.sf.scale.set(cur.sfW, G.slabH, cur.sfD); three.sfEdge.position.copy(three.sf.position); three.sfEdge.scale.copy(three.sf.scale);
-  three.mf.scale.set(cur.mfS, G.slabH, cur.mfS); three.mfEdge.position.copy(three.mf.position); three.mfEdge.scale.copy(three.mf.scale);
-  const c = three.colors;
-  three.sf.material.emissive = toLinear(c.inflow).lerp(toLinear(c.outflow), cur.sfHeat).multiplyScalar(0.22 + 0.25*cur.sfHeat);
-  three.mf.material.emissive = toLinear(c.inflow).lerp(toLinear(c.outflow), cur.mfHeat).multiplyScalar(0.22 + 0.25*cur.mfHeat);
-  three.labels.sf.position.set(G.sfC[0], 0.05, G.sfC[1]); three.labels.mf.position.set(G.mfC[0], 0.048, G.mfC[1]);
-  { const mul = three.labelMul || 1; Object.values(three.labels).forEach(l=>{ const b = l.userData.base; l.scale.set(b.x*mul, b.y*mul, 1); }); }
-  // selection pulse
-  if(state.selected){ const p = 0.18 + 0.14*Math.sin(time/180); pickables().forEach(m=>{ if(m.userData.id===state.selected && m.material.emissive){ m.userData.pulse = p; } }); }
+  R.sf.scale.set(cur.sfW, G.slabH, cur.sfD); R.sfEdge.position.copy(R.sf.position); R.sfEdge.scale.copy(R.sf.scale); R.mf.scale.set(cur.mfS, G.slabH, cur.mfS); R.mfEdge.position.copy(R.mf.position); R.mfEdge.scale.copy(R.mf.scale);
+  R.sf.material.emissive = col3('#2FC79A').lerp(col3('#F07A5E'), cur.sfHeat).multiplyScalar(0.25 + 0.3*cur.sfHeat); R.mf.material.emissive = col3('#2FC79A').lerp(col3('#F07A5E'), cur.mfHeat).multiplyScalar(0.25 + 0.3*cur.mfHeat);
+  R.labels.sf.position.set(G.sfC[0], 0.05, G.sfC[1]); R.labels.mf.position.set(G.mfC[0], 0.048, G.mfC[1]);
+  // focus dimming
+  const fc = R.focusCur; for(const key in fc) fc[key] += ((R.focus[key]||1) - fc[key])*k;
+  const setOp = (m, o)=>{ if(m.material) m.material.opacity = o; };
+  R.blocks.forEach(b=>{ setOp(b, fc.wf); b.userData.edge.material.opacity = 0.7*fc.wf; }); R.conn.material.opacity = 0.5*fc.wf; COLS.forEach(k=> R.labels[k].material.opacity = fc.wf);
+  setOp(R.tower, fc.tower); R.shell.material.opacity = 0.16*fc.tower; R.shellTop.material.opacity = 0.9*fc.tower; R.labels.nw.material.opacity = fc.tower; R.labels.req.material.opacity = fc.tower; R.scanner.visible = fc.tower > 0.5;
+  setOp(R.sf, fc.sf); R.sfEdge.material.opacity = 0.8*fc.sf; R.labels.sf.material.opacity = fc.sf; setOp(R.mf, fc.mf); R.mfEdge.material.opacity = 0.8*fc.mf; R.labels.mf.material.opacity = fc.mf;
+  R.padMat.uniforms.uTime.value = time/1000;
+  // timeline columns
+  if(!cur.tlH) cur.tlH = tgt.tlH.slice();
+  for(let i=0;i<Q.length;i++){ cur.tlH[i] += (tgt.tlH[i]-cur.tlH[i])*k; const m = R.tl.cols[i]; const h = cur.tlH[i]; m.scale.set(TL.w, h, TL.w); m.position.y = h/2 + 0.0015; R.tl.edges[i].position.copy(m.position); R.tl.edges[i].scale.copy(m.scale);
+    const active = i===state.qi, hov = R.hoverId === 'tl:'+i; const base = active ? col3('#F5C55C') : col3('#2FC79A'); m.material.color.copy(base); m.material.emissive.copy(base).multiplyScalar(active ? 0.45 : (hov ? 0.5 : 0.15)); R.tl.edges[i].material.color.copy(active ? col3('#FFE39A') : col3('#7CFFD9')); m.material.opacity = 0.92*fc.wf; R.tl.edges[i].material.opacity = 0.55*fc.wf; }
+  R.tl.play.material.emissive = col3('#F5C55C').multiplyScalar(R.hoverId==='tl:play' ? 1.0 : (state.playing ? 0.9 : 0.5)); R.tl.play.scale.setScalar(state.playing ? 1 + 0.12*Math.sin(time/150) : 1);
+  R.tl.plate.material.opacity = fc.wf;
+  { const hi = R.hoverId && R.hoverId.startsWith('tl:') && R.hoverId!=='tl:play' ? +R.hoverId.slice(3) : (state.playing ? state.qi : -1);
+    if(hi >= 0){ const def = KPI[tgt.tlMetric]; setLabel(R.tlLabel, Q[hi].label, fmtKPI(def.f, def.series(Q[hi])), def.t, hi===state.qi?CC.gold:CC.text); R.tlLabel.position.set(TL.x0 + hi*TL.pitch, cur.tlH[hi] + 0.05, TL.z); R.tlLabel.visible = true; } else R.tlLabel.visible = false; }
+  // explode / drill-in animations
+  { const ex = R.explode; ex.e += ((ex.id ? 1 : 0) - ex.e)*k; if(!ex.id && ex.e < 0.01) ex.e = 0; const e = ex.e; const id = ex.id || ex.lastId; ex.lastId = ex.id || ex.lastId;
+    const bi = COLS.indexOf(id);
+    R.blocks.forEach((b,i)=>{ const on = i===bi; const eb = on ? e : 0; const segT = tgt.seg[i]; b.material.opacity = fc.wf*(1 - 0.88*eb); b.userData.edge.material.opacity = 0.7*fc.wf*(1-0.8*eb);
+      R.seg[i].forEach((c, kk)=>{ const v = kk ? segT.mf : segT.sf; const show = eb > 0.01; c.m.visible = show; c.e.visible = show; c.lab.visible = show;
+        if(show){ const hh = Math.max(Math.abs(v), 0.0015)*eb; c.m.scale.set(0.032*eb + 0.001, hh, G.depth*0.9); c.m.position.set(b.position.x + (kk?0.02:-0.02)*eb, segT.base + (v>=0 ? hh/2 : -hh/2), G.zWF); c.m.material.opacity = eb; c.m.material.color.copy(b.material.color); c.m.material.emissive.copy(b.material.color).multiplyScalar(0.2); c.e.position.copy(c.m.position); c.e.scale.copy(c.m.scale); c.e.material.opacity = 0.8*eb;
+          setLabel(c.lab, kk ? 'Multifamily' : 'Single-Family', fmt.b(kk ? segT.mfV : segT.sfV), null, CC.text); c.lab.position.set(c.m.position.x, segT.base + (v>=0 ? hh : 0) + 0.04 + (kk?0.03:0), G.zWF); c.lab.material.opacity = eb; } }); });
+    const tw = id==='tower' ? e : 0; R.tower.material.opacity = fc.tower*(1 - 0.9*tw); let y0 = 0; const ct = tgt.comp;
+    R.comp.forEach(c=>{ const h = ct[c.k]; const show = tw > 0.01; c.m.visible = show; c.lab.visible = show; if(show){ c.m.scale.set(1 + 0.08*tw, h, 1 + 0.08*tw); c.m.position.set(G.tx, y0 + h/2, G.tz); c.m.material.opacity = tw; if(c.k==='sps'){ const g = state.countSPS; c.m.material.color.copy(col3(g?'#F5C55C':'#5B7BD5')); c.m.material.emissive.copy(col3(g?'#F5C55C':'#5B7BD5')).multiplyScalar(0.2); }
+        const name = c.k==='sps' ? (state.countSPS ? 'Senior preferred (counted)' : 'Senior preferred (excluded)') : c.k==='adj' ? 'Adjustments & deductions' : 'Adjusted total capital'; const val = c.k==='sps' ? fmt.bB(CAP.sps) : c.k==='adj' ? '≈ '+fmt.bB(CAP.adj,0) : fmt.bB(Math.max(ct.nwB - CAP.sps - CAP.adj + (state.countSPS?CAP.sps:0), 0));
+        setLabel(c.lab, name, val, null, c.k==='atc' || (c.k==='sps' && state.countSPS) ? CC.gold : CC.text); c.lab.position.set(G.tx + 0.11, y0 + h/2, G.tz); c.lab.material.opacity = tw; } y0 += h; });
+    const bt = tgt.bands; R.shell.material.opacity = 0.16*fc.tower*(1 - (bt ? 0.9*tw : 0));
+    R.bands.forEach(b=>{ const show = !!bt && tw > 0.01; b.m.visible = show; b.lab.visible = show; if(show){ const lo = b.k==='min' ? 0 : bt.min, hi = b.k==='min' ? bt.min : bt.buf; b.m.scale.set(1, Math.max(hi-lo, 0.001), 1); b.m.position.set(G.tx, (lo+hi)/2, G.tz); b.m.material.opacity = 0.22*tw; setLabel(b.lab, b.k==='min' ? 'CET1 minimum' : 'Capital buffers', fmt.bB(b.k==='min' ? bt.minB : bt.bufB, 0), b.k==='min' ? '4.5% of RWA' : 'stress + stability', CC.blue); b.lab.position.set(G.tx - 0.11, (lo+hi)/2, G.tz); b.lab.material.opacity = tw; } });
+    { const show = !!bt && bt.total > 0 && tw > 0.01; R.totalRing.visible = show; R.totalLab.visible = show; if(show){ R.totalRing.position.y = bt.total; R.totalRing.material.opacity = 0.9*tw; setLabel(R.totalLab, 'Total requirement incl. AT1 & T2', fmt.bB(bt.totalB, 0), null, CC.text); R.totalLab.position.set(G.tx, bt.total + 0.04, G.tz); R.totalLab.material.opacity = tw; } }
+    const vs = id==='sf' ? e : 0; const total = VINTAGE.reduce((a,v)=>a+v.upb, 0); let yv = G.slabH; const fw = cur.sfW, fd = cur.sfD;
+    R.vint.forEach((L2, i)=>{ const th = 0.14*L2.v.upb/total; const show = vs > 0.01; L2.m.visible = show; L2.e.visible = show; L2.lab.visible = show; if(show){ const inset = 1 - i*0.045; L2.m.scale.set(fw*inset, Math.max(th*vs, 0.001), fd*inset); L2.m.position.set(G.sfC[0], yv + th*vs/2, G.sfC[1]); L2.m.material.opacity = 0.92*vs; L2.e.position.copy(L2.m.position); L2.e.scale.copy(L2.m.scale); L2.e.material.opacity = 0.6*vs;
+        setLabel(L2.lab, L2.v.y + ' vintage', fmt.t(L2.v.upb), `SDQ ${L2.v.sdq.toFixed(2)}%`, CC.text); L2.lab.position.set(G.sfC[0] + fw/2 + 0.085, yv + th*vs/2, G.sfC[1]); L2.lab.material.opacity = vs; } yv += th*vs; });
+    R.vintTitle.visible = vs > 0.01; if(vs > 0.01){ setLabel(R.vintTitle, 'Single-Family by vintage', fmt.t(total), 'as of Mar 31, 2026 · 1Q26 supplement', CC.gold); R.vintTitle.position.set(G.sfC[0], yv + 0.06, G.sfC[1]); R.vintTitle.material.opacity = vs; }
+    R.labels.sf.visible = vs < 0.5; }
+  // hover glow on 3D objects
+  { const boost = col3('#F5C55C').multiplyScalar(0.35*(0.7+0.3*Math.sin(time/160))); const hid = R.hoverId;
+    R.blocks.forEach((b,i)=>{ const base = b.material.color.clone().multiplyScalar(0.12); if(hid===b.userData.id) base.add(boost); b.material.emissive.copy(base); });
+    R.tower.material.emissive.copy(col3('#F5C55C').multiplyScalar(0.18)); if(hid==='tower') R.tower.material.emissive.add(boost);
+    if(hid==='sf') R.sf.material.emissive.add(boost); if(hid==='mf') R.mf.material.emissive.add(boost); }
+  const lm = R.labelMul || 1; Object.values(R.labels).forEach(l=>{ const b = l.userData.base; l.scale.set(b.x*lm, b.y*lm, 1); });
   // camera
-  if(room.on){
-    const cam = three.camera;
-    if(room.gyro && room.gyro.has) applyOrientation(cam); else { cam.position.set(0,0,0); cam.rotation.set(0,0,0); }
-    const g = room.g; three.world.rotation.set(g.tilt, g.baseYaw + g.yaw, 0); three.world.scale.setScalar(g.scale);
-    const vid = $('cam');
-    if(room.hands && vid.readyState >= 2 && time - room.lastDetect > 40){
-      room.lastDetect = time; let res = null;
-      try { res = room.hands.detectForVideo(vid, Math.round(time)); } catch(e){}
-      if(res) handleHands(res, time);
-    }
-  } else {
-    const o = three.orbit;
-    three.idle += dt;
-    if(!reduceMotion && three.idle > 7) o.theta += dt*0.07;
-    const cam = three.camera;
-    cam.position.set(o.target.x + o.radius*Math.sin(o.theta)*Math.cos(o.phi), o.target.y + o.radius*Math.sin(o.phi), o.target.z + o.radius*Math.cos(o.theta)*Math.cos(o.phi));
-    cam.lookAt(o.target);
-  }
+  const cam = R.camera;
+  if(room.on){ if(room.gyro && room.gyro.has) applyOrientation(cam); else { cam.position.set(0,0,0); cam.rotation.set(0,0,0); } const g = room.g; R.world.rotation.set(g.tilt, g.baseYaw + g.yaw, 0); R.world.scale.setScalar(g.scale); R.hud.scale.setScalar(g.scale); }
+  else { const o = R.orbit; R.idle += dt; if(!reduceMotion && R.idle > 8) o.theta += dt*0.05; cam.position.set(o.target.x + o.radius*Math.sin(o.theta)*Math.cos(o.phi), o.target.y + o.radius*Math.sin(o.phi), o.target.z + o.radius*Math.cos(o.theta)*Math.cos(o.phi)); cam.lookAt(o.target); }
+  // HUD billboard (yaw toward the camera) + panel animation
+  R.hud.position.copy(R.world.position); const dx = cam.position.x - R.hud.position.x, dz = cam.position.z - R.hud.position.z; R.hud.rotation.y = Math.atan2(dx, dz);
+  if(tickAnim(k)) Object.values(R.panels).forEach(p=>{ if(p.kpi || p.id==='detail' || p.id==='levers') p.dirty = true; });
+  Object.values(R.panels).forEach(p=> p.tick(k));
+  // hands
+  if(room.on && room.hands){ const vid = $('cam'); if(vid.readyState >= 2 && time - room.lastDetect > 40){ room.lastDetect = time; let res = null; try { res = room.hands.detectForVideo(vid, Math.round(time)); } catch(e){} if(res) handleHands(res, time); } }
+  updateDwell(time);
   updateParticles(dt);
-  three.renderer.render(three.scene, three.camera);
+  renderAll();
+}
+function renderAll(){
+  const { renderer, scene, camera } = R;
+  renderer.setRenderTarget(null); renderer.autoClear = true; renderer.render(scene, camera);
+  // glow pass
+  const bg = scene.background, fog = scene.fog; scene.background = null; scene.fog = null;
+  camera.layers.set(1); renderer.setRenderTarget(R.rtA); renderer.setClearColor(0x000000, 0); renderer.clear(); renderer.render(scene, camera); camera.layers.set(0);
+  scene.background = bg; scene.fog = fog;
+  R.quad.material = R.blurMat;
+  for(let i=0;i<(R.lowQ?1:2);i++){ R.blurMat.uniforms.tDiffuse.value = R.rtA.texture; R.blurMat.uniforms.uDir.value.set(1,0); renderer.setRenderTarget(R.rtB); renderer.render(R.quadScene, R.quadCam);
+    R.blurMat.uniforms.tDiffuse.value = R.rtB.texture; R.blurMat.uniforms.uDir.value.set(0,1); renderer.setRenderTarget(R.rtA); renderer.render(R.quadScene, R.quadCam); }
+  R.quad.material = R.compMat; R.compMat.uniforms.tDiffuse.value = R.rtA.texture; renderer.setRenderTarget(null); renderer.autoClear = false; renderer.render(R.quadScene, R.quadCam); renderer.autoClear = true;
+  renderer.setClearColor(0x000000, room.on ? 0 : 1);
 }
 
-// particles ride the waterfall's running total, drain at outflows, and the survivors arc into the tower
-function levelAt(x, L){
-  const hw = G.colW/2; let lvl = 0;
-  for(let i=1;i<=5;i++){ const xc = G.x0 + (i-1)*(G.colW+G.colGap); // block i-1 index in blocks = i-1 -> maps L[i-1]->L[i]
-    if(x >= xc + hw) lvl = L[i]; else if(x > xc - hw){ lvl = L[i-1] + (L[i]-L[i-1]) * ((x-(xc-hw))/G.colW); break; } else break; }
-  return lvl;
-}
+// ---------- particles ----------
+function levelAt(x, L){ const hw = G.colW/2; let lvl = 0; for(let i=1;i<=5;i++){ const xc = G.x0 + (i-1)*(G.colW+G.colGap); if(x >= xc+hw) lvl = L[i]; else if(x > xc-hw){ lvl = L[i-1] + (L[i]-L[i-1])*((x-(xc-hw))/G.colW); break; } else break; } return lvl; }
 function planParticle(p, s){
-  // choose source (which inflow) and destination (which outflow, or retained)
-  const inflows = [['nii', Math.max(s.nii,0)],['nonii', Math.max(s.nonii,0)],['prov', Math.max(s.prov,0)]];
-  const totIn = inflows.reduce((a,[,v])=>a+v,0) || 1;
-  let r = Math.random()*totIn, srcIdx = 0; for(let i=0;i<inflows.length;i++){ r -= inflows[i][1]; if(r<=0){ srcIdx=i; break; } }
-  p.src = srcIdx; // 0 = start of run, 1 = column 2 (nonii), 2 = column 3 (prov)
-  const outs = [[1, s.nonii<0?-s.nonii:0],[2, s.prov<0?-s.prov:0],[3, -s.nie],[4, -s.tax>0?-s.tax:0]].filter(([ci])=>ci>=srcIdx+1);
-  const retained = Math.max(s.ni,0);
-  const tot = outs.reduce((a,[,v])=>a+v,0) + retained;
-  let r2 = Math.random()*tot; p.dst = -1;
-  for(const [ci,v] of outs){ r2 -= v; if(r2<=0){ p.dst = ci; break; } }
-  // dst -1 => retained
-  const xs = srcIdx===0 ? G.x0 - G.colW/2 - 0.07 : G.x0 + srcIdx*(G.colW+G.colGap) - G.colW/2;
-  p.x0 = xs; p.s = 0; p.fresh = false;
+  const inflows = [Math.max(s.nii,0), Math.max(s.nonii,0), Math.max(s.prov,0)]; const totIn = inflows.reduce((a,b)=>a+b,0) || 1;
+  let r = Math.random()*totIn, src = 0; for(let i=0;i<3;i++){ r -= inflows[i]; if(r<=0){ src = i; break; } }
+  const outs = [[1, s.nonii<0?-s.nonii:0],[2, s.prov<0?-s.prov:0],[3, -s.nie],[4, -s.tax>0?-s.tax:0]].filter(([ci])=> ci >= src+1);
+  const retained = Math.max(s.ni,0); const tot = outs.reduce((a,[,v])=>a+v,0) + retained; let r2 = Math.random()*tot; p.dst = -1; for(const [ci,v] of outs){ r2 -= v; if(r2<=0){ p.dst = ci; break; } }
+  p.x0 = src===0 ? G.x0 - G.colW/2 - 0.07 : G.x0 + src*(G.colW+G.colGap) - G.colW/2; p.s = 0; p.fresh = false; p.src = src;
 }
 function updateParticles(dt){
-  const { P, N, pPos, pCol, pAlp, cur, colors } = three; if(!N) return;
-  const { s } = current();
-  const L = cur.L; const cIn = toSRGB(colors.inflow), cOut = toSRGB(colors.outflow), cGold = toSRGB(colors.gold);
-  const xEnd = G.x0 + 5*(G.colW+G.colGap); const niTop = Math.max(L[5],0) + 0.01;
-  const towerTop = cur.towerH; const tx = G.tx, tz = G.tz;
-  for(let i=0;i<N;i++){
-    const p = P[i];
-    if(p.fresh){ planParticle(p, s); p.s = Math.random()*0.9; }
-    p.s += dt * p.v * (reduceMotion?0:1);
-    let x, y, z = G.zWF + (i%7-3)*0.006, a = 1, col = cIn;
-    const runLen = xEnd - p.x0;
-    if(p.dst >= 0){
-      const xDrop = G.x0 + p.dst*(G.colW+G.colGap);
-      const dRun = xDrop - p.x0;
+  const { P, N, pPos, pCol, pAlp, cur } = R; if(!N) return; const { s } = current(); const L = cur.L;
+  const cIn = new THREE.Color('#3FE0B0'), cOut = new THREE.Color('#FF7A5C'), cGold = new THREE.Color('#F5C55C');
+  const xEnd = G.x0 + 5*(G.colW+G.colGap); const niTop = Math.max(L[5],0) + 0.01; const towerTop = cur.towerH; const wf = R.focusCur.wf;
+  for(let i=0;i<N;i++){ const p = P[i]; if(p.fresh){ planParticle(p, s); p.s = Math.random()*0.9; } p.s += dt*p.v;
+    let x, y, z = G.zWF + (i%7-3)*0.006, a = 1, col = cIn; const runLen = xEnd - p.x0;
+    if(p.dst >= 0){ const xDrop = G.x0 + p.dst*(G.colW+G.colGap); const dRun = xDrop - p.x0;
       if(p.s <= dRun){ x = p.x0 + p.s; y = levelAt(x, L) + 0.008; a = Math.min(1, p.s/0.04); }
-      else { const f = (p.s - dRun)/0.16; x = xDrop; const yTop = levelAt(xDrop, L) + 0.008; y = yTop - f*(yTop + 0.03); col = cOut; a = 1 - f; if(f>=1){ p.fresh = true; a = 0; } }
-    } else {
-      if(p.s <= runLen){ x = p.x0 + p.s; y = levelAt(x, L) + 0.008; a = Math.min(1, p.s/0.04); }
-      else { // arc from NI block top to tower top
-        const f = (p.s - runLen)/0.42; const t = clamp(f,0,1);
-        const x1 = xEnd, y1 = niTop, z1 = G.zWF, x2 = tx, y2 = towerTop + 0.004, z2 = tz;
-        const cx = (x1+x2)/2, cy = Math.max(y1,y2) + 0.16, cz = (z1+z2)/2;
-        x = (1-t)*(1-t)*x1 + 2*(1-t)*t*cx + t*t*x2; y = (1-t)*(1-t)*y1 + 2*(1-t)*t*cy + t*t*y2; z = (1-t)*(1-t)*z1 + 2*(1-t)*t*cz + t*t*z2;
-        col = cIn.clone().lerp(cGold, t); a = f < 1 ? 1 : 1 - (f-1)/0.12; if(f >= 1.12){ p.fresh = true; a = 0; }
-      }
-    }
-    pPos[i*3]=x; pPos[i*3+1]=y; pPos[i*3+2]=z; pCol[i*3]=col.r; pCol[i*3+1]=col.g; pCol[i*3+2]=col.b; pAlp[i]=clamp(a,0,1)*0.95;
-  }
-  three.points.geometry.attributes.position.needsUpdate = true;
-  three.points.geometry.attributes.aColor.needsUpdate = true;
-  three.points.geometry.attributes.aAlpha.needsUpdate = true;
+      else { const f = (p.s - dRun)/0.16; x = xDrop; const yTop = levelAt(xDrop, L) + 0.008; y = yTop - f*(yTop + 0.03); col = cOut; a = 1 - f; if(f >= 1){ p.fresh = true; a = 0; } } }
+    else { if(p.s <= runLen){ x = p.x0 + p.s; y = levelAt(x, L) + 0.008; a = Math.min(1, p.s/0.04); }
+      else { const f = (p.s - runLen)/0.42, t = clamp(f,0,1); const x1 = xEnd, y1 = niTop, z1 = G.zWF, x2 = G.tx, y2 = towerTop + 0.004, z2 = G.tz; const cx = (x1+x2)/2, cy = Math.max(y1,y2) + 0.16, cz = (z1+z2)/2;
+        x = (1-t)*(1-t)*x1 + 2*(1-t)*t*cx + t*t*x2; y = (1-t)*(1-t)*y1 + 2*(1-t)*t*cy + t*t*y2; z = (1-t)*(1-t)*z1 + 2*(1-t)*t*cz + t*t*z2; col = cIn.clone().lerp(cGold, t); a = f < 1 ? 1 : 1 - (f-1)/0.12; if(f >= 1.12){ p.fresh = true; a = 0; } } }
+    pPos[i*3]=x; pPos[i*3+1]=y; pPos[i*3+2]=z; pCol[i*3]=col.r; pCol[i*3+1]=col.g; pCol[i*3+2]=col.b; pAlp[i]=clamp(a,0,1)*0.9*wf; }
+  const g = R.points.geometry; g.attributes.position.needsUpdate = true; g.attributes.aColor.needsUpdate = true; g.attributes.aAlpha.needsUpdate = true;
 }
 
-// ---------- orbit + picking ----------
-function pickables(){ return [...three.blocks, three.tower, three.shell, three.sf, three.mf]; }
-function setSelected(id){
-  state.selected = id;
-  pickables().forEach(m=>{ if(!m.material.emissive) return; const c = three.colors;
-    if(m.userData.id === id){ m.material.emissive = toLinear(c.gold).multiplyScalar(0.35); }
-    else if(m.userData.id==='tower' || m.userData.id==='ni'){ m.material.emissive = toLinear(c.gold).multiplyScalar(0.12); }
-    else if(m.userData.id==='sf' || m.userData.id==='mf'){ /* emissive driven by heat each frame */ }
-    else { const i = COLS.indexOf(m.userData.id); const neg = three.tgt.deltas[i] < 0; m.material.emissive = toLinear(neg ? c.outflow : c.inflow).multiplyScalar(0.06); }
-  });
-}
-function bindOrbit(){
-  const el = three.renderer.domElement; const o = three.orbit;
-  const ptrs = new Map(); let downAt = 0, moved = false, pinch0 = 0, r0 = 0;
-  el.addEventListener('pointerdown', e=>{ el.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); downAt = performance.now(); moved = false; three.idle = 0;
-    if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch0 = Math.hypot(a.x-b.x,a.y-b.y); r0 = o.radius; } });
-  el.addEventListener('pointermove', e=>{ const p = ptrs.get(e.pointerId); if(!p) return; three.idle = 0;
-    const dx = e.clientX-p.x, dy = e.clientY-p.y; if(Math.hypot(dx,dy) > 4) moved = true;
-    if(ptrs.size===1){ if(room.on){ room.g.yaw += dx*0.006; room.g.tilt = clamp(room.g.tilt + dy*0.004, -0.6, 0.35); } else { o.theta -= dx*0.006; o.phi = clamp(o.phi + dy*0.005, 0.12, 1.45); } }
-    p.x = e.clientX; p.y = e.clientY;
-    if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; const d = Math.hypot(a.x-b.x,a.y-b.y); if(pinch0>0){ if(room.on){ room.g.scale = clamp(room.g.scale * (d/pinch0), 0.35, 3); pinch0 = d; } else o.radius = clamp(r0 * (pinch0/d), 0.45, 2.6); } } });
-  const up = e=>{ ptrs.delete(e.pointerId); if(ptrs.size===0 && !moved && performance.now()-downAt < 450) pickAt(e.clientX, e.clientY); };
-  el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
-  el.addEventListener('wheel', e=>{ e.preventDefault(); if(room.on) room.g.scale = clamp(room.g.scale * (1 - e.deltaY*0.0012), 0.35, 3); else o.radius = clamp(o.radius * (1 + e.deltaY*0.0012), 0.45, 2.6); three.idle = 0; }, { passive:false });
-  window.addEventListener('keydown', e=>{
-    if(e.key==='ArrowRight'){ stopPlay(); setQuarter(state.qi+1); } else if(e.key==='ArrowLeft'){ stopPlay(); setQuarter(state.qi-1); }
-    else if(e.key==='Escape'){ closeDrawer(); } else if(e.key===' ' && e.target===document.body){ e.preventDefault(); togglePlay(); }
-  });
-}
+// ================= pointing: rays, hover, dwell, activation =================
 const raycaster = typeof THREE !== 'undefined' ? new THREE.Raycaster() : null;
-function pickIdAt(cx, cy){
-  const rect = three.renderer.domElement.getBoundingClientRect();
-  const v = new THREE.Vector2(((cx-rect.left)/rect.width)*2-1, -((cy-rect.top)/rect.height)*2+1);
-  raycaster.setFromCamera(v, three.camera);
-  const hits = raycaster.intersectObjects(pickables(), false);
-  return hits.length ? hits[0].object.userData.id : null;
+const hoverState = { key:null, since:0, target:null, lastFire:0, source:null };
+function probe(ndcX, ndcY){
+  raycaster.setFromCamera(new THREE.Vector2(ndcX, ndcY), R.camera);
+  const panels = Object.values(R.panels).filter(p=> p.mesh.visible && p.s > 0.6).map(p=> p.mesh);
+  const hitsP = raycaster.intersectObjects(panels, false);
+  if(hitsP.length){ const h = hitsP[0]; const panel = h.object.userData.panel; const region = h.uv ? panel.hit(h.uv) : null; return { panel, region, point:h.point, normal:h.face ? h.face.normal.clone().transformDirection(h.object.matrixWorld) : null }; }
+  const pick = [...R.blocks, R.tower, R.shell, R.sf, R.mf, ...R.tl.cols, R.tl.play, ...R.seg.flat().map(c=>c.m).filter(m=>m.visible), ...R.comp.map(c=>c.m).filter(m=>m.visible), ...R.vint.map(v=>v.m).filter(m=>m.visible)];
+  const hits = raycaster.intersectObjects(pick, false);
+  if(hits.length){ const h = hits[0]; return { scene:h.object.userData.id, point:h.point, normal:h.face ? h.face.normal.clone().transformDirection(h.object.matrixWorld) : null }; }
+  return null;
 }
-function pickAt(cx, cy){ const id = pickIdAt(cx, cy); if(id){ setSelected(id); openDrawer(id); } }
-
-// ---------- viewport offset so the scene centers in the free area ----------
-function layoutViewport(){
-  if(!three) return;
-  const W = window.innerWidth, H = window.innerHeight;
-  three.renderer.setSize(W, H, false);
-  const cam = three.camera; cam.aspect = W/H;
-  const conH0 = $('console').offsetHeight; document.documentElement.style.setProperty('--console-h', conH0 + 'px');
-  if(room.on){ cam.clearViewOffset(); cam.fov = 62; cam.updateProjectionMatrix(); three.labelMul = 1.3; return; }
-  cam.fov = 42;
-  const topH = document.querySelector('.topbar').offsetHeight;
-  const conH = $('console').offsetHeight;
-  document.documentElement.style.setProperty('--console-h', conH + 'px');
-  const phone = window.matchMedia('(max-width: 820px)').matches;
-  const drawerW = (state.drawer && !phone) ? $('drawer').offsetWidth + 16 : 0;
-  const y0 = Math.max(0, conH - topH), x0 = drawerW;
-  cam.setViewOffset(W + x0, H + y0, x0, y0, W, H);
-  cam.updateProjectionMatrix();
-  // pull the camera back a touch on narrow screens so the whole table fits
-  three.orbit.radius = clamp(three.orbit.radius, 0.45, 2.6);
-  three.labelMul = phone ? 1.45 : 1;
-  if(!three._fitted){ three.orbit.radius = phone ? 2.3 : 1.08; if(phone){ three.orbit.theta = 0.26; three.orbit.phi = 0.6; three.orbit.target.x = 0.05; } three._fitted = true; }
+function keyOf(t){ if(!t) return null; if(t.region) return 'r:'+t.panel.id+':'+t.region.id; if(t.scene) return 's:'+t.scene; return null; }
+function setHover(t, now, source){
+  const key = keyOf(t);
+  Object.values(R.panels).forEach(p=> p.setHover(t && t.panel === p && t.region ? t.region.id : null));
+  R.hoverId = t && t.scene ? t.scene : null;
+  if(key !== hoverState.key){ hoverState.key = key; hoverState.since = now; hoverState.lastFire = 0; }
+  hoverState.target = t; hoverState.source = source;
 }
+const DWELL = 650, REPEAT = 320, COOLDOWN = 900;
+function updateDwell(now){
+  const t = hoverState.target; const c = R.cursor; if(!t || !hoverState.key){ if(!(hoverState.freeUntil && performance.now() < hoverState.freeUntil)){ c.visible = false; R.tag.visible = false; } return; }
+  // cursor placement
+  const p = t.point.clone(); if(t.normal) p.addScaledVector(t.normal, 0.006); c.position.copy(p); c.visible = true;
+  let prog = 0, label = '';
+  if(t.region || t.scene){
+    const held = now - hoverState.since; const key = hoverState.key; const repeatable = t.region && REPEATABLE.test(t.region.id);
+    if(hoverState.lastFire === 0){ prog = clamp(held/DWELL, 0, 1); if(held >= DWELL){ activate(t); hoverState.lastFire = now; } }
+    else if(repeatable && now - hoverState.lastFire > REPEAT){ activate(t); hoverState.lastFire = now; }
+    else if(!repeatable) prog = 1;
+    label = t.region ? regionLabel(t.region.id) : sceneLabel(t.scene);
+  }
+  drawCursor(prog, hoverState.lastFire ? 'done' : (t.region||t.scene ? 'dwell' : 'idle'));
+  if(label){ drawTag(label); R.tag.position.copy(p).add(new THREE.Vector3(0, -0.045, 0)); R.tag.visible = true; } else R.tag.visible = false;
+}
+function regionLabel(id){ if(id.startsWith('tab:')) return viewOf(id.slice(4)).label; if(id.startsWith('q:')) return Q[+id.slice(2)].label; if(id==='play') return state.playing?'Pause':'Play quarters'; if(id==='close') return 'Close'; if(id==='reset') return 'Reset levers'; if(id==='sps') return 'Toggle senior preferred'; if(id.startsWith('lever:')){ const [,n,d] = id.split(':'); return (d==='1'?'+ ':'− ') + ({gfee:'guarantee fee',sfCov:'SF coverage',mfCov:'MF coverage',opex:'expense'})[n]; } if(id.startsWith('kpi:')) return 'Open ' + KPI[id.slice(4)].t; return ''; }
+function sceneLabel(id){ if(id && id.startsWith('tl:')){ if(id==='tl:play') return state.playing ? 'Pause' : 'Play the quarters'; return 'Go to ' + Q[+id.slice(3)].label; }
+  const open = state.detail === id; return ({ nii:'Net interest income', nonii:'Non-interest income', prov:'Credit losses', nie:'Expenses', tax:'Tax', ni:'Net income', tower:'Capital tower', sf:'Single-Family', mf:'Multifamily' })[id] ? (open ? 'Close ' : 'Explode ') + ({ nii:'net interest income', nonii:'non-interest income', prov:'credit losses', nie:'expenses', tax:'tax', ni:'net income', tower:'the capital tower', sf:'Single-Family', mf:'Multifamily' })[id] : ''; }
+function drawCursor(prog, mode){
+  const c = R.cc, ctx = c.getContext('2d'); ctx.clearRect(0,0,256,256);
+  ctx.lineWidth = 10; ctx.strokeStyle = 'rgba(245,197,92,0.35)'; ctx.beginPath(); ctx.arc(128,128,86,0,Math.PI*2); ctx.stroke();
+  ctx.fillStyle = mode==='done' ? CC.gold : 'rgba(245,197,92,0.55)'; ctx.beginPath(); ctx.arc(128,128, mode==='done'?30:22, 0, Math.PI*2); ctx.fill();
+  if(prog > 0){ ctx.lineWidth = 14; ctx.strokeStyle = CC.gold; ctx.lineCap = 'round'; ctx.beginPath(); ctx.arc(128,128,86,-Math.PI/2, -Math.PI/2 + prog*Math.PI*2); ctx.stroke(); }
+  R.cTex.needsUpdate = true;
+}
+function drawTag(text){ const c = R.tagC, ctx = c.getContext('2d'); if(c._t === text) return; c._t = text; ctx.clearRect(0,0,512,128); roundRect(ctx, 8, 20, 496, 88, 44); ctx.fillStyle = 'rgba(10,18,32,0.85)'; ctx.fill(); ctx.strokeStyle = 'rgba(245,197,92,0.7)'; ctx.lineWidth = 3; ctx.stroke(); txt(ctx, text, 256, 66, 40, CC.text, { align:'center', base:'middle', weight:'600', maxW:460 }); R.tagTex.needsUpdate = true; }
 
-// ---------- ROOM VIEW: camera backdrop + motion-held scene + hand gestures ----------
-const room = { on:false, stream:null, facing:'environment', gyro:null, hands:null, lastDetect:0,
-  g:{ baseYaw:0, yaw:0, tilt:0, scale:1, pin:[false,false], pinching:false, two:false, p0:null, yaw0:0, tilt0:0, d0:0, s0:1, hist:[], lastSwipe:0, hover:null, hoverSince:0, lastOpen:0 },
-  status:{} };
+// screen pointer (touch / mouse)
+function bindPointer(){
+  const el = R.renderer.domElement; const o = R.orbit; const ptrs = new Map(); let downAt = 0, moved = false, pinch0 = 0, r0 = 0;
+  const ndc = (x,y)=>{ const r = el.getBoundingClientRect(); return [((x-r.left)/r.width)*2-1, -((y-r.top)/r.height)*2+1]; };
+  el.addEventListener('pointerdown', e=>{ el.setPointerCapture(e.pointerId); ptrs.set(e.pointerId,{x:e.clientX,y:e.clientY}); downAt = performance.now(); moved = false; R.idle = 0; if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; pinch0 = Math.hypot(a.x-b.x,a.y-b.y); r0 = o.radius; } });
+  el.addEventListener('pointermove', e=>{ const p = ptrs.get(e.pointerId); if(!p){ if(!room.on && e.pointerType==='mouse'){ const [nx,ny] = ndc(e.clientX,e.clientY); setHover(probe(nx,ny), performance.now(), 'mouse'); hoverState.since = performance.now() + 1e9; } return; } R.idle = 0;
+    const dx = e.clientX-p.x, dy = e.clientY-p.y; if(Math.hypot(dx,dy) > 4) moved = true;
+    if(ptrs.size===1){ if(room.on){ room.g.yaw += dx*0.006; room.g.tilt = clamp(room.g.tilt + dy*0.004, -0.6, 0.35); } else { o.theta -= dx*0.006; o.phi = clamp(o.phi + dy*0.005, 0.1, 1.45); } }
+    p.x = e.clientX; p.y = e.clientY;
+    if(ptrs.size===2){ const [a,b]=[...ptrs.values()]; const d = Math.hypot(a.x-b.x,a.y-b.y); if(pinch0>0){ if(room.on){ room.g.scale = clamp(room.g.scale*(d/pinch0), 0.35, 3); pinch0 = d; } else o.radius = clamp(r0*(pinch0/d), 0.6, 3.2); } } });
+  const up = e=>{ ptrs.delete(e.pointerId); if(ptrs.size===0 && !moved && performance.now()-downAt < 450){ const [nx,ny] = ndc(e.clientX,e.clientY); const t = probe(nx,ny); if(t){ activate(t); flashCursor(t); } } };
+  el.addEventListener('pointerup', up); el.addEventListener('pointercancel', up);
+  el.addEventListener('wheel', e=>{ e.preventDefault(); if(room.on) room.g.scale = clamp(room.g.scale*(1 - e.deltaY*0.0012), 0.35, 3); else o.radius = clamp(o.radius*(1 + e.deltaY*0.0012), 0.6, 3.2); R.idle = 0; }, { passive:false });
+  window.addEventListener('keydown', e=>{ if(e.key==='ArrowRight'){ stopPlay(); setQuarter(state.qi+1); } else if(e.key==='ArrowLeft'){ stopPlay(); setQuarter(state.qi-1); } else if(e.key==='Escape'){ if(state.detail) closeDetail(); else closeDrawer(); } else if(/^[1-6]$/.test(e.key)) setView(VIEWS[+e.key-1].id); });
+}
+function freeCursor(tip, label){ const W = window.innerWidth, H = window.innerHeight; raycaster.setFromCamera(new THREE.Vector2((tip.x/W)*2-1, -(tip.y/H)*2+1), R.camera); const p = raycaster.ray.at(1.05, new THREE.Vector3()); R.cursor.position.copy(p); R.cursor.visible = true; drawCursor(0, 'idle'); if(label){ drawTag(label); R.tag.position.copy(p).add(new THREE.Vector3(0,-0.045,0)); R.tag.visible = true; } else R.tag.visible = false; hoverState.freeUntil = performance.now() + 160; }
+function flashCursor(t){ const p = t.point.clone(); if(t.normal) p.addScaledVector(t.normal, 0.006); R.cursor.position.copy(p); R.cursor.visible = true; drawCursor(1, 'done'); setTimeout(()=>{ if(!room.hands) R.cursor.visible = false; }, 350); }
+
+// ================= ROOM VIEW: camera + motion + hands =================
+const room = { on:false, stream:null, facing:'environment', gyro:null, hands:null, lastDetect:0, g:{ baseYaw:0, yaw:0, tilt:0, scale:1, pin:[false,false], pinching:false, pinchOnPanel:false, two:false, p0:null, yaw0:0, tilt0:0, d0:0, s0:1, hist:[], lastSwipe:0, tip:null }, status:{} };
 const HAS3D = typeof THREE !== 'undefined';
 const _zee = HAS3D ? new THREE.Vector3(0,0,1) : null, _euler = HAS3D ? new THREE.Euler() : null, _q0 = HAS3D ? new THREE.Quaternion() : null, _q1 = HAS3D ? new THREE.Quaternion(-Math.sqrt(0.5),0,0,Math.sqrt(0.5)) : null;
 const ROOM_ICON = '<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M2 5V2h3M11 2h3v3M14 11v3h-3M5 14H2v-3"/><path d="M8 4.5 11.5 6.5v3.5L8 12 4.5 10V6.5z"/></svg>';
-
-function setStatus(k, v){
-  room.status[k] = v; const el = $('st-'+k); if(!el) return;
-  el.dataset.v = v===true ? 'ok' : v===false ? 'no' : String(v);
-  el.textContent = ({cam:'Camera', motion:'Motion', hands:'Hands'})[k] + ' ' + (v===true ? '✓' : v===false ? '✕' : '…');
-  $('status').hidden = false;
-}
-
+function setStatus(k, v){ room.status[k] = v; const el = $('st-'+k); if(!el) return; el.dataset.v = v===true?'ok':v===false?'no':String(v); el.textContent = ({cam:'Camera',motion:'Motion',hands:'Hands'})[k] + ' ' + (v===true?'✓':v===false?'✕':'…'); $('status').hidden = false; }
 async function startRoom(){
-  $('start').hidden = true;
-  if(!three){ toast('The 3D engine has not loaded.'); return; }
-  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ setStatus('cam', false); toast('This browser cannot open the camera here. Open the page in Safari (iPhone) or Chrome (Android) at an https address.', 6500); return; }
-  try {
-    const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal: room.facing }, width:{ ideal:1280 }, height:{ ideal:720 } }, audio:false });
-    const vid = $('cam'); vid.srcObject = stream; vid.style.display = 'block'; try { await vid.play(); } catch(e){}
-    room.stream = stream; room.on = true;
-    const tr = stream.getVideoTracks()[0]; const st = tr && tr.getSettings ? tr.getSettings() : {}; if(st.facingMode) room.facing = st.facingMode;
-    vid.classList.toggle('mirror', room.facing === 'user');
-    setStatus('cam', true);
-  } catch(err){
-    setStatus('cam', false);
-    toast('Camera not available (' + (err && err.name ? err.name : 'blocked') + '). Open this page in Safari at an https address and allow the camera. Showing the table view.', 6500);
-    return;
-  }
-  three.scene.background = null; three.scene.fog = null; three.renderer.setClearColor(0x000000, 0); three.ground.material = three.shadowMat;
-  Object.assign(room.g, { yaw:0, tilt:0, scale:1, pinching:false, two:false, hover:null, hist:[] });
-  $('console').classList.add('collapsed'); $('btnLevers').textContent = 'Show levers'; $('btnLevers').setAttribute('aria-expanded','false');
-  $('btnAR').innerHTML = ROOM_ICON + '<span class="lbl">Exit room</span>'; $('btnAR').setAttribute('aria-label','Exit room view');
+  $('start').hidden = true; if(!R){ toast('The 3D engine has not loaded.'); return; }
+  if(!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){ setStatus('cam', false); toast('This browser cannot open the camera here. Use Safari (iPhone) or Chrome (Android) at an https address.', 6500); return; }
   await enableMotion();
-  placeWorldInFront();
-  layoutViewport();
-  loadHands();
+  try { const stream = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal:room.facing }, width:{ ideal:1280 }, height:{ ideal:720 } }, audio:false });
+    const vid = $('cam'); vid.srcObject = stream; vid.style.display = 'block'; try { await vid.play(); } catch(e){}
+    room.stream = stream; room.on = true; const tr = stream.getVideoTracks()[0]; const st = tr && tr.getSettings ? tr.getSettings() : {}; if(st.facingMode) room.facing = st.facingMode; vid.classList.toggle('mirror', room.facing === 'user'); setStatus('cam', true);
+  } catch(err){ setStatus('cam', false); toast('Camera not available (' + (err && err.name ? err.name : 'blocked') + '). Open this page in Safari at an https address and allow the camera. Showing the table view.', 6500); return; }
+  R.scene.background = null; R.scene.fog = null; R.renderer.setClearColor(0x000000, 0);
+  Object.assign(room.g, { yaw:0, tilt:0, scale:1, pinching:false, two:false, hist:[] });
+  $('btnRoom').innerHTML = ROOM_ICON + '<span class="lbl">Exit room</span>'; $('btnRoom').setAttribute('aria-label','Exit room view');
+  placeWorldInFront(); layoutViewport(); loadHands();
 }
-
 async function enableMotion(){
-  try {
-    if(!window.DeviceOrientationEvent) throw new Error('no sensors');
-    if(typeof DeviceOrientationEvent.requestPermission === 'function'){ const r = await DeviceOrientationEvent.requestPermission(); if(r !== 'granted') throw new Error('denied'); }
-    room.gyro = { alpha:0, beta:0, gamma:0, has:false };
-    window.addEventListener('deviceorientation', onOrient, true);
-    setStatus('motion', 'pending');
-    setTimeout(()=>{ if(room.gyro && !room.gyro.has) setStatus('motion', false); }, 2000);
+  try { if(!window.DeviceOrientationEvent) throw new Error('no sensors'); if(typeof DeviceOrientationEvent.requestPermission === 'function'){ const r = await DeviceOrientationEvent.requestPermission(); if(r !== 'granted') throw new Error('denied'); }
+    room.gyro = { alpha:0, beta:0, gamma:0, has:false }; window.addEventListener('deviceorientation', onOrient, true); setStatus('motion', 'pending'); setTimeout(()=>{ if(room.gyro && !room.gyro.has) setStatus('motion', false); }, 2000);
   } catch(e){ room.gyro = null; setStatus('motion', false); }
 }
-function onOrient(e){
-  const g = room.gyro; if(!g || (e.alpha == null && e.beta == null)) return;
-  g.alpha = e.alpha || 0; g.beta = e.beta || 0; g.gamma = e.gamma || 0;
-  if(!g.has){ g.has = true; setStatus('motion', true); placeWorldInFront(); }
-}
-function applyOrientation(cam){
-  const g = room.gyro, d = Math.PI/180;
-  const orient = (screen.orientation && typeof screen.orientation.angle === 'number') ? screen.orientation.angle : (window.orientation || 0);
-  _euler.set(g.beta*d, g.alpha*d, -g.gamma*d, 'YXZ');
-  cam.quaternion.setFromEuler(_euler); cam.quaternion.multiply(_q1); cam.quaternion.multiply(_q0.setFromAxisAngle(_zee, -orient*d));
-  cam.position.set(0,0,0);
-}
+function onOrient(e){ const g = room.gyro; if(!g || (e.alpha == null && e.beta == null)) return; g.alpha = e.alpha||0; g.beta = e.beta||0; g.gamma = e.gamma||0; if(!g.has){ g.has = true; setStatus('motion', true); placeWorldInFront(); } }
+function applyOrientation(cam){ const g = room.gyro, d = Math.PI/180; const orient = (screen.orientation && typeof screen.orientation.angle === 'number') ? screen.orientation.angle : (window.orientation||0); _euler.set(g.beta*d, g.alpha*d, -g.gamma*d, 'YXZ'); cam.quaternion.setFromEuler(_euler); cam.quaternion.multiply(_q1); cam.quaternion.multiply(_q0.setFromAxisAngle(_zee, -orient*d)); cam.position.set(0,0,0); }
 function placeWorldInFront(){
-  if(!three || !room.on) return;
-  const cam = three.camera;
-  if(room.gyro && room.gyro.has) applyOrientation(cam); else { cam.position.set(0,0,0); cam.rotation.set(0,0,0); }
-  const fwd = new THREE.Vector3(0,0,-1).applyQuaternion(cam.quaternion); fwd.y = 0;
-  if(fwd.lengthSq() < 1e-4) fwd.set(0,0,-1); fwd.normalize();
-  three.world.position.set(fwd.x*1.15, -0.32, fwd.z*1.15);
-  room.g.baseYaw = Math.atan2(-fwd.x, -fwd.z);
+  if(!R || !room.on) return; const cam = R.camera; if(room.gyro && room.gyro.has) applyOrientation(cam); else { cam.position.set(0,0,0); cam.rotation.set(0,0,0); }
+  const fwd = new THREE.Vector3(0,0,-1).applyQuaternion(cam.quaternion); fwd.y = 0; if(fwd.lengthSq() < 1e-4) fwd.set(0,0,-1); fwd.normalize();
+  R.world.position.set(fwd.x*1.25, -0.40, fwd.z*1.25); room.g.baseYaw = Math.atan2(-fwd.x, -fwd.z);
 }
-
 async function loadHands(){
   setStatus('hands', 'loading');
-  try {
-    const mod = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs');
-    const { FilesetResolver, HandLandmarker } = mod;
+  try { const mod = await import('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/vision_bundle.mjs'); const { FilesetResolver, HandLandmarker } = mod;
     const fs = await FilesetResolver.forVisionTasks('https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.14/wasm');
-    const make = (delegate)=> HandLandmarker.createFromOptions(fs, {
-      baseOptions:{ modelAssetPath:'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', delegate },
-      runningMode:'VIDEO', numHands:2, minHandDetectionConfidence:0.55, minHandPresenceConfidence:0.5, minTrackingConfidence:0.5 });
+    const make = (delegate)=> HandLandmarker.createFromOptions(fs, { baseOptions:{ modelAssetPath:'https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task', delegate }, runningMode:'VIDEO', numHands:2, minHandDetectionConfidence:0.55, minHandPresenceConfidence:0.5, minTrackingConfidence:0.5 });
     try { room.hands = await make('GPU'); } catch(e){ room.hands = await make('CPU'); }
     if(!room.on){ try{ room.hands.close(); }catch(e){} room.hands = null; return; }
-    setStatus('hands', true);
-    toast('Hands ready — pinch to turn · open-hand swipe for quarters · point and hold to open.', 5000);
-  } catch(err){
-    console.warn('hand tracking unavailable', err); room.hands = null; setStatus('hands', false);
-    toast('Hand tracking could not load (needs internet for the model). Touch still works: drag to turn, pinch to resize, tap to open.', 5500);
-  }
+    setStatus('hands', true); toast('Hands ready — point and hold to touch, pinch to tap, open-hand swipe for quarters.', 5000);
+  } catch(err){ console.warn('hand tracking unavailable', err); room.hands = null; setStatus('hands', false); toast('Hand tracking could not load (needs internet for the model). Touch the screen instead: tap tiles, drag to turn.', 5500); }
 }
-
-// map a normalized landmark to screen pixels, honoring object-fit: cover and front-camera mirroring
-function toScreen(l){
-  const vid = $('cam'); const vw = vid.videoWidth || 1280, vh = vid.videoHeight || 720, W = window.innerWidth, H = window.innerHeight;
-  const sc = Math.max(W/vw, H/vh); const dw = vw*sc, dh = vh*sc; const ox = (W-dw)/2, oy = (H-dh)/2;
-  const x = room.facing === 'user' ? 1 - l.x : l.x;
-  return { x: ox + x*dw, y: oy + l.y*dh };
-}
+function toScreen(l){ const vid = $('cam'); const vw = vid.videoWidth||1280, vh = vid.videoHeight||720, W = window.innerWidth, H = window.innerHeight; const sc = Math.max(W/vw, H/vh); const dw = vw*sc, dh = vh*sc; const ox = (W-dw)/2, oy = (H-dh)/2; const x = room.facing==='user' ? 1-l.x : l.x; return { x: ox + x*dw, y: oy + l.y*dh }; }
 function handleHands(res, now){
-  const g = room.g, W = window.innerWidth, H = window.innerHeight;
-  const vid = $('cam'); const aspect = (vid.videoWidth || 1280) / (vid.videoHeight || 720);
-  const dist = (a, b)=> Math.hypot((a.x-b.x)*aspect, a.y-b.y);
-  const hands = (res.landmarks || []).slice(0, 2).map((lm, i)=>{
-    const size = dist(lm[0], lm[9]) || 1e-3;
-    const pinch = dist(lm[4], lm[8]) / size;
-    const ext = (tip, pip)=> dist(lm[tip], lm[0]) > dist(lm[pip], lm[0]) * 1.12;
-    const idx = ext(8,6), mid = ext(12,10), ring = ext(16,14), pink = ext(20,18);
-    return { pinch, open: idx && mid && ring && pink && pinch > 0.7, point: idx && !mid && !ring && !pink && pinch > 0.55, tip: toScreen(lm[8]), palm: toScreen(lm[9]) };
-  });
-  // pinch state with hysteresis per hand slot
-  hands.forEach((h, i)=>{ if(g.pin[i]) { if(h.pinch > 0.62) g.pin[i] = false; } else if(h.pinch < 0.42) g.pin[i] = true; });
-  for(let i = hands.length; i < 2; i++) g.pin[i] = false;
-  const pinchers = hands.filter((h, i)=> g.pin[i]);
-  const cur = $('hcur');
-  if(!hands.length){ cur.hidden = true; g.pinching = false; g.two = false; g.hist = []; g.hover = null; return; }
+  const g = room.g, W = window.innerWidth, H = window.innerHeight; const vid = $('cam'); const aspect = (vid.videoWidth||1280)/(vid.videoHeight||720);
+  const dist = (a,b)=> Math.hypot((a.x-b.x)*aspect, a.y-b.y);
+  const hands = (res.landmarks||[]).slice(0,2).map(lm=>{ const size = dist(lm[0], lm[9]) || 1e-3; const pinch = dist(lm[4], lm[8])/size; const ext = (t,p)=> dist(lm[t], lm[0]) > dist(lm[p], lm[0])*1.12; const idx = ext(8,6), mid = ext(12,10), ring = ext(16,14), pink = ext(20,18);
+    return { pinch, open: idx&&mid&&ring&&pink&&pinch>0.7, tip: toScreen(lm[8]), palm: toScreen(lm[9]) }; });
+  hands.forEach((h,i)=>{ if(g.pin[i]){ if(h.pinch > 0.62) g.pin[i] = false; } else if(h.pinch < 0.42) g.pin[i] = true; }); for(let i=hands.length;i<2;i++) g.pin[i] = false;
+  const pinchers = hands.filter((h,i)=> g.pin[i]);
+  if(!hands.length){ g.pinching = false; g.two = false; g.hist = []; g.tip = null; setHover(null, now, 'hand'); return; }
   const h0 = hands[0];
-  let cls = '', tag = '', p = 0, at = h0.tip;
-  if(pinchers.length === 2){                       // two-hand pinch: resize
-    const d = Math.hypot(pinchers[0].tip.x - pinchers[1].tip.x, pinchers[0].tip.y - pinchers[1].tip.y);
-    if(!g.two){ g.two = true; g.d0 = Math.max(d, 1); g.s0 = g.scale; } else g.scale = clamp(g.s0 * d / g.d0, 0.35, 3);
-    g.pinching = false; cls = 'pinch'; tag = 'resize'; at = { x:(pinchers[0].tip.x + pinchers[1].tip.x)/2, y:(pinchers[0].tip.y + pinchers[1].tip.y)/2 };
-  } else {
-    g.two = false;
-    if(pinchers.length === 1){                     // one-hand pinch: turn / tilt
-      const h = pinchers[0];
-      if(!g.pinching){ g.pinching = true; g.p0 = h.tip; g.yaw0 = g.yaw; g.tilt0 = g.tilt; }
-      else { g.yaw = g.yaw0 + (h.tip.x - g.p0.x)/W * 2.4; g.tilt = clamp(g.tilt0 + (h.tip.y - g.p0.y)/H * 1.4, -0.6, 0.35); }
-      cls = 'pinch'; tag = 'turn'; at = h.tip;
-    } else {
-      g.pinching = false;
-      if(h0.open){                                 // open hand: swipe for quarters
-        g.hist.push({ x:h0.palm.x, t:now }); g.hist = g.hist.filter(e=> now - e.t < 380);
-        if(g.hist.length >= 3 && now - g.lastSwipe > 1000){
-          const dx = g.hist[g.hist.length-1].x - g.hist[0].x;
-          if(Math.abs(dx) > 0.2*W){ g.lastSwipe = now; g.hist = []; stopPlay(); setQuarter(state.qi + (dx > 0 ? 1 : -1)); toast(Q[state.qi].label, 900); }
-        }
-        cls = 'open'; tag = 'swipe ◀ ▶ quarter'; at = h0.palm;
-      } else { g.hist = []; }
-      if(h0.point){                                // pointing: hold on a block to open it
-        const id = pickIdAt(h0.tip.x, h0.tip.y);
-        if(id && id === g.hover){ p = clamp((now - g.hoverSince)/700, 0, 1); if(p >= 1 && now - g.lastOpen > 1500){ g.lastOpen = now; g.hoverSince = now; setSelected(id); openDrawer(id); p = 0; } }
-        else { g.hover = id; g.hoverSince = now; }
-        tag = id ? 'hold to open' : 'point at a block'; at = h0.tip;
-      } else g.hover = null;
-    }
+  // smoothed fingertip → pointer
+  g.tip = g.tip ? { x: g.tip.x + (h0.tip.x - g.tip.x)*0.45, y: g.tip.y + (h0.tip.y - g.tip.y)*0.45 } : { x:h0.tip.x, y:h0.tip.y };
+  const t = probe((g.tip.x/W)*2-1, -(g.tip.y/H)*2+1);
+  if(pinchers.length === 2){ const d = Math.hypot(pinchers[0].tip.x-pinchers[1].tip.x, pinchers[0].tip.y-pinchers[1].tip.y); if(!g.two){ g.two = true; g.d0 = Math.max(d,1); g.s0 = g.scale; } else g.scale = clamp(g.s0*d/g.d0, 0.35, 3); g.pinching = false; setHover(null, now, 'hand'); return; }
+  g.two = false;
+  if(pinchers.length === 1){
+    if(!g.pinching){ g.pinching = true; g.p0 = { x:g.tip.x, y:g.tip.y }; g.yaw0 = g.yaw; g.tilt0 = g.tilt; g.pos0 = R.world.position.clone();
+      g.mode = (t && t.region) ? 'tap' : (t && t.scene) ? 'turn' : 'move'; if(g.mode==='tap'){ activate(t); flashCursor(t); hoverState.key = null; } }
+    else if(g.mode==='turn'){ g.yaw = g.yaw0 + (g.tip.x - g.p0.x)/W*2.4; g.tilt = clamp(g.tilt0 + (g.tip.y - g.p0.y)/H*1.4, -0.6, 0.35); }
+    else if(g.mode==='move'){ const cam = R.camera; const dist = Math.max(0.3, g.pos0.distanceTo(cam.position)); const visH = 2*dist*Math.tan(cam.fov*Math.PI/360), visW = visH*cam.aspect;
+      const right = new THREE.Vector3(1,0,0).applyQuaternion(cam.quaternion), up = new THREE.Vector3(0,1,0).applyQuaternion(cam.quaternion);
+      R.world.position.copy(g.pos0).addScaledVector(right, (g.tip.x - g.p0.x)/W*visW).addScaledVector(up, -(g.tip.y - g.p0.y)/H*visH); }
+    if(g.mode!=='tap'){ setHover(null, now, 'hand'); freeCursor(g.tip, g.mode==='turn' ? 'turn' : 'move'); } return;
   }
-  cur.hidden = false; cur.className = cls; cur.style.transform = `translate(${at.x.toFixed(0)}px, ${at.y.toFixed(0)}px) translate(-50%,-50%)`;
-  cur.style.setProperty('--p', p.toFixed(2)); cur.querySelector('.tag').textContent = tag;
+  g.pinching = false;
+  if(h0.open){ g.hist.push({ x:h0.palm.x, t:now }); g.hist = g.hist.filter(e=> now-e.t < 380);
+    if(g.hist.length >= 3 && now - g.lastSwipe > 1000){ const dx = g.hist[g.hist.length-1].x - g.hist[0].x; if(Math.abs(dx) > 0.2*W){ g.lastSwipe = now; g.hist = []; stopPlay(); setQuarter(state.qi + (dx>0?1:-1)); toast(Q[state.qi].label, 900); setHover(null, now, 'hand'); return; } }
+  } else g.hist = [];
+  setHover(t, now, 'hand'); if(!t) freeCursor(g.tip, '');
 }
-
 function stopRoom(){
-  room.on = false;
-  try { if(room.stream) room.stream.getTracks().forEach(t=> t.stop()); } catch(e){}
-  room.stream = null; const vid = $('cam'); vid.srcObject = null; vid.style.display = 'none';
-  window.removeEventListener('deviceorientation', onOrient, true); room.gyro = null;
-  if(room.hands){ try{ room.hands.close(); }catch(e){} room.hands = null; }
-  $('hcur').hidden = true; $('status').hidden = true;
-  if(three){
-    three.world.position.set(0,0,0); three.world.rotation.set(0,0,0); three.world.scale.setScalar(1);
-    three.ground.material = three.groundMat; three.renderer.setClearColor(0x000000, 1); three.camera.rotation.set(0,0,0);
-    applyTheme();
-  }
-  $('btnAR').innerHTML = ROOM_ICON + '<span class="lbl">Room view</span>'; $('btnAR').setAttribute('aria-label','Start room view');
-  layoutViewport();
+  room.on = false; try { if(room.stream) room.stream.getTracks().forEach(t=>t.stop()); } catch(e){} room.stream = null; const vid = $('cam'); vid.srcObject = null; vid.style.display = 'none';
+  window.removeEventListener('deviceorientation', onOrient, true); room.gyro = null; if(room.hands){ try{ room.hands.close(); }catch(e){} room.hands = null; }
+  $('status').hidden = true; setHover(null, performance.now(), null);
+  if(R){ R.world.position.set(0,0,0); R.world.rotation.set(0,0,0); R.world.scale.setScalar(1); R.hud.scale.setScalar(1); R.renderer.setClearColor(0x000000, 1); R.camera.rotation.set(0,0,0); R.scene.background = col3('#070C16'); R.scene.fog = new THREE.Fog(col3('#070C16'), 2.2, 5); }
+  $('btnRoom').innerHTML = ROOM_ICON + '<span class="lbl">Room view</span>'; $('btnRoom').setAttribute('aria-label','Start room view'); layoutViewport();
 }
 function toggleRoom(){ if(room.on) stopRoom(); else $('start').hidden = false; }
 window.addEventListener('orientationchange', ()=> setTimeout(layoutViewport, 300));
 
-// ---------- boot ----------
+function layoutViewport(){
+  if(!R) return; const W = window.innerWidth, H = window.innerHeight; R.renderer.setSize(W, H, false); const cam = R.camera; cam.aspect = W/H;
+  const q = Math.max(1, Math.floor(R.renderer.getPixelRatio()*W/4)), qh = Math.max(1, Math.floor(R.renderer.getPixelRatio()*H/4)); R.rtA.setSize(q, qh); R.rtB.setSize(q, qh); R.blurMat.uniforms.uRes.value.set(q, qh);
+  const stripH = $('strip').offsetHeight; document.documentElement.style.setProperty('--strip-h', stripH + 'px');
+  const phone = window.matchMedia('(max-width: 820px)').matches; R.labelMul = room.on ? 1.12 : (phone ? 1.4 : 1);
+  if(room.on){ cam.clearViewOffset(); cam.fov = 62; cam.updateProjectionMatrix(); return; }
+  cam.fov = 42; const topH = document.querySelector('.topbar').offsetHeight; const y0 = Math.max(0, stripH - topH); cam.setViewOffset(W, H + y0, 0, y0, W, H); cam.updateProjectionMatrix();
+  if(!R._fitted){ R.orbit.radius = phone ? 2.6 : 1.5; if(phone){ R.orbit.theta = 0.2; R.orbit.phi = 0.42; } R._fitted = true; }
+}
+
+// ================= reconciliation drawer (screen) =================
+function openDrawer(){ state.drawer = true; $('drawer').classList.add('open'); $('drawer').setAttribute('aria-hidden','false'); $('btnRecon').setAttribute('aria-pressed','true'); renderDrawer(); }
+function closeDrawer(){ state.drawer = false; $('drawer').classList.remove('open'); $('drawer').setAttribute('aria-hidden','true'); $('btnRecon').setAttribute('aria-pressed','false'); }
+function row(label, rep, sc, opts={}){ const chg = Math.abs(sc-rep) > 0.5; const est = opts.est?' est':''; return `<tr class="${opts.total?'total':''}"><td>${label}</td><td class="${est}">${fmt.m(rep)}</td><td class="${chg?'chg':''}${est}">${fmt.m(sc)}</td><td class="${chg?'chg':'zero'}">${fmt.md(sc-rep)}</td></tr>`; }
+function renderDrawer(){
+  const { q, s } = current(); $('dSub').textContent = `$ millions · ${q.label} · quarter ended ${q.end}`;
+  const rows = [row('Net interest income',q.nii,s.nii),row('Non-interest income (loss)',q.nonii,s.nonii),row('Net revenues',q.netrev,s.netrev,{total:true}),row('(Provision) benefit for credit losses',q.prov,s.prov),row('Non-interest expense',q.nie,s.nie),row('Income before income tax',q.pretax,s.pretax,{total:true}),row(`Income tax expense (${(q.rate*100).toFixed(1)}% effective)`,q.tax,s.tax),row('Net income',q.ni,s.ni,{total:true}),row('Other comprehensive income (loss)',q.oci,q.oci),row('Comprehensive income',q.ci,s.ci,{total:true}),row('Net worth, beginning of quarter',q.nwStart,q.nwStart),row('Net worth, end of quarter',q.nwEnd,s.nwEnd,{total:true}),row('Required CET1 capital (ERCF)',q.reqCET1*1000,q.reqCET1*1000,{est:q.reqEst}),row('Net worth still to build to CET1 requirement',q.reqCET1*1000-q.nwEnd,s.gap,{total:true})].join('');
+  const qtrsRep = (q.reqCET1*1000-q.nwEnd)/q.ci;
+  $('dBody').innerHTML = `<div class="tablewrap"><table class="recon"><thead><tr><th>Line</th><th>Reported</th><th>Scenario</th><th>Δ</th></tr></thead><tbody>${rows}</tbody></table></div>
+    <p class="note">${s.changed ? `At the scenario's ${fmt.b(s.ci)} of quarterly comprehensive income, closing the gap takes <b>${isFinite(s.qtrs)?s.qtrs.toFixed(1)+' quarters':'never'}</b> (reported pace ${qtrsRep.toFixed(1)}), holding the requirement flat.` : `At the reported ${fmt.b(q.ci)} of quarterly comprehensive income, closing the gap takes <b>${qtrsRep.toFixed(1)} quarters</b>, holding the requirement flat.`}</p>
+    <h3 class="sec">How the scenario is computed</h3><p class="note">Guarantee fee: bps × Single-Family portfolio UPB (${fmt.t(q.sfUPB)}) ÷ 4. Reserve coverage: (target − reported bps) × portfolio UPB, booked in the quarter. Expense: a flat % on reported non-interest expense. Tax follows the quarter's effective rate; OCI is held at reported. ${q.reqEst?'The CET1 requirement for this quarter (≈) is interpolated between disclosed points.':'The CET1 requirement is as disclosed in the 2Q 2026 earnings presentation.'}</p>
+    <h3 class="sec">Sources</h3><ul class="srcs">${q.srcs.map(k=>`<li><a href="${SRC[k].url}" target="_blank" rel="noopener">${SRC[k].label}</a></li>`).join('')}<li><a href="${SRC.p2q26.url}" target="_blank" rel="noopener">${SRC.p2q26.label}</a> — required CET1 capital series</li></ul>
+    <p class="foot">Independent visualization built from Freddie Mac's public SEC filings. Not affiliated with or endorsed by Freddie Mac or FHFA. Scenario figures are illustrative arithmetic, not forecasts.</p>`;
+}
+let toastTimer = null;
+function toast(msg, ms=3200){ const t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toastTimer); toastTimer = setTimeout(()=> t.classList.remove('show'), ms); }
+
+// ================= boot =================
 function boot(){
-  buildTimeline(); bindLevers();
-  $('btnRecon').addEventListener('click', ()=>{ state.drawer ? closeDrawer() : openDrawer('recon'); });
+  const tr = $('tabsRow'); VIEWS.forEach(v=>{ const b = document.createElement('button'); b.className = 'chip tab'; b.textContent = v.label; b.dataset.v = v.id; b.addEventListener('click', ()=> setView(v.id)); tr.appendChild(b); });
+  const qr = $('qRow'); const play = document.createElement('button'); play.className = 'chip play'; play.id = 'btnPlay'; play.setAttribute('aria-label','Play through quarters'); play.addEventListener('click', togglePlay); qr.appendChild(play);
+  Q.forEach((q,i)=>{ const b = document.createElement('button'); b.className = 'chip'; b.textContent = q.id; b.dataset.i = i; b.addEventListener('click', ()=>{ stopPlay(); setQuarter(i); }); qr.appendChild(b); });
+  $('btnStrip').addEventListener('click', ()=>{ const s = $('strip'); s.classList.toggle('collapsed'); const open = !s.classList.contains('collapsed'); $('btnStrip').textContent = open ? 'Hide touch controls' : 'Show touch controls'; $('btnStrip').setAttribute('aria-expanded', open?'true':'false'); requestAnimationFrame(layoutViewport); });
+  $('btnReset').addEventListener('click', resetLevers);
+  $('btnRecon').addEventListener('click', ()=>{ state.drawer ? closeDrawer() : openDrawer(); });
   $('btnClose').addEventListener('click', closeDrawer);
-  $('btnBack').addEventListener('click', ()=>{ setSelected(null); openDrawer('recon'); });
-  $('btnAR').addEventListener('click', toggleRoom);
+  $('btnRoom').addEventListener('click', toggleRoom);
   $('btnStart').addEventListener('click', startRoom);
   $('btnSkip').addEventListener('click', ()=>{ $('start').hidden = true; });
-  initThree();
-  refresh();
-  const mq = window.matchMedia('(prefers-color-scheme: light)');
-  const onTheme = ()=>{ applyTheme(); };
-  if(mq.addEventListener) mq.addEventListener('change', onTheme); else mq.addListener(onTheme);
-  new MutationObserver(onTheme).observe(document.documentElement, { attributes:true, attributeFilter:['data-theme'] });
-  if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if(three){ Object.values(three.labels).forEach(l=>l.userData.txt=''); setTargets(false); } });
-  if(window.matchMedia('(max-width: 820px)').matches){ $('console').classList.add('collapsed'); $('btnLevers').textContent='Show levers'; $('btnLevers').setAttribute('aria-expanded','false'); requestAnimationFrame(layoutViewport); }
+  initThree(); refresh();
+  if(document.fonts && document.fonts.ready) document.fonts.ready.then(()=>{ if(R){ Object.values(R.labels).forEach(l=> l.userData.txt=''); setTargets(false); Object.values(R.panels).forEach(p=> p.dirty = true); } });
 }
 boot();
 </script>
